@@ -1714,7 +1714,7 @@
                 return;
             }
 
-            // Здесь можно добавить отправку данных на сервер
+            // Отправка данных на сервер
             const formData = {
                 name: nameInput.value,
                 phone: phoneInput.value,
@@ -1727,11 +1727,35 @@
                 consentDate: new Date().toISOString()
             };
 
-            console.log('Данные формы:', formData);
+            // Блокируем кнопку на время отправки
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Отправка...';
 
-            // Показываем сообщение об успехе
-            document.querySelector('.form-content').classList.add('hidden');
-            document.getElementById('successMessage').classList.add('show');
+            fetch('send.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Показываем сообщение об успехе
+                    document.querySelector('.form-content').classList.add('hidden');
+                    document.getElementById('successMessage').classList.add('show');
+                } else {
+                    throw new Error(data.error || 'Ошибка отправки');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                alert('Произошла ошибка при отправке заявки. Попробуйте ещё раз или позвоните нам.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalBtnText;
+            });
         });
     </script>
 </body>
