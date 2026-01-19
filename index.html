@@ -1,0 +1,1738 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Запись на диагностику</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            width: 100%;
+            max-width: 520px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        /* Общий блок ошибок вверху формы */
+        .form-errors-summary {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border: 2px solid #ef4444;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        .form-errors-summary.show {
+            display: block;
+        }
+
+        .form-errors-summary h3 {
+            color: #dc2626;
+            font-size: 16px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-errors-summary ul {
+            margin: 0;
+            padding-left: 28px;
+            color: #b91c1c;
+            font-size: 14px;
+        }
+
+        .form-errors-summary li {
+            margin-bottom: 4px;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        label .required {
+            color: #e74c3c;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 14px 16px;
+            padding-right: 45px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        textarea {
+            padding-right: 16px;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+        }
+
+        input.valid {
+            border-color: #22c55e;
+            background-color: #f0fdf4;
+        }
+
+        input.invalid {
+            border-color: #ef4444;
+            background-color: #fef2f2;
+            animation: shake 0.5s ease;
+        }
+
+        input.invalid:focus {
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2);
+        }
+
+        input.valid:focus {
+            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.2);
+        }
+
+        /* Стилизация textarea */
+        textarea.valid {
+            border-color: #22c55e;
+            background-color: #f0fdf4;
+        }
+
+        textarea.invalid {
+            border-color: #ef4444;
+            background-color: #fef2f2;
+            animation: shake 0.5s ease;
+        }
+
+        textarea.invalid:focus {
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2);
+        }
+
+        textarea.valid:focus {
+            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.2);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        /* Иконки статуса в поле ввода */
+        .status-icon {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 22px;
+            height: 22px;
+            display: none;
+        }
+
+        .status-icon.show {
+            display: block;
+        }
+
+        .status-icon.valid {
+            color: #22c55e;
+        }
+
+        .status-icon.invalid {
+            color: #ef4444;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        /* Блок ошибки под полем */
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin-top: 8px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .error-message .error-title {
+            color: #dc2626;
+            font-weight: 600;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+
+        .error-message .error-description {
+            color: #7f1d1d;
+            font-size: 12px;
+            line-height: 1.4;
+            padding-left: 22px;
+        }
+
+        .phone-hint {
+            color: #888;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .success-message {
+            display: none;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .success-message h2 {
+            color: #22c55e;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .success-message p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .form-content.hidden {
+            display: none;
+        }
+
+        /* Чекбокс согласия */
+        .consent-group {
+            margin-bottom: 24px;
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .checkbox-wrapper input[type="checkbox"] {
+            display: none;
+        }
+
+        .custom-checkbox {
+            width: 22px;
+            height: 22px;
+            min-width: 22px;
+            border: 2px solid #e1e5e9;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            margin-top: 2px;
+        }
+
+        .checkbox-wrapper:hover .custom-checkbox {
+            border-color: #667eea;
+        }
+
+        .checkbox-wrapper input[type="checkbox"]:checked + .custom-checkbox {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+        }
+
+        .custom-checkbox svg {
+            width: 14px;
+            height: 14px;
+            color: white;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.2s ease;
+        }
+
+        .checkbox-wrapper input[type="checkbox"]:checked + .custom-checkbox svg {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .custom-checkbox.invalid {
+            border-color: #ef4444;
+            background-color: #fef2f2;
+            animation: shake 0.5s ease;
+        }
+
+        .consent-text {
+            font-size: 13px;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        .consent-text a {
+            color: #667eea;
+            text-decoration: underline;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .consent-text a:hover {
+            color: #764ba2;
+        }
+
+        .consent-error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-top: 8px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+            color: #dc2626;
+            font-size: 13px;
+        }
+
+        .consent-error.show {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Модальное окно политики */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.show .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e1e5e9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-header h2 {
+            font-size: 18px;
+            color: #333;
+            margin: 0;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: #f3f4f6;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: #e5e7eb;
+        }
+
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+            font-size: 14px;
+            color: #555;
+            line-height: 1.7;
+        }
+
+        .modal-body h3 {
+            color: #333;
+            font-size: 15px;
+            margin: 20px 0 10px 0;
+        }
+
+        .modal-body h3:first-child {
+            margin-top: 0;
+        }
+
+        .modal-body p {
+            margin-bottom: 12px;
+        }
+
+        .modal-body ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .modal-body li {
+            margin-bottom: 6px;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #e1e5e9;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .modal-footer button {
+            padding: 10px 24px;
+            width: auto;
+        }
+
+        /* Календарь и выбор времени */
+        .datetime-group {
+            margin-bottom: 24px;
+        }
+
+        .datetime-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 500px) {
+            .datetime-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .datetime-field label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .date-input-wrapper {
+            position: relative;
+        }
+
+        .date-input-wrapper input {
+            cursor: pointer;
+            padding-right: 45px;
+        }
+
+        .date-input-wrapper .calendar-icon {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            color: #888;
+            pointer-events: none;
+            transition: color 0.3s ease;
+        }
+
+        /* Состояния поля даты */
+        .date-input-wrapper input.valid {
+            border-color: #22c55e;
+            background-color: #f0fdf4;
+        }
+
+        .date-input-wrapper input.valid + .calendar-icon {
+            color: #22c55e;
+        }
+
+        .date-input-wrapper input.invalid {
+            border-color: #ef4444;
+            background-color: #fef2f2;
+            animation: shake 0.5s ease;
+        }
+
+        .date-input-wrapper input.invalid + .calendar-icon {
+            color: #ef4444;
+        }
+
+        /* Кастомный календарь */
+        .calendar-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            padding: 16px;
+            z-index: 100;
+            display: none;
+            min-width: 280px;
+        }
+
+        .calendar-dropdown.show {
+            display: block;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .calendar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .calendar-header button {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            background: #f3f4f6;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s ease;
+        }
+
+        .calendar-header button:hover {
+            background: #e5e7eb;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .calendar-month-year {
+            font-weight: 600;
+            color: #333;
+            font-size: 15px;
+        }
+
+        .calendar-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+
+        .calendar-weekday {
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+            font-weight: 500;
+            padding: 4px;
+        }
+
+        .calendar-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            background: none;
+            color: #333;
+            padding: 0;
+            width: 100%;
+        }
+
+        .calendar-day:hover:not(.disabled):not(.selected) {
+            background: #f3f4f6;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .calendar-day.today {
+            border: 2px solid #667eea;
+        }
+
+        .calendar-day.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .calendar-day.disabled {
+            color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .calendar-day.other-month {
+            color: #bbb;
+        }
+
+        /* Выбор времени */
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        @media (max-width: 500px) {
+            .time-slots {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .time-slot {
+            padding: 10px 8px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #555;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .time-slot:hover:not(.selected) {
+            border-color: #667eea;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .time-slot.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+            color: white;
+        }
+
+        /* Состояние ошибки для слотов времени */
+        .time-slots.invalid .time-slot:not(.selected) {
+            border-color: #fca5a5;
+            background-color: #fef2f2;
+        }
+
+        .time-slots.invalid {
+            animation: shake 0.5s ease;
+        }
+
+        .datetime-error {
+            grid-column: 1 / -1;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-top: 8px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+            color: #dc2626;
+            font-size: 13px;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .datetime-error.show {
+            display: flex;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <div class="form-content">
+            <h1>Запись на диагностику</h1>
+
+            <!-- Общий блок ошибок -->
+            <div class="form-errors-summary" id="errorsSummary">
+                <h3>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    Пожалуйста, исправьте ошибки:
+                </h3>
+                <ul id="errorsList"></ul>
+            </div>
+
+            <form id="diagnosticForm" novalidate>
+                <div class="form-group">
+                    <label for="name">Ваше имя <span class="required">*</span></label>
+                    <div class="input-wrapper">
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            placeholder="Введите ваше имя"
+                            required
+                            autocomplete="name"
+                        >
+                        <svg class="status-icon valid" id="nameIconValid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        <svg class="status-icon invalid" id="nameIconInvalid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </div>
+                    <div class="error-message" id="nameError">
+                        <div class="error-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            Имя не заполнено
+                        </div>
+                        <div class="error-description">Введите ваше имя, чтобы мы знали, как к вам обращаться. Допускаются буквы русского и латинского алфавита.</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Телефон <span class="required">*</span></label>
+                    <div class="input-wrapper">
+                        <input
+                            type="tel"
+                            id="phone"
+                            name="phone"
+                            placeholder="+7 (999) 123-45-67"
+                            required
+                            autocomplete="tel"
+                        >
+                        <svg class="status-icon valid" id="phoneIconValid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        <svg class="status-icon invalid" id="phoneIconInvalid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </div>
+                    <div class="phone-hint">Формат: +7 (XXX) XXX-XX-XX</div>
+                    <div class="error-message" id="phoneError">
+                        <div class="error-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            <span id="phoneErrorTitle">Некорректный номер телефона</span>
+                        </div>
+                        <div class="error-description" id="phoneErrorDesc">Введите полный номер телефона в формате +7 (XXX) XXX-XX-XX. Номер должен содержать 11 цифр, начиная с 7 или 8.</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Электронная почта <span class="required">*</span></label>
+                    <div class="input-wrapper">
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="example@mail.ru"
+                            required
+                            autocomplete="email"
+                        >
+                        <svg class="status-icon valid" id="emailIconValid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        <svg class="status-icon invalid" id="emailIconInvalid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </div>
+                    <div class="error-message" id="emailError">
+                        <div class="error-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            <span id="emailErrorTitle">Некорректный адрес почты</span>
+                        </div>
+                        <div class="error-description" id="emailErrorDesc">Введите корректный email в формате: имя@домен.зона. Например: ivan@mail.ru или info@company.com</div>
+                    </div>
+                </div>
+
+                <!-- Выбор даты и времени -->
+                <div class="datetime-group">
+                    <div class="datetime-row">
+                        <div class="datetime-field">
+                            <label>Желаемая дата <span class="required">*</span></label>
+                            <div class="date-input-wrapper">
+                                <input
+                                    type="text"
+                                    id="dateInput"
+                                    name="date"
+                                    placeholder="Выберите дату"
+                                    readonly
+                                    required
+                                >
+                                <svg class="calendar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                                <div class="calendar-dropdown" id="calendarDropdown">
+                                    <div class="calendar-header">
+                                        <button type="button" id="prevMonth">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <polyline points="15 18 9 12 15 6"></polyline>
+                                            </svg>
+                                        </button>
+                                        <span class="calendar-month-year" id="calendarMonthYear"></span>
+                                        <button type="button" id="nextMonth">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <polyline points="9 18 15 12 9 6"></polyline>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <div class="calendar-weekdays">
+                                        <span class="calendar-weekday">Пн</span>
+                                        <span class="calendar-weekday">Вт</span>
+                                        <span class="calendar-weekday">Ср</span>
+                                        <span class="calendar-weekday">Чт</span>
+                                        <span class="calendar-weekday">Пт</span>
+                                        <span class="calendar-weekday">Сб</span>
+                                        <span class="calendar-weekday">Вс</span>
+                                    </div>
+                                    <div class="calendar-days" id="calendarDays"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="datetime-field">
+                            <label>Желаемое время <span class="required">*</span></label>
+                            <div class="time-slots" id="timeSlots">
+                                <button type="button" class="time-slot" data-time="10:00">10:00</button>
+                                <button type="button" class="time-slot" data-time="11:00">11:00</button>
+                                <button type="button" class="time-slot" data-time="12:00">12:00</button>
+                                <button type="button" class="time-slot" data-time="13:00">13:00</button>
+                                <button type="button" class="time-slot" data-time="14:00">14:00</button>
+                                <button type="button" class="time-slot" data-time="15:00">15:00</button>
+                                <button type="button" class="time-slot" data-time="16:00">16:00</button>
+                                <button type="button" class="time-slot" data-time="17:00">17:00</button>
+                            </div>
+                            <input type="hidden" id="timeInput" name="time" required>
+                        </div>
+
+                        <div class="datetime-error" id="datetimeError">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            <span id="datetimeErrorText">Выберите дату и время для записи</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="problem">Опишите вашу проблему</label>
+                    <textarea
+                        id="problem"
+                        name="problem"
+                        placeholder="Расскажите подробнее о проблеме, с которой вы столкнулись..."
+                    ></textarea>
+                </div>
+
+                <!-- Согласие на обработку персональных данных -->
+                <div class="consent-group">
+                    <label class="checkbox-wrapper">
+                        <input type="checkbox" id="consentPD" name="consentPD" required>
+                        <span class="custom-checkbox" id="consentPDCheckbox">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </span>
+                        <span class="consent-text">
+                            Я даю <a href="#" id="openPrivacyPolicy">согласие на обработку персональных данных</a> <span class="required">*</span>
+                        </span>
+                    </label>
+                    <div class="consent-error" id="consentPDError">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        Необходимо дать согласие на обработку персональных данных
+                    </div>
+                </div>
+
+                <!-- Ознакомление с политикой конфиденциальности -->
+                <div class="consent-group">
+                    <label class="checkbox-wrapper">
+                        <input type="checkbox" id="consentPolicy" name="consentPolicy" required>
+                        <span class="custom-checkbox" id="consentPolicyCheckbox">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </span>
+                        <span class="consent-text">
+                            Я ознакомлен(а) с <a href="#" id="openPrivacyPolicy2">Политикой конфиденциальности</a> <span class="required">*</span>
+                        </span>
+                    </label>
+                    <div class="consent-error" id="consentPolicyError">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        Необходимо ознакомиться с Политикой конфиденциальности
+                    </div>
+                </div>
+
+                <button type="submit">Записаться на диагностику</button>
+            </form>
+        </div>
+
+        <div class="success-message" id="successMessage">
+            <h2>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                Заявка отправлена!
+            </h2>
+            <p>Спасибо за обращение. Мы свяжемся с вами в ближайшее время для подтверждения записи.</p>
+        </div>
+    </div>
+
+    <!-- Модальное окно с согласием на обработку ПД -->
+    <div class="modal-overlay" id="consentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Согласие на обработку персональных данных</h2>
+                <button class="modal-close" data-modal="consentModal">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Я, субъект персональных данных, в соответствии с Федеральным законом от 27.07.2006 г. № 152-ФЗ «О персональных данных», даю своё согласие:</p>
+
+                <p><strong>ИП ОСМАЕВА МАРГАРИТА ВИТАЛЬЕВНА</strong><br>
+                ИНН: 772151276390<br>
+                Email: margaritaosmaeva@yandex.ru</p>
+
+                <p>на обработку моих персональных данных, а именно:</p>
+                <ul>
+                    <li>Фамилия, имя, отчество</li>
+                    <li>Номер телефона</li>
+                    <li>Адрес электронной почты</li>
+                    <li>Иные данные, добровольно предоставленные мной в форме заявки</li>
+                </ul>
+
+                <h3>Цели обработки персональных данных:</h3>
+                <ul>
+                    <li>Обработка заявки на запись</li>
+                    <li>Связь для уточнения деталей и подтверждения записи</li>
+                    <li>Информирование об образовательных услугах</li>
+                    <li>Направление уведомлений, связанных с оказанием услуг</li>
+                </ul>
+
+                <h3>Перечень действий с персональными данными:</h3>
+                <p>Сбор, запись, систематизация, накопление, хранение, уточнение (обновление, изменение), извлечение, использование, передача (предоставление, доступ), блокирование, удаление, уничтожение персональных данных.</p>
+
+                <h3>Срок действия согласия:</h3>
+                <p>Согласие действует с момента его предоставления до момента отзыва. Согласие может быть отозвано путём направления письменного заявления на адрес электронной почты: <strong>margaritaosmaeva@yandex.ru</strong></p>
+
+                <p style="margin-top: 20px; padding: 12px; background: #f0f9ff; border-radius: 8px; font-size: 13px;">
+                    Нажимая кнопку «Записаться на диагностику», я подтверждаю, что ознакомлен(а) с условиями обработки персональных данных и даю своё согласие на их обработку.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="modal-accept" data-modal="consentModal">Понятно</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно с политикой конфиденциальности -->
+    <div class="modal-overlay" id="privacyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Политика конфиденциальности</h2>
+                <button class="modal-close" data-modal="privacyModal">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p style="background: #f3f4f6; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
+                    <strong>Оператор персональных данных:</strong><br>
+                    ИП ОСМАЕВА МАРГАРИТА ВИТАЛЬЕВНА<br>
+                    ИНН: 772151276390<br>
+                    Email: margaritaosmaeva@yandex.ru
+                </p>
+
+                <h3>1. Общие положения</h3>
+                <p>1.1. Настоящая Политика конфиденциальности (далее — Политика) определяет порядок обработки и защиты персональных данных пользователей, которые предоставляются при использовании сайта и заполнении форм обратной связи.</p>
+                <p>1.2. Политика разработана в соответствии с Федеральным законом от 27.07.2006 № 152-ФЗ «О персональных данных».</p>
+                <p>1.3. Заполняя формы на сайте, пользователь выражает согласие с условиями настоящей Политики.</p>
+
+                <h3>2. Состав персональных данных</h3>
+                <p>2.1. Оператор может обрабатывать следующие персональные данные:</p>
+                <ul>
+                    <li>Фамилия, имя, отчество</li>
+                    <li>Номер контактного телефона</li>
+                    <li>Адрес электронной почты</li>
+                    <li>Иные данные, добровольно предоставленные пользователем</li>
+                </ul>
+
+                <h3>3. Цели обработки персональных данных</h3>
+                <p>3.1. Персональные данные обрабатываются в следующих целях:</p>
+                <ul>
+                    <li>Обработка входящих заявок и обращений</li>
+                    <li>Связь с пользователем для уточнения информации</li>
+                    <li>Оказание образовательных услуг</li>
+                    <li>Направление информационных сообщений (с согласия пользователя)</li>
+                    <li>Улучшение качества обслуживания</li>
+                </ul>
+
+                <h3>4. Правовые основания обработки</h3>
+                <p>4.1. Обработка персональных данных осуществляется на основании:</p>
+                <ul>
+                    <li>Согласия субъекта персональных данных</li>
+                    <li>Необходимости исполнения договора</li>
+                    <li>Требований законодательства Российской Федерации</li>
+                </ul>
+
+                <h3>5. Защита персональных данных</h3>
+                <p>5.1. Оператор принимает необходимые правовые, организационные и технические меры для защиты персональных данных от неправомерного доступа, уничтожения, изменения, блокирования, копирования, распространения.</p>
+                <p>5.2. Доступ к персональным данным имеют только уполномоченные лица.</p>
+
+                <h3>6. Передача персональных данных</h3>
+                <p>6.1. Оператор не передаёт персональные данные третьим лицам, за исключением случаев:</p>
+                <ul>
+                    <li>Наличия согласия субъекта персональных данных</li>
+                    <li>Требований законодательства Российской Федерации</li>
+                </ul>
+
+                <h3>7. Сроки обработки и хранения</h3>
+                <p>7.1. Персональные данные обрабатываются до момента отзыва согласия или достижения целей обработки.</p>
+                <p>7.2. Срок хранения персональных данных — 3 года с момента последнего взаимодействия, если иное не предусмотрено законодательством.</p>
+
+                <h3>8. Права субъекта персональных данных</h3>
+                <p>8.1. Субъект персональных данных имеет право:</p>
+                <ul>
+                    <li>Получить информацию об обработке своих персональных данных</li>
+                    <li>Требовать уточнения, блокирования или уничтожения данных</li>
+                    <li>Отозвать согласие на обработку персональных данных</li>
+                    <li>Обжаловать действия оператора в Роскомнадзор</li>
+                </ul>
+
+                <h3>9. Контактная информация</h3>
+                <p>9.1. По вопросам обработки персональных данных обращайтесь:</p>
+                <p><strong>Ответственное лицо:</strong> Осмаева Маргарита Витальевна<br>
+                <strong>Email:</strong> margaritaosmaeva@yandex.ru</p>
+
+                <h3>10. Заключительные положения</h3>
+                <p>10.1. Настоящая Политика может быть изменена Оператором в одностороннем порядке. Новая редакция вступает в силу с момента её размещения на сайте.</p>
+                <p style="margin-top: 16px; color: #888; font-size: 12px;">Дата последнего обновления: январь 2026 г.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="modal-accept" data-modal="privacyModal">Понятно</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('diagnosticForm');
+        const nameInput = document.getElementById('name');
+        const phoneInput = document.getElementById('phone');
+        const emailInput = document.getElementById('email');
+
+        // Чекбоксы согласий
+        const consentPDInput = document.getElementById('consentPD');
+        const consentPDCheckbox = document.getElementById('consentPDCheckbox');
+        const consentPDError = document.getElementById('consentPDError');
+
+        const consentPolicyInput = document.getElementById('consentPolicy');
+        const consentPolicyCheckbox = document.getElementById('consentPolicyCheckbox');
+        const consentPolicyError = document.getElementById('consentPolicyError');
+
+        const errorsSummary = document.getElementById('errorsSummary');
+        const errorsList = document.getElementById('errorsList');
+
+        // Модальные окна
+        const consentModal = document.getElementById('consentModal');
+        const privacyModal = document.getElementById('privacyModal');
+        const openConsentLink = document.getElementById('openPrivacyPolicy');
+        const openPrivacyLink = document.getElementById('openPrivacyPolicy2');
+
+        // Открытие модального окна согласия
+        openConsentLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            consentModal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        });
+
+        // Открытие модального окна политики
+        openPrivacyLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            privacyModal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        });
+
+        // Закрытие модального окна
+        function closeModal(modal) {
+            modal.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        // Обработчики закрытия для всех модальных окон
+        document.querySelectorAll('.modal-close').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const modalId = this.dataset.modal;
+                const modal = document.getElementById(modalId);
+                if (modal) closeModal(modal);
+            });
+        });
+
+        document.querySelectorAll('.modal-accept').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const modalId = this.dataset.modal;
+                const modal = document.getElementById(modalId);
+                if (modal) closeModal(modal);
+            });
+        });
+
+        // Закрытие по клику на overlay
+        [consentModal, privacyModal].forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeModal(modal);
+                }
+            });
+        });
+
+        // Закрытие по Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                if (consentModal.classList.contains('show')) closeModal(consentModal);
+                if (privacyModal.classList.contains('show')) closeModal(privacyModal);
+            }
+        });
+
+        // Валидация чекбоксов согласий
+        consentPDInput.addEventListener('change', function() {
+            hideErrorsSummary();
+            if (this.checked) {
+                consentPDCheckbox.classList.remove('invalid');
+                consentPDError.classList.remove('show');
+            }
+        });
+
+        consentPolicyInput.addEventListener('change', function() {
+            hideErrorsSummary();
+            if (this.checked) {
+                consentPolicyCheckbox.classList.remove('invalid');
+                consentPolicyError.classList.remove('show');
+            }
+        });
+
+        // ===== КАЛЕНДАРЬ =====
+        const dateInput = document.getElementById('dateInput');
+        const timeInput = document.getElementById('timeInput');
+        const calendarDropdown = document.getElementById('calendarDropdown');
+        const calendarDays = document.getElementById('calendarDays');
+        const calendarMonthYear = document.getElementById('calendarMonthYear');
+        const prevMonthBtn = document.getElementById('prevMonth');
+        const nextMonthBtn = document.getElementById('nextMonth');
+        const timeSlots = document.querySelectorAll('.time-slot');
+        const datetimeError = document.getElementById('datetimeError');
+        const datetimeErrorText = document.getElementById('datetimeErrorText');
+
+        let currentDate = new Date();
+        let selectedDate = null;
+        let selectedTime = null;
+
+        const monthNames = [
+            'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+            'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+        ];
+
+        // Открыть/закрыть календарь
+        dateInput.addEventListener('click', function() {
+            calendarDropdown.classList.toggle('show');
+            if (calendarDropdown.classList.contains('show')) {
+                renderCalendar();
+            }
+        });
+
+        // Закрыть календарь при клике вне
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.date-input-wrapper')) {
+                calendarDropdown.classList.remove('show');
+            }
+        });
+
+        // Навигация по месяцам
+        prevMonthBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
+        });
+
+        nextMonthBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+        });
+
+        // Рендер календаря
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+
+            calendarMonthYear.textContent = `${monthNames[month]} ${year}`;
+
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startingDay = (firstDay.getDay() + 6) % 7; // Понедельник = 0
+            const totalDays = lastDay.getDate();
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            let html = '';
+
+            // Дни предыдущего месяца
+            const prevMonthLastDay = new Date(year, month, 0).getDate();
+            for (let i = startingDay - 1; i >= 0; i--) {
+                html += `<button type="button" class="calendar-day other-month disabled">${prevMonthLastDay - i}</button>`;
+            }
+
+            // Дни текущего месяца
+            for (let day = 1; day <= totalDays; day++) {
+                const date = new Date(year, month, day);
+                const isToday = date.getTime() === today.getTime();
+                const isPast = date < today;
+                const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+                const isSelected = selectedDate &&
+                    date.getDate() === selectedDate.getDate() &&
+                    date.getMonth() === selectedDate.getMonth() &&
+                    date.getFullYear() === selectedDate.getFullYear();
+
+                let classes = 'calendar-day';
+                if (isToday) classes += ' today';
+                if (isSelected) classes += ' selected';
+                if (isPast || isWeekend) classes += ' disabled';
+
+                html += `<button type="button" class="${classes}" data-date="${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}">${day}</button>`;
+            }
+
+            // Дни следующего месяца
+            const remainingDays = 42 - (startingDay + totalDays);
+            for (let i = 1; i <= remainingDays; i++) {
+                html += `<button type="button" class="calendar-day other-month disabled">${i}</button>`;
+            }
+
+            calendarDays.innerHTML = html;
+
+            // Обработчики кликов на дни
+            calendarDays.querySelectorAll('.calendar-day:not(.disabled)').forEach(dayBtn => {
+                dayBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const dateStr = this.dataset.date;
+                    if (dateStr) {
+                        const [y, m, d] = dateStr.split('-').map(Number);
+                        selectedDate = new Date(y, m - 1, d);
+
+                        // Форматируем дату для отображения
+                        const displayDate = `${String(d).padStart(2, '0')}.${String(m).padStart(2, '0')}.${y}`;
+                        dateInput.value = displayDate;
+                        dateInput.classList.remove('invalid');
+                        dateInput.classList.add('valid');
+
+                        calendarDropdown.classList.remove('show');
+                        hideErrorsSummary();
+                        datetimeError.classList.remove('show');
+                        document.getElementById('timeSlots').classList.remove('invalid');
+                        renderCalendar();
+                    }
+                });
+            });
+        }
+
+        // Выбор времени
+        const timeSlotsContainer = document.getElementById('timeSlots');
+        timeSlots.forEach(slot => {
+            slot.addEventListener('click', function() {
+                timeSlots.forEach(s => s.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedTime = this.dataset.time;
+                timeInput.value = selectedTime;
+                hideErrorsSummary();
+                datetimeError.classList.remove('show');
+                timeSlotsContainer.classList.remove('invalid');
+            });
+        });
+
+        // Инициализация календаря
+        renderCalendar();
+
+        // Форматирование телефона
+        phoneInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+
+            if (value.length > 0) {
+                if (value[0] === '8') {
+                    value = '7' + value.slice(1);
+                }
+                if (value[0] !== '7') {
+                    value = '7' + value;
+                }
+            }
+
+            let formatted = '';
+            if (value.length > 0) {
+                formatted = '+' + value[0];
+            }
+            if (value.length > 1) {
+                formatted += ' (' + value.slice(1, 4);
+            }
+            if (value.length > 4) {
+                formatted += ') ' + value.slice(4, 7);
+            }
+            if (value.length > 7) {
+                formatted += '-' + value.slice(7, 9);
+            }
+            if (value.length > 9) {
+                formatted += '-' + value.slice(9, 11);
+            }
+
+            e.target.value = formatted;
+        });
+
+        // Валидация email
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        // Валидация телефона
+        function isValidPhone(phone) {
+            const digits = phone.replace(/\D/g, '');
+            return digits.length === 11 && digits[0] === '7';
+        }
+
+        // Получить детальную ошибку телефона
+        function getPhoneError(phone) {
+            const digits = phone.replace(/\D/g, '');
+            if (digits.length === 0) {
+                return {
+                    title: 'Телефон не заполнен',
+                    desc: 'Введите номер телефона для связи. Мы позвоним вам для подтверждения записи.'
+                };
+            }
+            if (digits.length < 11) {
+                const missing = 11 - digits.length;
+                return {
+                    title: `Номер неполный (не хватает ${missing} ${missing === 1 ? 'цифры' : 'цифр'})`,
+                    desc: `Вы ввели ${digits.length} из 11 цифр. Добавьте оставшиеся цифры номера.`
+                };
+            }
+            if (digits.length > 11) {
+                return {
+                    title: 'Слишком много цифр в номере',
+                    desc: 'Российский номер содержит 11 цифр. Проверьте, нет ли лишних цифр.'
+                };
+            }
+            return {
+                title: 'Некорректный номер телефона',
+                desc: 'Проверьте правильность введённого номера.'
+            };
+        }
+
+        // Получить детальную ошибку email
+        function getEmailError(email) {
+            if (email.trim() === '') {
+                return {
+                    title: 'Почта не заполнена',
+                    desc: 'Введите адрес электронной почты. На неё мы отправим подтверждение записи.'
+                };
+            }
+            if (!email.includes('@')) {
+                return {
+                    title: 'Отсутствует символ @',
+                    desc: 'Email должен содержать символ @. Пример: ivan@mail.ru'
+                };
+            }
+            const parts = email.split('@');
+            if (parts[0].length === 0) {
+                return {
+                    title: 'Не указано имя почтового ящика',
+                    desc: 'Перед символом @ должно быть имя ящика. Пример: ivan@mail.ru'
+                };
+            }
+            if (!parts[1] || !parts[1].includes('.')) {
+                return {
+                    title: 'Некорректный домен почты',
+                    desc: 'После @ должен быть домен с точкой. Пример: mail.ru, gmail.com, yandex.ru'
+                };
+            }
+            return {
+                title: 'Некорректный формат email',
+                desc: 'Проверьте правильность адреса. Пример: ivan@mail.ru'
+            };
+        }
+
+        // Показать ошибку
+        function showError(input, errorElement, iconValid, iconInvalid, show, errorInfo = null) {
+            if (show) {
+                input.classList.add('invalid');
+                input.classList.remove('valid');
+                errorElement.classList.add('show');
+                iconValid.classList.remove('show');
+                iconInvalid.classList.add('show');
+
+                if (errorInfo) {
+                    const titleEl = errorElement.querySelector('.error-title span') || errorElement.querySelector('.error-title');
+                    const descEl = errorElement.querySelector('.error-description');
+                    if (titleEl.tagName === 'SPAN') {
+                        titleEl.textContent = errorInfo.title;
+                    }
+                    if (descEl) {
+                        descEl.textContent = errorInfo.desc;
+                    }
+                }
+            } else {
+                input.classList.remove('invalid');
+                input.classList.add('valid');
+                errorElement.classList.remove('show');
+                iconValid.classList.add('show');
+                iconInvalid.classList.remove('show');
+            }
+        }
+
+        // Сброс состояния поля
+        function resetField(input, errorElement, iconValid, iconInvalid) {
+            input.classList.remove('invalid', 'valid');
+            errorElement.classList.remove('show');
+            iconValid.classList.remove('show');
+            iconInvalid.classList.remove('show');
+        }
+
+        // Скрыть общий блок ошибок
+        function hideErrorsSummary() {
+            errorsSummary.classList.remove('show');
+        }
+
+        // Показать общий блок ошибок
+        function showErrorsSummary(errors) {
+            errorsList.innerHTML = errors.map(e => `<li>${e}</li>`).join('');
+            errorsSummary.classList.add('show');
+            errorsSummary.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Элементы для каждого поля
+        const nameError = document.getElementById('nameError');
+        const nameIconValid = document.getElementById('nameIconValid');
+        const nameIconInvalid = document.getElementById('nameIconInvalid');
+
+        const phoneError = document.getElementById('phoneError');
+        const phoneIconValid = document.getElementById('phoneIconValid');
+        const phoneIconInvalid = document.getElementById('phoneIconInvalid');
+
+        const emailError = document.getElementById('emailError');
+        const emailIconValid = document.getElementById('emailIconValid');
+        const emailIconInvalid = document.getElementById('emailIconInvalid');
+
+        // Валидация при потере фокуса
+        nameInput.addEventListener('blur', function() {
+            hideErrorsSummary();
+            if (this.value.trim() === '') {
+                showError(this, nameError, nameIconValid, nameIconInvalid, true);
+            } else {
+                showError(this, nameError, nameIconValid, nameIconInvalid, false);
+            }
+        });
+
+        phoneInput.addEventListener('blur', function() {
+            hideErrorsSummary();
+            if (this.value.trim() === '') {
+                resetField(this, phoneError, phoneIconValid, phoneIconInvalid);
+            } else if (!isValidPhone(this.value)) {
+                const err = getPhoneError(this.value);
+                showError(this, phoneError, phoneIconValid, phoneIconInvalid, true, err);
+            } else {
+                showError(this, phoneError, phoneIconValid, phoneIconInvalid, false);
+            }
+        });
+
+        emailInput.addEventListener('blur', function() {
+            hideErrorsSummary();
+            if (this.value.trim() === '') {
+                resetField(this, emailError, emailIconValid, emailIconInvalid);
+            } else if (!isValidEmail(this.value)) {
+                const err = getEmailError(this.value);
+                showError(this, emailError, emailIconValid, emailIconInvalid, true, err);
+            } else {
+                showError(this, emailError, emailIconValid, emailIconInvalid, false);
+            }
+        });
+
+        // Убираем ошибку при вводе
+        nameInput.addEventListener('input', function() {
+            hideErrorsSummary();
+            this.classList.remove('invalid');
+            nameError.classList.remove('show');
+            nameIconInvalid.classList.remove('show');
+        });
+
+        phoneInput.addEventListener('input', function() {
+            hideErrorsSummary();
+            this.classList.remove('invalid');
+            phoneError.classList.remove('show');
+            phoneIconInvalid.classList.remove('show');
+        });
+
+        emailInput.addEventListener('input', function() {
+            hideErrorsSummary();
+            this.classList.remove('invalid');
+            emailError.classList.remove('show');
+            emailIconInvalid.classList.remove('show');
+        });
+
+        // Отправка формы
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            let isValid = true;
+            const errors = [];
+
+            // Проверка имени
+            if (nameInput.value.trim() === '') {
+                showError(nameInput, nameError, nameIconValid, nameIconInvalid, true);
+                errors.push('Заполните поле «Имя»');
+                isValid = false;
+            } else {
+                showError(nameInput, nameError, nameIconValid, nameIconInvalid, false);
+            }
+
+            // Проверка телефона
+            if (!isValidPhone(phoneInput.value)) {
+                const err = getPhoneError(phoneInput.value);
+                showError(phoneInput, phoneError, phoneIconValid, phoneIconInvalid, true, err);
+                errors.push('Исправьте номер телефона');
+                isValid = false;
+            } else {
+                showError(phoneInput, phoneError, phoneIconValid, phoneIconInvalid, false);
+            }
+
+            // Проверка email
+            if (!isValidEmail(emailInput.value)) {
+                const err = getEmailError(emailInput.value);
+                showError(emailInput, emailError, emailIconValid, emailIconInvalid, true, err);
+                errors.push('Исправьте адрес электронной почты');
+                isValid = false;
+            } else {
+                showError(emailInput, emailError, emailIconValid, emailIconInvalid, false);
+            }
+
+            // Проверка даты и времени
+            if (!selectedDate && !selectedTime) {
+                datetimeErrorText.textContent = 'Выберите дату и время для записи';
+                datetimeError.classList.add('show');
+                dateInput.classList.add('invalid');
+                dateInput.classList.remove('valid');
+                timeSlotsContainer.classList.add('invalid');
+                errors.push('Выберите дату и время');
+                isValid = false;
+            } else if (!selectedDate) {
+                datetimeErrorText.textContent = 'Выберите дату для записи';
+                datetimeError.classList.add('show');
+                dateInput.classList.add('invalid');
+                dateInput.classList.remove('valid');
+                timeSlotsContainer.classList.remove('invalid');
+                errors.push('Выберите дату');
+                isValid = false;
+            } else if (!selectedTime) {
+                datetimeErrorText.textContent = 'Выберите время для записи';
+                datetimeError.classList.add('show');
+                dateInput.classList.remove('invalid');
+                timeSlotsContainer.classList.add('invalid');
+                errors.push('Выберите время');
+                isValid = false;
+            } else {
+                datetimeError.classList.remove('show');
+                dateInput.classList.remove('invalid');
+                timeSlotsContainer.classList.remove('invalid');
+            }
+
+            // Проверка согласия на обработку персональных данных
+            if (!consentPDInput.checked) {
+                consentPDCheckbox.classList.add('invalid');
+                consentPDError.classList.add('show');
+                errors.push('Дайте согласие на обработку персональных данных');
+                isValid = false;
+            } else {
+                consentPDCheckbox.classList.remove('invalid');
+                consentPDError.classList.remove('show');
+            }
+
+            // Проверка ознакомления с политикой конфиденциальности
+            if (!consentPolicyInput.checked) {
+                consentPolicyCheckbox.classList.add('invalid');
+                consentPolicyError.classList.add('show');
+                errors.push('Ознакомьтесь с Политикой конфиденциальности');
+                isValid = false;
+            } else {
+                consentPolicyCheckbox.classList.remove('invalid');
+                consentPolicyError.classList.remove('show');
+            }
+
+            if (!isValid) {
+                showErrorsSummary(errors);
+                // Фокус на первое поле с ошибкой
+                const firstInvalid = form.querySelector('.invalid');
+                if (firstInvalid) {
+                    firstInvalid.focus();
+                }
+                return;
+            }
+
+            // Здесь можно добавить отправку данных на сервер
+            const formData = {
+                name: nameInput.value,
+                phone: phoneInput.value,
+                email: emailInput.value,
+                date: dateInput.value,
+                time: timeInput.value,
+                problem: document.getElementById('problem').value,
+                consentPD: consentPDInput.checked,
+                consentPolicy: consentPolicyInput.checked,
+                consentDate: new Date().toISOString()
+            };
+
+            console.log('Данные формы:', formData);
+
+            // Показываем сообщение об успехе
+            document.querySelector('.form-content').classList.add('hidden');
+            document.getElementById('successMessage').classList.add('show');
+        });
+    </script>
+</body>
+</html>
