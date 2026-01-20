@@ -750,6 +750,462 @@
         .datetime-error.show {
             display: flex;
         }
+
+        /* ===== АДМИН-ПАНЕЛЬ ===== */
+        .admin-modal {
+            max-width: 900px;
+            max-height: 90vh;
+        }
+
+        .admin-login-wrapper,
+        .admin-panel-wrapper {
+            display: flex;
+            flex-direction: column;
+            max-height: 90vh;
+        }
+
+        .admin-login-content {
+            padding: 20px 0;
+        }
+
+        .admin-login-btn {
+            margin-top: 20px;
+        }
+
+        .admin-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .admin-logout-btn {
+            padding: 8px 16px;
+            background: #f3f4f6;
+            color: #555;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s ease;
+            width: auto;
+        }
+
+        .admin-logout-btn:hover {
+            background: #e5e7eb;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .admin-tabs {
+            display: flex;
+            border-bottom: 2px solid #e5e7eb;
+            padding: 0 24px;
+        }
+
+        .admin-tab {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            color: #6b7280;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s ease;
+            width: auto;
+        }
+
+        .admin-tab:hover {
+            color: #667eea;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .admin-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .admin-tab-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        .admin-tab-panel {
+            display: none;
+        }
+
+        .admin-tab-panel.active {
+            display: block;
+        }
+
+        /* Календарь админки */
+        .admin-calendar-container {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .admin-calendar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .admin-calendar-nav-btn {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .admin-calendar-nav-btn:hover {
+            background: #f3f4f6;
+            border-color: #667eea;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .admin-calendar-month-year {
+            font-weight: 600;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .admin-calendar-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .admin-calendar-weekdays span {
+            text-align: center;
+            font-size: 12px;
+            color: #6b7280;
+            font-weight: 600;
+            padding: 8px;
+        }
+
+        .admin-calendar-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+
+        .admin-calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+            background: white;
+            color: #333;
+            padding: 0;
+            width: 100%;
+            position: relative;
+            font-weight: 500;
+        }
+
+        .admin-calendar-day:hover:not(.disabled):not(.other-month) {
+            border-color: #667eea;
+            transform: none;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+        }
+
+        .admin-calendar-day.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .admin-calendar-day.disabled,
+        .admin-calendar-day.other-month {
+            color: #d1d5db;
+            cursor: not-allowed;
+            background: #f9fafb;
+        }
+
+        /* Цветовая индикация статусов */
+        .admin-calendar-day.status-free {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .admin-calendar-day.status-partial {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .admin-calendar-day.status-full {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .admin-calendar-day.status-blocked {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        /* Панель управления слотами */
+        .admin-date-slots-panel {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .admin-date-slots-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .admin-date-slots-header h3 {
+            font-size: 16px;
+            color: #333;
+            margin: 0;
+        }
+
+        .admin-block-day-btn {
+            padding: 8px 16px;
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            width: auto;
+            font-weight: 500;
+        }
+
+        .admin-block-day-btn:hover {
+            background: #fecaca;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .admin-block-day-btn.unblock {
+            background: #dcfce7;
+            color: #166534;
+            border-color: #bbf7d0;
+        }
+
+        .admin-block-day-btn.unblock:hover {
+            background: #bbf7d0;
+        }
+
+        .admin-time-slots {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .admin-time-slots {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .admin-time-slot {
+            padding: 12px;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .admin-time-slot:hover {
+            border-color: #667eea;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .admin-time-slot-time {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .admin-time-slot-status {
+            font-size: 11px;
+            font-weight: 500;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .admin-time-slot.available {
+            background: #dcfce7;
+            border-color: #bbf7d0;
+        }
+
+        .admin-time-slot.available .admin-time-slot-status {
+            background: #166534;
+            color: white;
+        }
+
+        .admin-time-slot.booked {
+            background: #fee2e2;
+            border-color: #fecaca;
+        }
+
+        .admin-time-slot.booked .admin-time-slot-status {
+            background: #991b1b;
+            color: white;
+        }
+
+        .admin-time-slot.blocked {
+            background: #e5e7eb;
+            border-color: #d1d5db;
+        }
+
+        .admin-time-slot.blocked .admin-time-slot-status {
+            background: #374151;
+            color: white;
+        }
+
+        /* Список бронирований */
+        .admin-bookings-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .admin-booking-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.2s ease;
+        }
+
+        .admin-booking-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .admin-booking-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .admin-booking-datetime {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .admin-booking-date,
+        .admin-booking-time {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .admin-booking-delete-btn {
+            padding: 8px 16px;
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            width: auto;
+        }
+
+        .admin-booking-delete-btn:hover {
+            background: #fecaca;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .admin-booking-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        @media (max-width: 600px) {
+            .admin-booking-details {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .admin-booking-detail {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .admin-booking-detail-label {
+            font-size: 12px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .admin-booking-detail-value {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .admin-booking-problem {
+            grid-column: 1 / -1;
+            margin-top: 8px;
+            padding-top: 12px;
+            border-top: 1px solid #f3f4f6;
+        }
+
+        .admin-empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+
+        .admin-empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
     </style>
 </head>
 <body>
@@ -1155,6 +1611,126 @@
         </div>
     </div>
 
+    <!-- Модальное окно админ-панели -->
+    <div class="modal-overlay" id="adminModal">
+        <div class="modal-content admin-modal">
+            <!-- Форма входа -->
+            <div id="adminLoginForm" class="admin-login-wrapper">
+                <div class="modal-header">
+                    <h2>Вход в админ-панель</h2>
+                    <button class="modal-close" onclick="closeAdminModal()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="admin-login-content">
+                        <div class="form-group">
+                            <label for="adminPassword">Пароль</label>
+                            <input type="password" id="adminPassword" placeholder="Введите пароль" autocomplete="current-password">
+                        </div>
+                        <div id="adminLoginError" class="error-message"></div>
+                        <button type="button" onclick="attemptAdminLogin()" class="admin-login-btn">Войти</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Админ-панель -->
+            <div id="adminPanel" class="admin-panel-wrapper" style="display: none;">
+                <div class="modal-header">
+                    <h2>Админ-панель</h2>
+                    <div class="admin-header-actions">
+                        <button class="admin-logout-btn" onclick="adminLogout()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                <polyline points="16 17 21 12 16 7"></polyline>
+                                <line x1="21" y1="12" x2="9" y2="12"></line>
+                            </svg>
+                            Выход
+                        </button>
+                        <button class="modal-close" onclick="closeAdminModal()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="admin-tabs">
+                    <button class="admin-tab active" data-tab="calendar" onclick="switchAdminTab('calendar')">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        Календарь
+                    </button>
+                    <button class="admin-tab" data-tab="bookings" onclick="switchAdminTab('bookings')">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                        Записи
+                    </button>
+                </div>
+
+                <div class="admin-tab-content">
+                    <!-- Вкладка "Календарь" -->
+                    <div id="adminTabCalendar" class="admin-tab-panel active">
+                        <div class="admin-calendar-container">
+                            <div class="admin-calendar-header">
+                                <button type="button" id="adminPrevMonth" class="admin-calendar-nav-btn">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="15 18 9 12 15 6"></polyline>
+                                    </svg>
+                                </button>
+                                <span class="admin-calendar-month-year" id="adminCalendarMonthYear"></span>
+                                <button type="button" id="adminNextMonth" class="admin-calendar-nav-btn">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="9 18 15 12 9 6"></polyline>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="admin-calendar-weekdays">
+                                <span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span>
+                            </div>
+                            <div class="admin-calendar-days" id="adminCalendarDays"></div>
+                        </div>
+
+                        <!-- Панель управления слотами для выбранной даты -->
+                        <div id="adminDateSlotsPanel" class="admin-date-slots-panel" style="display: none;">
+                            <div class="admin-date-slots-header">
+                                <h3 id="adminSelectedDateTitle"></h3>
+                                <button type="button" id="adminBlockDayBtn" class="admin-block-day-btn">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+                                    </svg>
+                                    Заблокировать весь день
+                                </button>
+                            </div>
+                            <div class="admin-time-slots" id="adminTimeSlots"></div>
+                        </div>
+                    </div>
+
+                    <!-- Вкладка "Записи" -->
+                    <div id="adminTabBookings" class="admin-tab-panel">
+                        <div class="admin-bookings-list" id="adminBookingsList">
+                            <!-- Будет заполнено через JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         const form = document.getElementById('diagnosticForm');
         const nameInput = document.getElementById('name');
@@ -1267,6 +1843,8 @@
         let currentDate = new Date();
         let selectedDate = null;
         let selectedTime = null;
+        let availabilityData = {};
+        let currentDateSlots = [];
 
         const monthNames = [
             'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
@@ -1292,14 +1870,31 @@
         prevMonthBtn.addEventListener('click', function(e) {
             e.stopPropagation();
             currentDate.setMonth(currentDate.getMonth() - 1);
-            renderCalendar();
+            loadUserCalendarData();
         });
 
         nextMonthBtn.addEventListener('click', function(e) {
             e.stopPropagation();
             currentDate.setMonth(currentDate.getMonth() + 1);
-            renderCalendar();
+            loadUserCalendarData();
         });
+
+        // Загрузка данных доступности для пользовательского календаря
+        async function loadUserCalendarData() {
+            try {
+                const month = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+                const response = await fetch(`api/availability.php?month=${month}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    availabilityData = data.dates || {};
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки доступности:', error);
+                availabilityData = {};
+            }
+            renderCalendar();
+        }
 
         // Рендер календаря
         function renderCalendar() {
@@ -1327,6 +1922,7 @@
             // Дни текущего месяца
             for (let day = 1; day <= totalDays; day++) {
                 const date = new Date(year, month, day);
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const isToday = date.getTime() === today.getTime();
                 const isPast = date < today;
                 const isWeekend = date.getDay() === 0 || date.getDay() === 6;
@@ -1335,12 +1931,16 @@
                     date.getMonth() === selectedDate.getMonth() &&
                     date.getFullYear() === selectedDate.getFullYear();
 
+                // Проверяем доступность из API
+                const dayAvailability = availabilityData[dateStr];
+                const isAvailable = dayAvailability && (dayAvailability.status === 'free' || dayAvailability.status === 'partial');
+
                 let classes = 'calendar-day';
                 if (isToday) classes += ' today';
                 if (isSelected) classes += ' selected';
-                if (isPast || isWeekend) classes += ' disabled';
+                if (isPast || isWeekend || !isAvailable) classes += ' disabled';
 
-                html += `<button type="button" class="${classes}" data-date="${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}">${day}</button>`;
+                html += `<button type="button" class="${classes}" data-date="${dateStr}">${day}</button>`;
             }
 
             // Дни следующего месяца
@@ -1353,7 +1953,7 @@
 
             // Обработчики кликов на дни
             calendarDays.querySelectorAll('.calendar-day:not(.disabled)').forEach(dayBtn => {
-                dayBtn.addEventListener('click', function(e) {
+                dayBtn.addEventListener('click', async function(e) {
                     e.stopPropagation();
                     const dateStr = this.dataset.date;
                     if (dateStr) {
@@ -1370,9 +1970,45 @@
                         hideErrorsSummary();
                         datetimeError.classList.remove('show');
                         document.getElementById('timeSlots').classList.remove('invalid');
+
+                        // Загружаем доступные слоты для этой даты
+                        await loadUserTimeSlots(dateStr);
                         renderCalendar();
                     }
                 });
+            });
+        }
+
+        // Загрузка доступных слотов времени для выбранной даты
+        async function loadUserTimeSlots(dateStr) {
+            try {
+                const response = await fetch(`api/availability.php?date=${dateStr}`);
+                const data = await response.json();
+
+                if (data.success && data.slots) {
+                    currentDateSlots = data.slots;
+                    updateUserTimeSlots();
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки слотов:', error);
+            }
+        }
+
+        // Обновление отображения слотов времени
+        function updateUserTimeSlots() {
+            timeSlots.forEach(slotBtn => {
+                const time = slotBtn.dataset.time;
+                const slotData = currentDateSlots.find(s => s.time === time);
+
+                if (slotData && !slotData.available) {
+                    slotBtn.disabled = true;
+                    slotBtn.style.opacity = '0.5';
+                    slotBtn.style.cursor = 'not-allowed';
+                } else {
+                    slotBtn.disabled = false;
+                    slotBtn.style.opacity = '1';
+                    slotBtn.style.cursor = 'pointer';
+                }
             });
         }
 
@@ -1391,7 +2027,7 @@
         });
 
         // Инициализация календаря
-        renderCalendar();
+        loadUserCalendarData();
 
         // Форматирование телефона
         phoneInput.addEventListener('input', function(e) {
@@ -1757,6 +2393,524 @@
                 submitBtn.textContent = originalBtnText;
             });
         });
+
+        // ===== АДМИН-ПАНЕЛЬ =====
+        const adminModal = document.getElementById('adminModal');
+        const adminLoginForm = document.getElementById('adminLoginForm');
+        const adminPanel = document.getElementById('adminPanel');
+        const adminPassword = document.getElementById('adminPassword');
+        const adminLoginError = document.getElementById('adminLoginError');
+
+        let adminData = null;
+        let adminCurrentDate = new Date();
+        let adminSelectedDate = null;
+
+        // Открытие админ-панели по Ctrl+Shift+A
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+                e.preventDefault();
+                openAdminModal();
+            }
+        });
+
+        // Открытие админ-панели по параметру ?admin=1
+        if (window.location.search.includes('admin=1')) {
+            openAdminModal();
+        }
+
+        function openAdminModal() {
+            adminModal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+            checkAdminAuth();
+        }
+
+        function closeAdminModal() {
+            adminModal.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        // Проверка авторизации
+        async function checkAdminAuth() {
+            try {
+                const response = await fetch('api/auth.php?action=check');
+                const data = await response.json();
+
+                if (data.authenticated) {
+                    showAdminPanel();
+                } else {
+                    showAdminLogin();
+                }
+            } catch (error) {
+                console.error('Ошибка проверки авторизации:', error);
+                showAdminLogin();
+            }
+        }
+
+        function showAdminLogin() {
+            adminLoginForm.style.display = 'flex';
+            adminPanel.style.display = 'none';
+            adminPassword.value = '';
+            adminLoginError.textContent = '';
+            adminLoginError.classList.remove('show');
+        }
+
+        function showAdminPanel() {
+            adminLoginForm.style.display = 'none';
+            adminPanel.style.display = 'flex';
+            loadAdminData();
+        }
+
+        // Авторизация
+        async function attemptAdminLogin() {
+            const password = adminPassword.value;
+
+            if (!password) {
+                adminLoginError.textContent = 'Введите пароль';
+                adminLoginError.classList.add('show');
+                return;
+            }
+
+            try {
+                const response = await fetch('api/auth.php?action=login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showAdminPanel();
+                } else {
+                    adminLoginError.textContent = data.error || 'Неверный пароль';
+                    adminLoginError.classList.add('show');
+                }
+            } catch (error) {
+                console.error('Ошибка авторизации:', error);
+                adminLoginError.textContent = 'Ошибка соединения с сервером';
+                adminLoginError.classList.add('show');
+            }
+        }
+
+        // Выход
+        async function adminLogout() {
+            try {
+                await fetch('api/auth.php?action=logout');
+                showAdminLogin();
+            } catch (error) {
+                console.error('Ошибка выхода:', error);
+            }
+        }
+
+        // Enter для входа
+        adminPassword.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                attemptAdminLogin();
+            }
+        });
+
+        // Переключение вкладок
+        function switchAdminTab(tabName) {
+            document.querySelectorAll('.admin-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.admin-tab-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+
+            document.querySelector(`.admin-tab[data-tab="${tabName}"]`).classList.add('active');
+            document.getElementById(`adminTab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`).classList.add('active');
+
+            if (tabName === 'bookings') {
+                renderAdminBookings();
+            }
+        }
+
+        // Загрузка данных
+        async function loadAdminData() {
+            try {
+                const month = `${adminCurrentDate.getFullYear()}-${String(adminCurrentDate.getMonth() + 1).padStart(2, '0')}`;
+
+                const [availabilityRes, bookingsRes] = await Promise.all([
+                    fetch(`api/availability.php?month=${month}`),
+                    fetch('api/bookings.php')
+                ]);
+
+                const availability = await availabilityRes.json();
+                const bookings = await bookingsRes.json();
+
+                adminData = {
+                    availability: availability.dates || {},
+                    bookings: bookings.bookings || [],
+                    blocked_dates: bookings.blocked_dates || [],
+                    blocked_slots: bookings.blocked_slots || []
+                };
+
+                renderAdminCalendar();
+            } catch (error) {
+                console.error('Ошибка загрузки данных:', error);
+            }
+        }
+
+        // Рендеринг календаря админки
+        function renderAdminCalendar() {
+            const year = adminCurrentDate.getFullYear();
+            const month = adminCurrentDate.getMonth();
+
+            const monthNames = [
+                'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+                'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+            ];
+
+            document.getElementById('adminCalendarMonthYear').textContent = `${monthNames[month]} ${year}`;
+
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startingDay = (firstDay.getDay() + 6) % 7;
+            const totalDays = lastDay.getDate();
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            let html = '';
+
+            // Дни предыдущего месяца
+            const prevMonthLastDay = new Date(year, month, 0).getDate();
+            for (let i = startingDay - 1; i >= 0; i--) {
+                html += `<button type="button" class="admin-calendar-day other-month disabled">${prevMonthLastDay - i}</button>`;
+            }
+
+            // Дни текущего месяца
+            for (let day = 1; day <= totalDays; day++) {
+                const date = new Date(year, month, day);
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const isPast = date < today;
+                const isSelected = adminSelectedDate && adminSelectedDate === dateStr;
+
+                let classes = 'admin-calendar-day';
+                if (isPast) classes += ' disabled';
+                if (isSelected) classes += ' selected';
+
+                // Добавляем статус из availability
+                const dayStatus = adminData.availability[dateStr];
+                if (dayStatus && !isPast) {
+                    classes += ` status-${dayStatus.status}`;
+                }
+
+                html += `<button type="button" class="${classes}" data-date="${dateStr}" onclick="selectAdminDate('${dateStr}')">${day}</button>`;
+            }
+
+            // Дни следующего месяца
+            const remainingDays = 42 - (startingDay + totalDays);
+            for (let i = 1; i <= remainingDays; i++) {
+                html += `<button type="button" class="admin-calendar-day other-month disabled">${i}</button>`;
+            }
+
+            document.getElementById('adminCalendarDays').innerHTML = html;
+        }
+
+        // Навигация по месяцам в админке
+        document.getElementById('adminPrevMonth').addEventListener('click', function() {
+            adminCurrentDate.setMonth(adminCurrentDate.getMonth() - 1);
+            loadAdminData();
+        });
+
+        document.getElementById('adminNextMonth').addEventListener('click', function() {
+            adminCurrentDate.setMonth(adminCurrentDate.getMonth() + 1);
+            loadAdminData();
+        });
+
+        // Выбор даты в админке
+        async function selectAdminDate(dateStr) {
+            adminSelectedDate = dateStr;
+            renderAdminCalendar();
+
+            // Загружаем слоты для этой даты
+            try {
+                const response = await fetch(`api/availability.php?date=${dateStr}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    renderAdminDateSlots(dateStr, data);
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки слотов:', error);
+            }
+        }
+
+        // Рендеринг слотов для выбранной даты
+        function renderAdminDateSlots(dateStr, data) {
+            const panel = document.getElementById('adminDateSlotsPanel');
+            const titleEl = document.getElementById('adminSelectedDateTitle');
+            const blockDayBtn = document.getElementById('adminBlockDayBtn');
+            const slotsContainer = document.getElementById('adminTimeSlots');
+
+            // Форматируем дату для отображения
+            const [year, month, day] = dateStr.split('-');
+            const displayDate = `${day}.${month}.${year}`;
+            titleEl.textContent = `Слоты на ${displayDate}`;
+
+            // Проверяем, заблокирован ли весь день
+            const isDayBlocked = data.blocked;
+
+            if (isDayBlocked) {
+                blockDayBtn.textContent = 'Разблокировать день';
+                blockDayBtn.classList.add('unblock');
+                blockDayBtn.onclick = () => unblockDate(dateStr);
+            } else {
+                blockDayBtn.textContent = 'Заблокировать весь день';
+                blockDayBtn.classList.remove('unblock');
+                blockDayBtn.onclick = () => blockDate(dateStr);
+            }
+
+            // Рендерим слоты
+            let html = '';
+            data.slots.forEach(slot => {
+                let statusClass = 'available';
+                let statusText = 'Свободно';
+
+                if (slot.blocked) {
+                    statusClass = 'blocked';
+                    statusText = 'Блокировка';
+                } else if (slot.booked) {
+                    statusClass = 'booked';
+                    statusText = 'Занято';
+                }
+
+                const onclick = slot.available ? `blockSlot('${dateStr}', '${slot.time}')` : `unblockSlot('${dateStr}', '${slot.time}')`;
+
+                html += `
+                    <button type="button" class="admin-time-slot ${statusClass}" onclick="${onclick}">
+                        <span class="admin-time-slot-time">${slot.time}</span>
+                        <span class="admin-time-slot-status">${statusText}</span>
+                    </button>
+                `;
+            });
+
+            slotsContainer.innerHTML = html;
+            panel.style.display = 'block';
+        }
+
+        // Блокировка слота
+        async function blockSlot(date, time) {
+            const reason = prompt('Причина блокировки:', 'Занято');
+            if (!reason) return;
+
+            try {
+                const response = await fetch('api/bookings.php?action=block_slot', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ date, time, reason })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    selectAdminDate(date);
+                    loadAdminData();
+                } else {
+                    alert('Ошибка: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Ошибка блокировки слота:', error);
+                alert('Ошибка соединения');
+            }
+        }
+
+        // Разблокировка слота
+        async function unblockSlot(date, time) {
+            if (!confirm(`Разблокировать слот ${time}?`)) return;
+
+            try {
+                const response = await fetch('api/bookings.php?action=unblock_slot', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ date, time })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    selectAdminDate(date);
+                    loadAdminData();
+                } else {
+                    alert('Ошибка: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Ошибка разблокировки слота:', error);
+                alert('Ошибка соединения');
+            }
+        }
+
+        // Блокировка всего дня
+        async function blockDate(date) {
+            const reason = prompt('Причина блокировки дня:', 'Выходной');
+            if (!reason) return;
+
+            try {
+                const response = await fetch('api/bookings.php?action=block_date', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ date, reason })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    selectAdminDate(date);
+                    loadAdminData();
+                } else {
+                    alert('Ошибка: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Ошибка блокировки дня:', error);
+                alert('Ошибка соединения');
+            }
+        }
+
+        // Разблокировка всего дня
+        async function unblockDate(date) {
+            if (!confirm('Разблокировать весь день?')) return;
+
+            try {
+                const response = await fetch('api/bookings.php?action=unblock_date', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ date })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    selectAdminDate(date);
+                    loadAdminData();
+                } else {
+                    alert('Ошибка: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Ошибка разблокировки дня:', error);
+                alert('Ошибка соединения');
+            }
+        }
+
+        // Рендеринг списка бронирований
+        function renderAdminBookings() {
+            const container = document.getElementById('adminBookingsList');
+
+            if (!adminData || !adminData.bookings || adminData.bookings.length === 0) {
+                container.innerHTML = `
+                    <div class="admin-empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                        </svg>
+                        <p>Нет записей</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            adminData.bookings.forEach(booking => {
+                const [year, month, day] = booking.date.split('-');
+                const displayDate = `${day}.${month}.${year}`;
+
+                html += `
+                    <div class="admin-booking-card">
+                        <div class="admin-booking-header">
+                            <div class="admin-booking-datetime">
+                                <div class="admin-booking-date">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                                    </svg>
+                                    ${displayDate}
+                                </div>
+                                <div class="admin-booking-time">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <polyline points="12 6 12 12 16 14"></polyline>
+                                    </svg>
+                                    ${booking.time}
+                                </div>
+                            </div>
+                            <button type="button" class="admin-booking-delete-btn" onclick="deleteBooking(${booking.id})">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                </svg>
+                                Удалить
+                            </button>
+                        </div>
+                        <div class="admin-booking-details">
+                            <div class="admin-booking-detail">
+                                <span class="admin-booking-detail-label">Имя</span>
+                                <span class="admin-booking-detail-value">${booking.name}</span>
+                            </div>
+                            <div class="admin-booking-detail">
+                                <span class="admin-booking-detail-label">Телефон</span>
+                                <span class="admin-booking-detail-value">${booking.phone}</span>
+                            </div>
+                            <div class="admin-booking-detail">
+                                <span class="admin-booking-detail-label">Email</span>
+                                <span class="admin-booking-detail-value">${booking.email}</span>
+                            </div>
+                            <div class="admin-booking-detail">
+                                <span class="admin-booking-detail-label">Создано</span>
+                                <span class="admin-booking-detail-value">${new Date(booking.created_at).toLocaleString('ru-RU')}</span>
+                            </div>
+                            ${booking.problem ? `
+                                <div class="admin-booking-detail admin-booking-problem">
+                                    <span class="admin-booking-detail-label">Проблема</span>
+                                    <span class="admin-booking-detail-value">${booking.problem}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Удаление бронирования
+        async function deleteBooking(id) {
+            if (!confirm('Удалить эту запись?')) return;
+
+            try {
+                const response = await fetch(`api/bookings.php?id=${id}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    loadAdminData();
+                    if (adminSelectedDate) {
+                        selectAdminDate(adminSelectedDate);
+                    }
+                } else {
+                    alert('Ошибка: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Ошибка удаления записи:', error);
+                alert('Ошибка соединения');
+            }
+        }
     </script>
 </body>
 </html>
