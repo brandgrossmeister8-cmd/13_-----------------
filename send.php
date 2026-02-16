@@ -24,8 +24,11 @@ $postData = getPostData();
 $name = trim($postData['name'] ?? '');
 $phone = trim($postData['phone'] ?? '');
 $email = trim($postData['email'] ?? '');
+$telegram = trim($postData['telegram'] ?? '');
 $dateRaw = trim($postData['date'] ?? '');
 $time = trim($postData['time'] ?? '');
+$socialLinks = trim($postData['socialLinks'] ?? '');
+$competitorLinks = trim($postData['competitorLinks'] ?? '');
 $problem = trim($postData['problem'] ?? '');
 
 $errors = [];
@@ -37,21 +40,22 @@ if (empty($name)) {
     $errors[] = 'Имя содержит недопустимые символы';
 }
 
-// Проверка телефона
-if (empty($phone)) {
-    $errors[] = 'Телефон не заполнен';
-} else {
+// Проверка телефона (необязательное поле, но если заполнено - проверяем формат)
+if (!empty($phone)) {
     $phoneDigits = preg_replace('/\D/', '', $phone);
     if (strlen($phoneDigits) !== 11 || $phoneDigits[0] !== '7') {
         $errors[] = 'Некорректный номер телефона';
     }
 }
 
-// Проверка email
-if (empty($email)) {
-    $errors[] = 'Email не заполнен';
-} elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+// Проверка email (необязательное поле, но если заполнено - проверяем формат)
+if (!empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
     $errors[] = 'Некорректный email';
+}
+
+// Проверка Telegram (обязательное поле)
+if (empty($telegram)) {
+    $errors[] = 'Telegram не заполнен';
 }
 
 // Преобразование даты из DD.MM.YYYY в YYYY-MM-DD
@@ -78,6 +82,21 @@ if (empty($time)) {
     $errors[] = 'Время не выбрано';
 } elseif (!validateTime($time)) {
     $errors[] = 'Некорректное время';
+}
+
+// Проверка ссылок на соцсети
+if (empty($socialLinks)) {
+    $errors[] = 'Ссылки на соцсети не заполнены';
+}
+
+// Проверка ссылок на конкурентов
+if (empty($competitorLinks)) {
+    $errors[] = 'Ссылки на конкурентов не заполнены';
+}
+
+// Проверка описания проблемы
+if (empty($problem)) {
+    $errors[] = 'Проблема не описана';
 }
 
 // Если есть ошибки валидации, возвращаем их
@@ -116,7 +135,7 @@ if (!isSlotAvailable($allData, $date, $time)) {
 }
 
 // Создаем запись
-$success = atomicJsonUpdate(DATA_FILE, function($data) use ($name, $phone, $email, $date, $time, $problem) {
+$success = atomicJsonUpdate(DATA_FILE, function($data) use ($name, $phone, $email, $telegram, $date, $time, $socialLinks, $competitorLinks, $problem) {
     // Генерируем ID
     $id = generateId($data['bookings']);
 
@@ -127,6 +146,9 @@ $success = atomicJsonUpdate(DATA_FILE, function($data) use ($name, $phone, $emai
         'name' => $name,
         'phone' => $phone,
         'email' => $email,
+        'telegram' => $telegram,
+        'socialLinks' => $socialLinks,
+        'competitorLinks' => $competitorLinks,
         'problem' => $problem,
         'created_at' => date('c'),
         'status' => 'confirmed'
@@ -147,14 +169,19 @@ if (!$success) {
 // Отправляем уведомление в Telegram
 $telegramMessage = "🆕 <b>Новая запись на диагностику</b>\n\n";
 $telegramMessage .= "📅 <b>Дата:</b> " . date('d.m.Y', strtotime($date)) . "\n";
-$telegramMessage .= "🕐 <b>Время:</b> $time\n";
+$telegramMessage .= "🕐 <b>Время:</b> $time\n\n";
 $telegramMessage .= "👤 <b>Имя:</b> $name\n";
-$telegramMessage .= "📱 <b>Телефон:</b> $phone\n";
-$telegramMessage .= "📧 <b>Email:</b> $email\n";
-if (!empty($problem)) {
-    $telegramMessage .= "📝 <b>Проблема:</b> " . htmlspecialchars($problem) . "\n";
+$telegramMessage .= "💬 <b>Telegram:</b> $telegram\n";
+if (!empty($phone)) {
+    $telegramMessage .= "📱 <b>Телефон:</b> $phone\n";
 }
-$telegramMessage .= "\n⏰ <b>Создано:</b> " . date('d.m.Y H:i');
+if (!empty($email)) {
+    $telegramMessage .= "📧 <b>Email:</b> $email\n";
+}
+$telegramMessage .= "\n🔗 <b>Ссылки на соцсети/сайт:</b>\n" . htmlspecialchars($socialLinks) . "\n\n";
+$telegramMessage .= "🎯 <b>Ссылки на конкурентов:</b>\n" . htmlspecialchars($competitorLinks) . "\n\n";
+$telegramMessage .= "📝 <b>Проблема:</b>\n" . htmlspecialchars($problem) . "\n\n";
+$telegramMessage .= "⏰ <b>Создано:</b> " . date('d.m.Y H:i');
 
 sendTelegramNotification($telegramMessage);
 

@@ -105,7 +105,7 @@
             position: relative;
         }
 
-        input, textarea {
+        input, textarea, select {
             width: 100%;
             padding: 14px 16px;
             padding-right: 45px;
@@ -114,6 +114,67 @@
             font-size: 16px;
             transition: all 0.3s ease;
             font-family: inherit;
+        }
+
+        select {
+            cursor: pointer;
+            background-color: white;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 20px;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+        }
+
+        select.valid {
+            border-color: #22c55e;
+            background-color: #f0fdf4;
+        }
+
+        .info-block {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid #7dd3fc;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+        }
+
+        .info-block h4 {
+            color: #0369a1;
+            font-size: 14px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-block ul {
+            margin: 0;
+            padding-left: 24px;
+            color: #0c4a6e;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .info-block li {
+            margin-bottom: 4px;
+        }
+
+        .info-block p {
+            color: #0c4a6e;
+            font-size: 13px;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .info-block p + p {
+            margin-top: 8px;
         }
 
         textarea {
@@ -1206,6 +1267,49 @@
             margin-bottom: 16px;
             opacity: 0.3;
         }
+
+        /* Кнопка входа в админку */
+        .admin-login-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid #667eea;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+            z-index: 999;
+        }
+
+        .admin-login-button:hover {
+            background: #667eea;
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .admin-login-button:hover svg {
+            stroke: white;
+        }
+
+        .admin-login-button svg {
+            stroke: #667eea;
+            transition: stroke 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .admin-login-button {
+                width: 48px;
+                height: 48px;
+                bottom: 16px;
+                right: 16px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1260,14 +1364,13 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="phone">Телефон <span class="required">*</span></label>
+                    <label for="phone">Телефон <span style="color: #888; font-weight: normal;">(необязательно)</span></label>
                     <div class="input-wrapper">
                         <input
                             type="tel"
                             id="phone"
                             name="phone"
                             placeholder="+7 (999) 123-45-67"
-                            required
                             autocomplete="tel"
                         >
                         <svg class="status-icon valid" id="phoneIconValid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -1293,14 +1396,13 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="email">Электронная почта <span class="required">*</span></label>
+                    <label for="email">Электронная почта <span style="color: #888; font-weight: normal;">(необязательно)</span></label>
                     <div class="input-wrapper">
                         <input
                             type="email"
                             id="email"
                             name="email"
                             placeholder="example@mail.ru"
-                            required
                             autocomplete="email"
                         >
                         <svg class="status-icon valid" id="emailIconValid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -1321,6 +1423,37 @@
                             <span id="emailErrorTitle">Некорректный адрес почты</span>
                         </div>
                         <div class="error-description" id="emailErrorDesc">Введите корректный email в формате: имя@домен.зона. Например: ivan@mail.ru или info@company.com</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="telegram">Ваш аккаунт в Telegram или номер телефона, привязанный к аккаунту <span class="required">*</span></label>
+                    <div class="input-wrapper">
+                        <input
+                            type="text"
+                            id="telegram"
+                            name="telegram"
+                            placeholder="@username или +7 (999) 123-45-67"
+                            required
+                        >
+                        <svg class="status-icon valid" id="telegramIconValid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        <svg class="status-icon invalid" id="telegramIconInvalid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </div>
+                    <div class="error-message" id="telegramError">
+                        <div class="error-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            Telegram не заполнен
+                        </div>
+                        <div class="error-description">Введите ваш аккаунт Telegram (@username) или номер телефона, привязанный к Telegram.</div>
                     </div>
                 </div>
 
@@ -1398,13 +1531,86 @@
                     </div>
                 </div>
 
+                <!-- Информационный блок -->
+                <div class="info-block">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                        Для диагностики от вас потребуются следующие данные:
+                    </h4>
+                    <ul>
+                        <li>Ссылки на ваши соцсети и сайт</li>
+                        <li>Ссылки на 2 самых близких конкурента (соцсети или сайты)</li>
+                        <li>Чётко сформулированная проблема</li>
+                    </ul>
+                </div>
+
+                <h3 style="color: #333; font-size: 16px; margin-bottom: 20px; font-weight: 600;">Ввод данных</h3>
+
                 <div class="form-group">
-                    <label for="problem">Опишите вашу проблему</label>
+                    <label for="socialLinks">Ссылки на ваши сайты и соцсети <span class="required">*</span></label>
+                    <textarea
+                        id="socialLinks"
+                        name="socialLinks"
+                        placeholder="Укажите ссылки на ваш сайт, VK, Telegram-канал и другие соцсети..."
+                        required
+                    ></textarea>
+                    <div class="error-message" id="socialLinksError">
+                        <div class="error-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            Поле не заполнено
+                        </div>
+                        <div class="error-description">Укажите ссылки на ваши сайты и социальные сети для анализа.</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="competitorLinks">Ссылки на ваших конкурентов <span class="required">*</span></label>
+                    <textarea
+                        id="competitorLinks"
+                        name="competitorLinks"
+                        placeholder="Укажите ссылки на сайты или соцсети 2 ваших ближайших конкурентов..."
+                        required
+                    ></textarea>
+                    <div class="error-message" id="competitorLinksError">
+                        <div class="error-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            Поле не заполнено
+                        </div>
+                        <div class="error-description">Укажите ссылки на 2 ваших ближайших конкурентов для сравнительного анализа.</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="problem">Сформулируйте вашу проблему <span class="required">*</span></label>
                     <textarea
                         id="problem"
                         name="problem"
-                        placeholder="Расскажите подробнее о проблеме, с которой вы столкнулись..."
+                        placeholder="Чётко опишите проблему, с которой вы столкнулись в вашем бизнесе..."
+                        required
                     ></textarea>
+                    <div class="error-message" id="problemError">
+                        <div class="error-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            Проблема не описана
+                        </div>
+                        <div class="error-description">Опишите вашу проблему, чтобы мы могли подготовиться к диагностике.</div>
+                    </div>
                 </div>
 
                 <!-- Согласие на обработку персональных данных -->
@@ -1453,6 +1659,13 @@
                     </div>
                 </div>
 
+                <!-- Информация о диагностике -->
+                <div class="info-block">
+                    <p><strong>Продолжительность диагностики:</strong> 60–90 минут</p>
+                    <p><strong>Диагностика проводится по 3 критериям.</strong></p>
+                    <p><strong>Важно:</strong> Диагностику провожу только с владельцами бизнеса. Если вы не являетесь владельцем бизнеса, к сожалению, диагностику провести не смогу.</p>
+                </div>
+
                 <button type="submit">Записаться на диагностику</button>
             </form>
         </div>
@@ -1468,6 +1681,14 @@
             <p>Спасибо за обращение. Мы свяжемся с вами в ближайшее время для подтверждения записи.</p>
         </div>
     </div>
+
+    <!-- Кнопка входа в админ-панель -->
+    <button class="admin-login-button" onclick="openAdminModal()" title="Вход для администратора">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+    </button>
 
     <!-- Модальное окно с согласием на обработку ПД -->
     <div class="modal-overlay" id="consentModal">
@@ -1490,17 +1711,22 @@
 
                 <p>на обработку моих персональных данных, а именно:</p>
                 <ul>
-                    <li>Фамилия, имя, отчество</li>
-                    <li>Номер телефона</li>
-                    <li>Адрес электронной почты</li>
+                    <li>Имя</li>
+                    <li>Аккаунт в Telegram или номер телефона, привязанный к Telegram</li>
+                    <li>Номер телефона (при указании)</li>
+                    <li>Адрес электронной почты (при указании)</li>
+                    <li>Ссылки на сайты и социальные сети</li>
+                    <li>Ссылки на конкурентов</li>
+                    <li>Описание проблемы</li>
                     <li>Иные данные, добровольно предоставленные мной в форме заявки</li>
                 </ul>
 
                 <h3>Цели обработки персональных данных:</h3>
                 <ul>
-                    <li>Обработка заявки на запись</li>
-                    <li>Связь для уточнения деталей и подтверждения записи</li>
-                    <li>Информирование об образовательных услугах</li>
+                    <li>Обработка заявки на запись на диагностику</li>
+                    <li>Проведение диагностики бизнеса</li>
+                    <li>Связь через Telegram для уточнения деталей и подтверждения записи</li>
+                    <li>Информирование об образовательных и консультационных услугах</li>
                     <li>Направление уведомлений, связанных с оказанием услуг</li>
                 </ul>
 
@@ -1548,18 +1774,23 @@
                 <h3>2. Состав персональных данных</h3>
                 <p>2.1. Оператор может обрабатывать следующие персональные данные:</p>
                 <ul>
-                    <li>Фамилия, имя, отчество</li>
-                    <li>Номер контактного телефона</li>
-                    <li>Адрес электронной почты</li>
+                    <li>Имя</li>
+                    <li>Аккаунт в Telegram или номер телефона, привязанный к Telegram</li>
+                    <li>Номер контактного телефона (при указании)</li>
+                    <li>Адрес электронной почты (при указании)</li>
+                    <li>Ссылки на сайты и социальные сети пользователя</li>
+                    <li>Ссылки на сайты и социальные сети конкурентов</li>
+                    <li>Описание проблемы бизнеса</li>
                     <li>Иные данные, добровольно предоставленные пользователем</li>
                 </ul>
 
                 <h3>3. Цели обработки персональных данных</h3>
                 <p>3.1. Персональные данные обрабатываются в следующих целях:</p>
                 <ul>
-                    <li>Обработка входящих заявок и обращений</li>
-                    <li>Связь с пользователем для уточнения информации</li>
-                    <li>Оказание образовательных услуг</li>
+                    <li>Обработка входящих заявок на диагностику</li>
+                    <li>Проведение диагностики бизнеса</li>
+                    <li>Связь с пользователем через Telegram для уточнения информации</li>
+                    <li>Оказание консультационных и образовательных услуг</li>
                     <li>Направление информационных сообщений (с согласия пользователя)</li>
                     <li>Улучшение качества обслуживания</li>
                 </ul>
@@ -1603,7 +1834,7 @@
 
                 <h3>10. Заключительные положения</h3>
                 <p>10.1. Настоящая Политика может быть изменена Оператором в одностороннем порядке. Новая редакция вступает в силу с момента её размещения на сайте.</p>
-                <p style="margin-top: 16px; color: #888; font-size: 12px;">Дата последнего обновления: январь 2026 г.</p>
+                <p style="margin-top: 16px; color: #888; font-size: 12px;">Дата последнего обновления: февраль 2026 г.</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="modal-accept" data-modal="privacyModal">Понятно</button>
@@ -1736,6 +1967,18 @@
         const nameInput = document.getElementById('name');
         const phoneInput = document.getElementById('phone');
         const emailInput = document.getElementById('email');
+        const telegramInput = document.getElementById('telegram');
+        const socialLinksInput = document.getElementById('socialLinks');
+        const competitorLinksInput = document.getElementById('competitorLinks');
+        const problemInput = document.getElementById('problem');
+
+        // Элементы ошибок для новых полей
+        const telegramError = document.getElementById('telegramError');
+        const telegramIconValid = document.getElementById('telegramIconValid');
+        const telegramIconInvalid = document.getElementById('telegramIconInvalid');
+        const socialLinksError = document.getElementById('socialLinksError');
+        const competitorLinksError = document.getElementById('competitorLinksError');
+        const problemError = document.getElementById('problemError');
 
         // Чекбоксы согласий
         const consentPDInput = document.getElementById('consentPD');
@@ -2268,24 +2511,37 @@
                 showError(nameInput, nameError, nameIconValid, nameIconInvalid, false);
             }
 
-            // Проверка телефона
-            if (!isValidPhone(phoneInput.value)) {
+            // Проверка телефона (необязательное поле, но если заполнено - проверяем формат)
+            if (phoneInput.value.trim() !== '' && !isValidPhone(phoneInput.value)) {
                 const err = getPhoneError(phoneInput.value);
                 showError(phoneInput, phoneError, phoneIconValid, phoneIconInvalid, true, err);
                 errors.push('Исправьте номер телефона');
                 isValid = false;
-            } else {
+            } else if (phoneInput.value.trim() !== '') {
                 showError(phoneInput, phoneError, phoneIconValid, phoneIconInvalid, false);
+            } else {
+                resetField(phoneInput, phoneError, phoneIconValid, phoneIconInvalid);
             }
 
-            // Проверка email
-            if (!isValidEmail(emailInput.value)) {
+            // Проверка email (необязательное поле, но если заполнено - проверяем формат)
+            if (emailInput.value.trim() !== '' && !isValidEmail(emailInput.value)) {
                 const err = getEmailError(emailInput.value);
                 showError(emailInput, emailError, emailIconValid, emailIconInvalid, true, err);
                 errors.push('Исправьте адрес электронной почты');
                 isValid = false;
-            } else {
+            } else if (emailInput.value.trim() !== '') {
                 showError(emailInput, emailError, emailIconValid, emailIconInvalid, false);
+            } else {
+                resetField(emailInput, emailError, emailIconValid, emailIconInvalid);
+            }
+
+            // Проверка Telegram (обязательное поле)
+            if (telegramInput.value.trim() === '') {
+                showError(telegramInput, telegramError, telegramIconValid, telegramIconInvalid, true);
+                errors.push('Заполните поле «Telegram»');
+                isValid = false;
+            } else {
+                showError(telegramInput, telegramError, telegramIconValid, telegramIconInvalid, false);
             }
 
             // Проверка даты и времени
@@ -2316,6 +2572,42 @@
                 datetimeError.classList.remove('show');
                 dateInput.classList.remove('invalid');
                 timeSlotsContainer.classList.remove('invalid');
+            }
+
+            // Проверка ссылок на соцсети
+            if (socialLinksInput.value.trim() === '') {
+                socialLinksInput.classList.add('invalid');
+                socialLinksError.classList.add('show');
+                errors.push('Укажите ссылки на ваши сайты и соцсети');
+                isValid = false;
+            } else {
+                socialLinksInput.classList.remove('invalid');
+                socialLinksInput.classList.add('valid');
+                socialLinksError.classList.remove('show');
+            }
+
+            // Проверка ссылок на конкурентов
+            if (competitorLinksInput.value.trim() === '') {
+                competitorLinksInput.classList.add('invalid');
+                competitorLinksError.classList.add('show');
+                errors.push('Укажите ссылки на ваших конкурентов');
+                isValid = false;
+            } else {
+                competitorLinksInput.classList.remove('invalid');
+                competitorLinksInput.classList.add('valid');
+                competitorLinksError.classList.remove('show');
+            }
+
+            // Проверка описания проблемы
+            if (problemInput.value.trim() === '') {
+                problemInput.classList.add('invalid');
+                problemError.classList.add('show');
+                errors.push('Сформулируйте вашу проблему');
+                isValid = false;
+            } else {
+                problemInput.classList.remove('invalid');
+                problemInput.classList.add('valid');
+                problemError.classList.remove('show');
             }
 
             // Проверка согласия на обработку персональных данных
@@ -2355,9 +2647,12 @@
                 name: nameInput.value,
                 phone: phoneInput.value,
                 email: emailInput.value,
+                telegram: telegramInput.value,
                 date: dateInput.value,
                 time: timeInput.value,
-                problem: document.getElementById('problem').value,
+                socialLinks: socialLinksInput.value,
+                competitorLinks: competitorLinksInput.value,
+                problem: problemInput.value,
                 consentPD: consentPDInput.checked,
                 consentPolicy: consentPolicyInput.checked,
                 consentDate: new Date().toISOString()
@@ -2499,6 +2794,7 @@
             try {
                 await fetch('api/auth.php?action=logout');
                 showAdminLogin();
+                closeAdminModal();
             } catch (error) {
                 console.error('Ошибка выхода:', error);
             }
@@ -2695,16 +2991,13 @@
 
         // Блокировка слота
         async function blockSlot(date, time) {
-            const reason = prompt('Причина блокировки:', 'Занято');
-            if (!reason) return;
-
             try {
                 const response = await fetch('api/bookings.php?action=block_slot', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ date, time, reason })
+                    body: JSON.stringify({ date, time, reason: 'Заблокировано' })
                 });
 
                 const data = await response.json();
@@ -2750,16 +3043,13 @@
 
         // Блокировка всего дня
         async function blockDate(date) {
-            const reason = prompt('Причина блокировки дня:', 'Выходной');
-            if (!reason) return;
-
             try {
                 const response = await fetch('api/bookings.php?action=block_date', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ date, reason })
+                    body: JSON.stringify({ date, reason: 'Заблокировано' })
                 });
 
                 const data = await response.json();
