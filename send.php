@@ -116,6 +116,22 @@ if (strtotime($date) < strtotime(date('Y-m-d'))) {
     ], 400);
 }
 
+// Проверяем правило открытия месяца (запись на следующий месяц доступна только с 20-го числа)
+$today = new DateTime(date('Y-m-d'), new DateTimeZone('Europe/Moscow'));
+$bookingDate = new DateTime($date, new DateTimeZone('Europe/Moscow'));
+$bookingMonth = (int)$bookingDate->format('m');
+$bookingYear = (int)$bookingDate->format('Y');
+$currentMonth = (int)$today->format('m');
+$currentYear = (int)$today->format('Y');
+$currentDay = (int)$today->format('d');
+
+if (($bookingYear > $currentYear || ($bookingYear === $currentYear && $bookingMonth > $currentMonth)) && $currentDay < 20) {
+    sendJsonResponse([
+        'success' => false,
+        'error' => 'Запись на следующий месяц открывается только с 20-го числа текущего месяца'
+    ], 400);
+}
+
 // Проверяем, что день рабочий
 if (!isWorkingDay($date)) {
     sendJsonResponse([

@@ -2178,10 +2178,17 @@
                 const dayAvailability = availabilityData[dateStr];
                 const isAvailable = dayAvailability && (dayAvailability.status === 'free' || dayAvailability.status === 'partial');
 
+                // Проверяем правило открытия месяца (запись на следующий месяц доступна только с 20-го числа)
+                const todayYear = today.getFullYear();
+                const todayMonth = today.getMonth();
+                const todayDay = today.getDate();
+                const isNextMonth = (year > todayYear || (year === todayYear && month > todayMonth));
+                const isBlockedByMonthRule = isNextMonth && todayDay < 20;
+
                 let classes = 'calendar-day';
                 if (isToday) classes += ' today';
                 if (isSelected) classes += ' selected';
-                if (isPast || isWeekend || !isAvailable) classes += ' disabled';
+                if (isPast || isWeekend || !isAvailable || isBlockedByMonthRule) classes += ' disabled';
 
                 html += `<button type="button" class="${classes}" data-date="${dateStr}">${day}</button>`;
             }

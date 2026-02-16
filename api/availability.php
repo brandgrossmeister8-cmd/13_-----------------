@@ -58,6 +58,17 @@ function handleMonthAvailability($month) {
             continue;
         }
 
+        // Проверяем правило открытия месяца (запись на следующий месяц доступна только с 20-го числа)
+        $today = new DateTime(date('Y-m-d'), new DateTimeZone('Europe/Moscow'));
+        $currentMonth = (int)$today->format('m');
+        $currentYear = (int)$today->format('Y');
+        $currentDay = (int)$today->format('d');
+
+        // Если дата в следующем месяце (или позже) и сегодня ещё не 20-е - пропускаем
+        if (($year > $currentYear || ($year === $currentYear && $monthNum > $currentMonth)) && $currentDay < 20) {
+            continue;
+        }
+
         // Проверяем, рабочий ли день
         if (!isWorkingDay($dateStr)) {
             continue;
