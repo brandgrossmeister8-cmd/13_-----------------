@@ -252,19 +252,20 @@ function sendTelegramNotification($message) {
         'parse_mode' => 'HTML'
     ];
 
-    $options = [
-        'http' => [
-            'method' => 'POST',
-            'header' => 'Content-Type: application/x-www-form-urlencoded',
-            'content' => http_build_query($data),
-            'timeout' => 10
-        ]
-    ];
+    // Используем cURL (работает на Timeweb и других хостингах)
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
-    $context = stream_context_create($options);
-    $result = @file_get_contents($url, false, $context);
+    $result = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
 
-    return $result !== false;
+    return $result !== false && $httpCode === 200;
 }
 
 /**
