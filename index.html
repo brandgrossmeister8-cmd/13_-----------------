@@ -1451,9 +1451,9 @@
                                 <line x1="12" y1="8" x2="12" y2="12"></line>
                                 <line x1="12" y1="16" x2="12.01" y2="16"></line>
                             </svg>
-                            Telegram не заполнен
+                            <span id="telegramErrorTitle">Telegram не заполнен</span>
                         </div>
-                        <div class="error-description">Введите ваш аккаунт Telegram (@username) или номер телефона, привязанный к Telegram.</div>
+                        <div class="error-description" id="telegramErrorDesc">Введите ваш аккаунт Telegram (@username) или номер телефона, привязанный к Telegram.</div>
                     </div>
                 </div>
 
@@ -2378,6 +2378,83 @@
             };
         }
 
+        // Валидация Telegram
+        function isValidTelegram(telegram) {
+            const value = telegram.trim();
+            // Проверка username (@username)
+            const usernameRegex = /^@[a-zA-Z][a-zA-Z0-9_]{4,31}$/;
+            // Проверка номера телефона (с + или без, 10-15 цифр)
+            const phoneRegex = /^\+?[0-9]{10,15}$/;
+            // Проверка номера в формате +7 (XXX) XXX-XX-XX
+            const formattedPhoneRegex = /^\+7\s?\(?\d{3}\)?\s?\d{3}[-\s]?\d{2}[-\s]?\d{2}$/;
+
+            return usernameRegex.test(value) || phoneRegex.test(value.replace(/[\s\(\)\-]/g, '')) || formattedPhoneRegex.test(value);
+        }
+
+        // Получить детальную ошибку Telegram
+        function getTelegramError(telegram) {
+            const value = telegram.trim();
+
+            if (value === '') {
+                return {
+                    title: 'Telegram не заполнен',
+                    desc: 'Введите ваш аккаунт Telegram (@username) или номер телефона, привязанный к Telegram.'
+                };
+            }
+
+            // Если начинается с @, проверяем как username
+            if (value.startsWith('@')) {
+                if (value.length < 6) {
+                    return {
+                        title: 'Username слишком короткий',
+                        desc: 'Username в Telegram должен содержать минимум 5 символов после @. Пример: @username'
+                    };
+                }
+                if (value.length > 33) {
+                    return {
+                        title: 'Username слишком длинный',
+                        desc: 'Username в Telegram не может быть длиннее 32 символов после @.'
+                    };
+                }
+                if (!/^@[a-zA-Z]/.test(value)) {
+                    return {
+                        title: 'Username должен начинаться с буквы',
+                        desc: 'После @ должна идти буква латинского алфавита. Пример: @username'
+                    };
+                }
+                if (!/^@[a-zA-Z][a-zA-Z0-9_]*$/.test(value)) {
+                    return {
+                        title: 'Недопустимые символы в username',
+                        desc: 'Username может содержать только латинские буквы, цифры и подчёркивания. Пример: @my_username123'
+                    };
+                }
+                return {
+                    title: 'Некорректный username',
+                    desc: 'Проверьте правильность username. Пример: @username'
+                };
+            }
+
+            // Проверяем как номер телефона
+            const digits = value.replace(/\D/g, '');
+            if (digits.length > 0 && digits.length < 10) {
+                return {
+                    title: 'Номер телефона слишком короткий',
+                    desc: 'Введите полный номер телефона (минимум 10 цифр) или username в формате @username'
+                };
+            }
+            if (digits.length > 15) {
+                return {
+                    title: 'Номер телефона слишком длинный',
+                    desc: 'Номер телефона не должен содержать более 15 цифр.'
+                };
+            }
+
+            return {
+                title: 'Некорректный формат',
+                desc: 'Введите username (@username) или номер телефона. Примеры: @myusername или +79001234567'
+            };
+        }
+
         // Показать ошибку
         function showError(input, errorElement, iconValid, iconInvalid, show, errorInfo = null) {
             if (show) {
@@ -2473,6 +2550,18 @@
             }
         });
 
+        telegramInput.addEventListener('blur', function() {
+            hideErrorsSummary();
+            if (this.value.trim() === '') {
+                showError(this, telegramError, telegramIconValid, telegramIconInvalid, true, getTelegramError(''));
+            } else if (!isValidTelegram(this.value)) {
+                const err = getTelegramError(this.value);
+                showError(this, telegramError, telegramIconValid, telegramIconInvalid, true, err);
+            } else {
+                showError(this, telegramError, telegramIconValid, telegramIconInvalid, false);
+            }
+        });
+
         // Убираем ошибку при вводе
         nameInput.addEventListener('input', function() {
             hideErrorsSummary();
@@ -2493,6 +2582,13 @@
             this.classList.remove('invalid');
             emailError.classList.remove('show');
             emailIconInvalid.classList.remove('show');
+        });
+
+        telegramInput.addEventListener('input', function() {
+            hideErrorsSummary();
+            this.classList.remove('invalid');
+            telegramError.classList.remove('show');
+            telegramIconInvalid.classList.remove('show');
         });
 
         // Отправка формы
@@ -2537,8 +2633,14 @@
 
             // Проверка Telegram (обязательное поле)
             if (telegramInput.value.trim() === '') {
-                showError(telegramInput, telegramError, telegramIconValid, telegramIconInvalid, true);
+                const err = getTelegramError('');
+                showError(telegramInput, telegramError, telegramIconValid, telegramIconInvalid, true, err);
                 errors.push('Заполните поле «Telegram»');
+                isValid = false;
+            } else if (!isValidTelegram(telegramInput.value)) {
+                const err = getTelegramError(telegramInput.value);
+                showError(telegramInput, telegramError, telegramIconValid, telegramIconInvalid, true, err);
+                errors.push('Исправьте аккаунт Telegram');
                 isValid = false;
             } else {
                 showError(telegramInput, telegramError, telegramIconValid, telegramIconInvalid, false);
