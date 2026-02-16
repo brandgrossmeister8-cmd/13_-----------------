@@ -2829,7 +2829,9 @@
         // Проверка авторизации
         async function checkAdminAuth() {
             try {
-                const response = await fetch('api/auth.php?action=check');
+                const response = await fetch('api/auth.php?action=check', {
+                    credentials: 'include'
+                });
                 const data = await response.json();
 
                 if (data.authenticated) {
@@ -2873,6 +2875,7 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
+                    credentials: 'include',
                     body: JSON.stringify({ password })
                 });
 
@@ -2894,7 +2897,9 @@
         // Выход
         async function adminLogout() {
             try {
-                await fetch('api/auth.php?action=logout');
+                await fetch('api/auth.php?action=logout', {
+                    credentials: 'include'
+                });
                 showAdminLogin();
                 closeAdminModal();
             } catch (error) {
@@ -2932,8 +2937,8 @@
                 const month = `${adminCurrentDate.getFullYear()}-${String(adminCurrentDate.getMonth() + 1).padStart(2, '0')}`;
 
                 const [availabilityRes, bookingsRes] = await Promise.all([
-                    fetch(`api/availability.php?month=${month}`),
-                    fetch('api/bookings.php')
+                    fetch(`api/availability.php?month=${month}`, { credentials: 'include' }),
+                    fetch('api/bookings.php', { credentials: 'include' })
                 ]);
 
                 const availability = await availabilityRes.json();
@@ -3099,6 +3104,7 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
+                    credentials: 'include',
                     body: JSON.stringify({ date, time, reason: 'Заблокировано' })
                 });
 
@@ -3126,6 +3132,7 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
+                    credentials: 'include',
                     body: JSON.stringify({ date, time })
                 });
 
@@ -3151,6 +3158,7 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
+                    credentials: 'include',
                     body: JSON.stringify({ date, reason: 'Заблокировано' })
                 });
 
@@ -3178,6 +3186,7 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
+                    credentials: 'include',
                     body: JSON.stringify({ date })
                 });
 
@@ -3285,7 +3294,8 @@
 
             try {
                 const response = await fetch(`api/bookings.php?id=${id}`, {
-                    method: 'DELETE'
+                    method: 'DELETE',
+                    credentials: 'include'
                 });
 
                 const data = await response.json();
