@@ -771,7 +771,25 @@
             text-align: center;
         }
 
-        .time-slot:hover:not(.selected) {
+        .time-slot.available {
+            background: #dcfce7;
+            border-color: #86efac;
+            color: #166534;
+        }
+
+        .time-slot.available:hover:not(.selected) {
+            border-color: #22c55e;
+        }
+
+        .time-slot.unavailable {
+            background: #fee2e2;
+            border-color: #fca5a5;
+            color: #991b1b;
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .time-slot:hover:not(.selected):not(.unavailable) {
             border-color: #667eea;
             transform: none;
             box-shadow: none;
@@ -783,8 +801,42 @@
             color: white;
         }
 
+        /* Легенда цветов */
+        .time-slots-legend {
+            display: flex;
+            gap: 16px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .time-slots-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .time-slots-legend-color {
+            width: 14px;
+            height: 14px;
+            border-radius: 4px;
+            border: 1.5px solid;
+            flex-shrink: 0;
+        }
+
+        .time-slots-legend-color.green {
+            background: #dcfce7;
+            border-color: #86efac;
+        }
+
+        .time-slots-legend-color.red {
+            background: #fee2e2;
+            border-color: #fca5a5;
+        }
+
         /* Состояние ошибки для слотов времени */
-        .time-slots.invalid .time-slot:not(.selected) {
+        .time-slots.invalid .time-slot:not(.selected):not(.unavailable) {
             border-color: #fca5a5;
             background-color: #fef2f2;
         }
@@ -1523,6 +1575,16 @@
                                 <button type="button" class="time-slot" data-time="17:00">17:00</button>
                             </div>
                             <input type="hidden" id="timeInput" name="time" required>
+                            <div class="time-slots-legend" id="timeSlotsLegend" style="display: none;">
+                                <div class="time-slots-legend-item">
+                                    <div class="time-slots-legend-color green"></div>
+                                    <span>Свободно</span>
+                                </div>
+                                <div class="time-slots-legend-item">
+                                    <div class="time-slots-legend-color red"></div>
+                                    <span>Занято / недоступно</span>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="datetime-error" id="datetimeError">
@@ -2249,20 +2311,49 @@
             }
         }
 
+        // Проверка, прошло ли время слота (для сегодняшней даты)
+        function isSlotPast(timeStr) {
+            if (!selectedDate) return false;
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const selDate = new Date(selectedDate);
+            const selDateOnly = new Date(selDate.getFullYear(), selDate.getMonth(), selDate.getDate());
+
+            if (selDateOnly.getTime() !== today.getTime()) return false;
+
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            const slotTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
+            return now >= slotTime;
+        }
+
         // Обновление отображения слотов времени
         function updateUserTimeSlots() {
+            const legend = document.getElementById('timeSlotsLegend');
+            legend.style.display = 'flex';
+
             timeSlots.forEach(slotBtn => {
                 const time = slotBtn.dataset.time;
                 const slotData = currentDateSlots.find(s => s.time === time);
 
-                if (slotData && !slotData.available) {
+                // Сброс классов
+                slotBtn.classList.remove('available', 'unavailable');
+                slotBtn.style.opacity = '';
+                slotBtn.style.cursor = '';
+
+                const past = isSlotPast(time);
+                const unavailable = (slotData && !slotData.available) || past;
+
+                if (unavailable) {
                     slotBtn.disabled = true;
-                    slotBtn.style.opacity = '0.5';
-                    slotBtn.style.cursor = 'not-allowed';
+                    slotBtn.classList.add('unavailable');
+                    if (slotBtn.classList.contains('selected')) {
+                        slotBtn.classList.remove('selected');
+                        selectedTime = null;
+                        timeInput.value = '';
+                    }
                 } else {
                     slotBtn.disabled = false;
-                    slotBtn.style.opacity = '1';
-                    slotBtn.style.cursor = 'pointer';
+                    slotBtn.classList.add('available');
                 }
             });
         }
