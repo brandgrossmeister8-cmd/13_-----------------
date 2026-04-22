@@ -659,21 +659,22 @@
         }
 
         .calendar-header button {
-            width: 32px;
-            height: 32px;
-            padding: 0;
-            background: #f3f4f6;
+            padding: 6px 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
             border: none;
             border-radius: 8px;
             cursor: pointer;
             display: flex;
             align-items: center;
-            justify-content: center;
-            transition: background 0.2s ease;
+            gap: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            transition: opacity 0.2s ease;
         }
 
         .calendar-header button:hover {
-            background: #e5e7eb;
+            opacity: 0.85;
             transform: none;
             box-shadow: none;
         }
@@ -1591,13 +1592,15 @@
                                 <div class="calendar-dropdown" id="calendarDropdown">
                                     <div class="calendar-header">
                                         <button type="button" id="prevMonth">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                                                 <polyline points="15 18 9 12 15 6"></polyline>
                                             </svg>
+                                            Назад
                                         </button>
                                         <span class="calendar-month-year" id="calendarMonthYear"></span>
                                         <button type="button" id="nextMonth">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            Вперёд
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                                                 <polyline points="9 18 15 12 9 6"></polyline>
                                             </svg>
                                         </button>
