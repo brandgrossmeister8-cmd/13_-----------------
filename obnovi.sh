@@ -47,7 +47,12 @@ else
 fi
 
 echo ""
-echo "=== [5/5] Диагностика ==="
+echo "=== [5/6] Восстановление прав на data/ (PHP пишет под www-data) ==="
+chown -R www-data:www-data data/ 2>/dev/null || echo "chown не сработал — возможно нужен sudo"
+chmod -R u+rwX,g+rwX data/ 2>/dev/null || true
+
+echo ""
+echo "=== [6/6] Диагностика ==="
 git log --oneline -3
 echo ""
 echo "Файлы на месте:"
