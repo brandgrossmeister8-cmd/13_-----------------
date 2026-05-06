@@ -33,39 +33,37 @@ function atomicJsonUpdate($file, $callback) {
         return false;
     }
 
-    // Получаем эксклюзивную блокировку
     if (!flock($fp, LOCK_EX)) {
         fclose($fp);
         return false;
     }
 
-    // Читаем содержимое
-    $content = '';
-    while (!feof($fp)) {
-        $content .= fread($fp, 8192);
+    try {
+        $content = '';
+        while (!feof($fp)) {
+            $content .= fread($fp, 8192);
+        }
+
+        $data = json_decode($content ?: '{"bookings":[],"blocked_dates":[],"blocked_slots":[]}', true);
+
+        if ($data === null) {
+            $data = [
+                'bookings' => [],
+                'blocked_dates' => [],
+                'blocked_slots' => []
+            ];
+        }
+
+        // Если callback бросает исключение — финалли всё равно отпустит lock
+        $data = $callback($data);
+
+        ftruncate($fp, 0);
+        rewind($fp);
+        fwrite($fp, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    } finally {
+        flock($fp, LOCK_UN);
+        fclose($fp);
     }
-
-    $data = json_decode($content ?: '{"bookings":[],"blocked_dates":[],"blocked_slots":[]}', true);
-
-    if ($data === null) {
-        $data = [
-            'bookings' => [],
-            'blocked_dates' => [],
-            'blocked_slots' => []
-        ];
-    }
-
-    // Применяем модификацию
-    $data = $callback($data);
-
-    // Записываем обратно
-    ftruncate($fp, 0);
-    rewind($fp);
-    fwrite($fp, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-
-    // Снимаем блокировку и закрываем файл
-    flock($fp, LOCK_UN);
-    fclose($fp);
 
     return true;
 }

@@ -94,36 +94,33 @@ function handleDeleteBooking() {
         sendJsonResponse(['success' => false, 'error' => 'Не указан ID'], 400);
     }
 
-    $success = atomicJsonUpdate(DATA_FILE, function($data) use ($id) {
-        $found = false;
-        $data['bookings'] = array_filter($data['bookings'], function($booking) use ($id, &$found) {
-            if ($booking['id'] == $id) {
-                $found = true;
-                return false;
+    try {
+        $success = atomicJsonUpdate(DATA_FILE, function($data) use ($id) {
+            $found = false;
+            $data['bookings'] = array_filter($data['bookings'], function($booking) use ($id, &$found) {
+                if ($booking['id'] == $id) {
+                    $found = true;
+                    return false;
+                }
+                return true;
+            });
+
+            $data['bookings'] = array_values($data['bookings']);
+
+            if (!$found) {
+                throw new Exception('Запись не найдена');
             }
-            return true;
+
+            return $data;
         });
-
-        // Переиндексируем массив
-        $data['bookings'] = array_values($data['bookings']);
-
-        if (!$found) {
-            throw new Exception('Запись не найдена');
-        }
-
-        return $data;
-    });
+    } catch (Exception $e) {
+        sendJsonResponse(['success' => false, 'error' => $e->getMessage()], 404);
+    }
 
     if ($success) {
-        sendJsonResponse([
-            'success' => true,
-            'message' => 'Запись удалена'
-        ]);
+        sendJsonResponse(['success' => true, 'message' => 'Запись удалена']);
     } else {
-        sendJsonResponse([
-            'success' => false,
-            'error' => 'Ошибка при удалении'
-        ], 500);
+        sendJsonResponse(['success' => false, 'error' => 'Ошибка при удалении (lock/доступ к файлу)'], 500);
     }
 }
 
@@ -205,34 +202,31 @@ function handleBlockSlot() {
         sendJsonResponse(['success' => false, 'error' => 'Неверное время'], 400);
     }
 
-    $success = atomicJsonUpdate(DATA_FILE, function($data) use ($date, $time, $reason) {
-        // Проверяем, не заблокирован ли уже
-        foreach ($data['blocked_slots'] as $blocked) {
-            if ($blocked['date'] === $date && $blocked['time'] === $time) {
-                throw new Exception('Слот уже заблокирован');
+    try {
+        $success = atomicJsonUpdate(DATA_FILE, function($data) use ($date, $time, $reason) {
+            foreach ($data['blocked_slots'] as $blocked) {
+                if ($blocked['date'] === $date && $blocked['time'] === $time) {
+                    throw new Exception('Слот уже заблокирован');
+                }
             }
-        }
 
-        $data['blocked_slots'][] = [
-            'date' => $date,
-            'time' => $time,
-            'reason' => $reason,
-            'created_at' => date('c')
-        ];
+            $data['blocked_slots'][] = [
+                'date' => $date,
+                'time' => $time,
+                'reason' => $reason,
+                'created_at' => date('c')
+            ];
 
-        return $data;
-    });
+            return $data;
+        });
+    } catch (Exception $e) {
+        sendJsonResponse(['success' => false, 'error' => $e->getMessage()], 409);
+    }
 
     if ($success) {
-        sendJsonResponse([
-            'success' => true,
-            'message' => 'Слот заблокирован'
-        ]);
+        sendJsonResponse(['success' => true, 'message' => 'Слот заблокирован']);
     } else {
-        sendJsonResponse([
-            'success' => false,
-            'error' => 'Ошибка при блокировке'
-        ], 500);
+        sendJsonResponse(['success' => false, 'error' => 'Ошибка при блокировке (lock/доступ к файлу)'], 500);
     }
 }
 
@@ -253,35 +247,33 @@ function handleUnblockSlot() {
         sendJsonResponse(['success' => false, 'error' => 'Неверное время'], 400);
     }
 
-    $success = atomicJsonUpdate(DATA_FILE, function($data) use ($date, $time) {
-        $found = false;
-        $data['blocked_slots'] = array_filter($data['blocked_slots'], function($blocked) use ($date, $time, &$found) {
-            if ($blocked['date'] === $date && $blocked['time'] === $time) {
-                $found = true;
-                return false;
+    try {
+        $success = atomicJsonUpdate(DATA_FILE, function($data) use ($date, $time) {
+            $found = false;
+            $data['blocked_slots'] = array_filter($data['blocked_slots'], function($blocked) use ($date, $time, &$found) {
+                if ($blocked['date'] === $date && $blocked['time'] === $time) {
+                    $found = true;
+                    return false;
+                }
+                return true;
+            });
+
+            $data['blocked_slots'] = array_values($data['blocked_slots']);
+
+            if (!$found) {
+                throw new Exception('Блокировка не найдена');
             }
-            return true;
+
+            return $data;
         });
-
-        $data['blocked_slots'] = array_values($data['blocked_slots']);
-
-        if (!$found) {
-            throw new Exception('Блокировка не найдена');
-        }
-
-        return $data;
-    });
+    } catch (Exception $e) {
+        sendJsonResponse(['success' => false, 'error' => $e->getMessage()], 404);
+    }
 
     if ($success) {
-        sendJsonResponse([
-            'success' => true,
-            'message' => 'Слот разблокирован'
-        ]);
+        sendJsonResponse(['success' => true, 'message' => 'Слот разблокирован']);
     } else {
-        sendJsonResponse([
-            'success' => false,
-            'error' => 'Ошибка при разблокировке'
-        ], 500);
+        sendJsonResponse(['success' => false, 'error' => 'Ошибка при разблокировке (lock/доступ к файлу)'], 500);
     }
 }
 
@@ -298,34 +290,31 @@ function handleBlockDate() {
         sendJsonResponse(['success' => false, 'error' => 'Неверный формат даты'], 400);
     }
 
-    $success = atomicJsonUpdate(DATA_FILE, function($data) use ($date, $reason) {
-        // Проверяем, не заблокирован ли уже
-        foreach ($data['blocked_dates'] as $blocked) {
-            if ($blocked['date'] === $date && $blocked['all_day']) {
-                throw new Exception('День уже заблокирован');
+    try {
+        $success = atomicJsonUpdate(DATA_FILE, function($data) use ($date, $reason) {
+            foreach ($data['blocked_dates'] as $blocked) {
+                if ($blocked['date'] === $date && $blocked['all_day']) {
+                    throw new Exception('День уже заблокирован');
+                }
             }
-        }
 
-        $data['blocked_dates'][] = [
-            'date' => $date,
-            'reason' => $reason,
-            'all_day' => true,
-            'created_at' => date('c')
-        ];
+            $data['blocked_dates'][] = [
+                'date' => $date,
+                'reason' => $reason,
+                'all_day' => true,
+                'created_at' => date('c')
+            ];
 
-        return $data;
-    });
+            return $data;
+        });
+    } catch (Exception $e) {
+        sendJsonResponse(['success' => false, 'error' => $e->getMessage()], 409);
+    }
 
     if ($success) {
-        sendJsonResponse([
-            'success' => true,
-            'message' => 'День заблокирован'
-        ]);
+        sendJsonResponse(['success' => true, 'message' => 'День заблокирован']);
     } else {
-        sendJsonResponse([
-            'success' => false,
-            'error' => 'Ошибка при блокировке'
-        ], 500);
+        sendJsonResponse(['success' => false, 'error' => 'Ошибка при блокировке (lock/доступ к файлу)'], 500);
     }
 }
 
@@ -341,34 +330,32 @@ function handleUnblockDate() {
         sendJsonResponse(['success' => false, 'error' => 'Неверный формат даты'], 400);
     }
 
-    $success = atomicJsonUpdate(DATA_FILE, function($data) use ($date) {
-        $found = false;
-        $data['blocked_dates'] = array_filter($data['blocked_dates'], function($blocked) use ($date, &$found) {
-            if ($blocked['date'] === $date && $blocked['all_day']) {
-                $found = true;
-                return false;
+    try {
+        $success = atomicJsonUpdate(DATA_FILE, function($data) use ($date) {
+            $found = false;
+            $data['blocked_dates'] = array_filter($data['blocked_dates'], function($blocked) use ($date, &$found) {
+                if ($blocked['date'] === $date && $blocked['all_day']) {
+                    $found = true;
+                    return false;
+                }
+                return true;
+            });
+
+            $data['blocked_dates'] = array_values($data['blocked_dates']);
+
+            if (!$found) {
+                throw new Exception('Блокировка дня не найдена');
             }
-            return true;
+
+            return $data;
         });
-
-        $data['blocked_dates'] = array_values($data['blocked_dates']);
-
-        if (!$found) {
-            throw new Exception('Блокировка дня не найдена');
-        }
-
-        return $data;
-    });
+    } catch (Exception $e) {
+        sendJsonResponse(['success' => false, 'error' => $e->getMessage()], 404);
+    }
 
     if ($success) {
-        sendJsonResponse([
-            'success' => true,
-            'message' => 'День разблокирован'
-        ]);
+        sendJsonResponse(['success' => true, 'message' => 'День разблокирован']);
     } else {
-        sendJsonResponse([
-            'success' => false,
-            'error' => 'Ошибка при разблокировке'
-        ], 500);
+        sendJsonResponse(['success' => false, 'error' => 'Ошибка при разблокировке (lock/доступ к файлу)'], 500);
     }
 }
