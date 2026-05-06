@@ -91,7 +91,11 @@ function handleGetBookings() {
     @ignore_user_abort(true);
 
     // Контролёр работает в фоне: при следующей загрузке админка покажет уже обновлённые бейджи
-    retryPendingTelegramNotifications();
+    try {
+        retryPendingTelegramNotifications();
+    } catch (Throwable $e) {
+        @error_log('[bookings.php] retryPending failed: ' . $e->getMessage());
+    }
     exit;
 }
 

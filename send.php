@@ -206,4 +206,8 @@ if (function_exists('fastcgi_finish_request')) {
 @ignore_user_abort(true);
 
 // Только теперь пробуем доставить уведомление в Telegram (3 попытки внутри + другие pending)
-retryPendingTelegramNotifications();
+try {
+    retryPendingTelegramNotifications();
+} catch (Throwable $e) {
+    @error_log('[send.php] retryPending failed: ' . $e->getMessage());
+}
