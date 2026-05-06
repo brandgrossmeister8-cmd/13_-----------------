@@ -301,6 +301,111 @@ function sendTelegramNotification($message) {
 }
 
 /**
+ * Собрать сообщение для Telegram по записи (используется и при первой отправке, и при ретраях)
+ * @param array $booking
+ * @param bool $isRetry Признак повторной отправки
+ * @return string
+ */
+function buildTelegramMessageForBooking($booking, $isRetry = false) {
+    $title = $isRetry ? "🔁 <b>Доставка после сбоя — запись на диагностику</b>" : "🆕 <b>Новая запись на диагностику</b>";
+    $msg  = $title . "\n\n";
+    $msg .= "📅 <b>Дата:</b> " . date('d.m.Y', strtotime($booking['date'])) . "\n";
+    $msg .= "🕐 <b>Время:</b> " . htmlspecialchars($booking['time']) . "\n\n";
+    $msg .= "👤 <b>Имя:</b> " . htmlspecialchars($booking['name']) . "\n";
+    $msg .= "💬 <b>Telegram:</b> " . htmlspecialchars($booking['telegram'] ?? '—') . "\n";
+    if (!empty($booking['phone'])) {
+        $msg .= "📱 <b>Телефон:</b> " . htmlspecialchars($booking['phone']) . "\n";
+    }
+    if (!empty($booking['email'])) {
+        $msg .= "📧 <b>Email:</b> " . htmlspecialchars($booking['email']) . "\n";
+    }
+    if (!empty($booking['socialLinks'])) {
+        $msg .= "\n🔗 <b>Ссылки на соцсети/сайт:</b>\n" . htmlspecialchars($booking['socialLinks']) . "\n";
+    }
+    if (!empty($booking['competitorLinks'])) {
+        $msg .= "\n🎯 <b>Ссылки на конкурентов:</b>\n" . htmlspecialchars($booking['competitorLinks']) . "\n";
+    }
+    if (!empty($booking['problem'])) {
+        $msg .= "\n📝 <b>Проблема:</b>\n" . htmlspecialchars($booking['problem']) . "\n";
+    }
+    $created = !empty($booking['created_at']) ? date('d.m.Y H:i', strtotime($booking['created_at'])) : '—';
+    $msg .= "\n⏰ <b>Создано:</b> $created";
+    if ($isRetry && !empty($booking['telegram_attempts'])) {
+        $msg .= "\n🔢 <b>Попытка:</b> " . ((int)$booking['telegram_attempts'] + 1);
+    }
+    return $msg;
+}
+
+/**
+ * Контролёр: находит все заявки с telegram_sent=false и пытается переотправить.
+ * Вызывается при подаче новой заявки и при загрузке админки.
+ *
+ * @param int $maxPerRun Максимум заявок за один вызов (защита от долгих циклов)
+ * @param int $maxAttempts Максимум попыток на одну заявку
+ * @param int $cooldownSeconds Не повторять чаще чем раз в N секунд для одной заявки
+ * @return array ['attempted' => int, 'sent' => int, 'failed' => int]
+ */
+function retryPendingTelegramNotifications($maxPerRun = 5, $maxAttempts = 10, $cooldownSeconds = 30) {
+    $stats = ['attempted' => 0, 'sent' => 0, 'failed' => 0];
+
+    // Шаг 1: читаем без блокировки и отбираем кандидатов (старые записи без поля
+    // не трогаем — для них есть ручная кнопка «Отправить в ТГ»)
+    $data = readJsonData(DATA_FILE);
+    $now = time();
+    $candidates = [];
+    foreach ($data['bookings'] as $b) {
+        if (!array_key_exists('telegram_sent', $b)) continue;
+        if ($b['telegram_sent'] === true) continue;
+
+        $attempts = (int)($b['telegram_attempts'] ?? 0);
+        if ($attempts >= $maxAttempts) continue;
+
+        $lastAttempt = !empty($b['telegram_last_attempt']) ? strtotime($b['telegram_last_attempt']) : 0;
+        if ($lastAttempt && ($now - $lastAttempt) < $cooldownSeconds) continue;
+
+        $candidates[] = $b;
+        if (count($candidates) >= $maxPerRun) break;
+    }
+
+    // Шаг 2: для каждой попытки делаем сетевой вызов БЕЗ блокировки JSON,
+    // потом точечно обновляем только нужную запись (короткая блокировка)
+    foreach ($candidates as $booking) {
+        $stats['attempted']++;
+        $attempts = (int)($booking['telegram_attempts'] ?? 0);
+        $message = buildTelegramMessageForBooking($booking, $attempts > 0);
+        $result = sendTelegramNotification($message);
+
+        $bookingId = (int)($booking['id'] ?? 0);
+        $ok = !empty($result['ok']);
+        $errMsg = $ok ? null : ($result['error'] ?? 'unknown');
+
+        atomicJsonUpdate(DATA_FILE, function($d) use ($bookingId, $ok, $errMsg) {
+            foreach ($d['bookings'] as $i => $b) {
+                if ((int)($b['id'] ?? 0) !== $bookingId) continue;
+                $d['bookings'][$i]['telegram_attempts'] = (int)($b['telegram_attempts'] ?? 0) + 1;
+                $d['bookings'][$i]['telegram_last_attempt'] = date('c');
+                if ($ok) {
+                    $d['bookings'][$i]['telegram_sent'] = true;
+                    $d['bookings'][$i]['telegram_last_error'] = null;
+                } else {
+                    $d['bookings'][$i]['telegram_last_error'] = $errMsg;
+                }
+                break;
+            }
+            return $d;
+        });
+
+        if ($ok) {
+            $stats['sent']++;
+        } else {
+            $stats['failed']++;
+        }
+    }
+
+    return $stats;
+}
+
+/**
  * Запись результата отправки в лог-файл (только при ошибке)
  */
 function logTelegramResult($result, $message) {

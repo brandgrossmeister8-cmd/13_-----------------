@@ -1384,6 +1384,54 @@
             text-decoration: underline;
         }
 
+        .admin-tg-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-left: 8px;
+        }
+
+        .admin-tg-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .admin-tg-badge.sent {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .admin-tg-badge.sent::before { background: #10b981; }
+
+        .admin-tg-badge.pending {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .admin-tg-badge.pending::before { background: #ef4444; }
+
+        .admin-tg-badge.unknown {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+        .admin-tg-badge.unknown::before { background: #9ca3af; }
+
+        .admin-tg-error {
+            grid-column: 1 / -1;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 12px;
+            color: #991b1b;
+            margin-top: 4px;
+        }
+
         .admin-booking-details {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -3468,6 +3516,7 @@
             adminData.bookings.forEach(booking => {
                 const [year, month, day] = booking.date.split('-');
                 const displayDate = `${day}.${month}.${year}`;
+                const tgBadge = renderTgBadge(booking);
 
                 html += `
                     <div class="admin-booking-card">
@@ -3489,6 +3538,7 @@
                                     </svg>
                                     ${booking.time}
                                 </div>
+                                ${tgBadge}
                             </div>
                             <div class="admin-booking-actions">
                                 <button type="button" class="admin-booking-resend-btn" onclick="resendTelegram(${booking.id}, this)">
@@ -3546,6 +3596,12 @@
                                     <span class="admin-booking-detail-value admin-booking-multiline">${escapeHtml(booking.problem)}</span>
                                 </div>
                             ` : ''}
+                            ${booking.telegram_sent === false && booking.telegram_last_error ? `
+                                <div class="admin-tg-error">
+                                    <strong>Telegram:</strong> ${escapeHtml(booking.telegram_last_error)}
+                                    ${booking.telegram_attempts ? ` <span style="opacity:.7">(попыток: ${booking.telegram_attempts})</span>` : ''}
+                                </div>
+                            ` : ''}
                         </div>
                     </div>
                 `;
@@ -3575,6 +3631,18 @@
             return escapeHtml(trimmed);
         }
 
+        // Бейдж со статусом доставки в Telegram
+        function renderTgBadge(booking) {
+            if (booking.telegram_sent === true) {
+                return '<span class="admin-tg-badge sent" title="Уведомление в ТГ доставлено">ТГ ✓</span>';
+            }
+            if (booking.telegram_sent === false) {
+                const tip = booking.telegram_last_error ? `Ошибка: ${booking.telegram_last_error}` : 'Не доставлено';
+                return `<span class="admin-tg-badge pending" title="${escapeHtml(tip)}">ТГ не дошло</span>`;
+            }
+            return '<span class="admin-tg-badge unknown" title="Старая запись — статус доставки не отслеживался">ТГ ?</span>';
+        }
+
         // Превращение URL-ов в тексте в кликабельные ссылки (с экранированием)
         function linkifyText(text) {
             const escaped = escapeHtml(text);
@@ -3598,6 +3666,7 @@
                 if (data.success) {
                     btn.classList.add('success');
                     btn.innerHTML = '✓ Отправлено';
+                    setTimeout(() => loadAdminData(), 1500);
                 } else {
                     btn.classList.add('error');
                     btn.innerHTML = '✕ Ошибка';

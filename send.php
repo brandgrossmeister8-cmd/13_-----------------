@@ -150,10 +150,11 @@ if (!isSlotAvailable($allData, $date, $time)) {
     ], 400);
 }
 
-// Создаем запись
-$success = atomicJsonUpdate(DATA_FILE, function($data) use ($name, $phone, $email, $telegram, $date, $time, $socialLinks, $competitorLinks, $problem) {
-    // Генерируем ID
+// Создаем запись (telegram_sent=false по умолчанию — контролёр потом досылает)
+$newBookingId = null;
+$success = atomicJsonUpdate(DATA_FILE, function($data) use ($name, $phone, $email, $telegram, $date, $time, $socialLinks, $competitorLinks, $problem, &$newBookingId) {
     $id = generateId($data['bookings']);
+    $newBookingId = $id;
 
     $booking = [
         'id' => $id,
@@ -167,7 +168,11 @@ $success = atomicJsonUpdate(DATA_FILE, function($data) use ($name, $phone, $emai
         'competitorLinks' => $competitorLinks,
         'problem' => $problem,
         'created_at' => date('c'),
-        'status' => 'confirmed'
+        'status' => 'confirmed',
+        'telegram_sent' => false,
+        'telegram_attempts' => 0,
+        'telegram_last_error' => null,
+        'telegram_last_attempt' => null
     ];
 
     $data['bookings'][] = $booking;
@@ -182,26 +187,10 @@ if (!$success) {
     ], 500);
 }
 
-// Отправляем уведомление в Telegram
-$telegramMessage = "🆕 <b>Новая запись на диагностику</b>\n\n";
-$telegramMessage .= "📅 <b>Дата:</b> " . date('d.m.Y', strtotime($date)) . "\n";
-$telegramMessage .= "🕐 <b>Время:</b> $time\n\n";
-$telegramMessage .= "👤 <b>Имя:</b> $name\n";
-$telegramMessage .= "💬 <b>Telegram:</b> $telegram\n";
-if (!empty($phone)) {
-    $telegramMessage .= "📱 <b>Телефон:</b> $phone\n";
-}
-if (!empty($email)) {
-    $telegramMessage .= "📧 <b>Email:</b> $email\n";
-}
-$telegramMessage .= "\n🔗 <b>Ссылки на соцсети/сайт:</b>\n" . htmlspecialchars($socialLinks) . "\n\n";
-$telegramMessage .= "🎯 <b>Ссылки на конкурентов:</b>\n" . htmlspecialchars($competitorLinks) . "\n\n";
-$telegramMessage .= "📝 <b>Проблема:</b>\n" . htmlspecialchars($problem) . "\n\n";
-$telegramMessage .= "⏰ <b>Создано:</b> " . date('d.m.Y H:i');
+// Пробуем отправить сразу + добиваем все pending-заявки
+retryPendingTelegramNotifications();
 
-sendTelegramNotification($telegramMessage);
-
-// Возвращаем успешный ответ
+// Возвращаем успешный ответ (даже если ТГ упал — заявка сохранена, контролёр доотправит)
 sendJsonResponse([
     'success' => true,
     'message' => 'Ваша заявка успешно отправлена! Мы свяжемся с вами в ближайшее время.'

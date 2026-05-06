@@ -61,6 +61,9 @@ switch ($method) {
  * Получить все бронирования
  */
 function handleGetBookings() {
+    // Контролёр: при каждой загрузке админки пытаемся доотправить пропущенные ТГ-уведомления
+    $retryStats = retryPendingTelegramNotifications();
+
     $data = readJsonData(DATA_FILE);
 
     // Сортируем по дате и времени
@@ -76,7 +79,8 @@ function handleGetBookings() {
         'success' => true,
         'bookings' => $data['bookings'],
         'blocked_dates' => $data['blocked_dates'],
-        'blocked_slots' => $data['blocked_slots']
+        'blocked_slots' => $data['blocked_slots'],
+        'telegram_retry' => $retryStats
     ]);
 }
 
