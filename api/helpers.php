@@ -250,7 +250,8 @@ function sendTelegramNotification($message) {
         return $res;
     }
 
-    $url = "https://api.telegram.org/bot" . TELEGRAM_BOT_TOKEN . "/sendMessage";
+    $apiBase = defined('TELEGRAM_API_BASE') ? rtrim(TELEGRAM_API_BASE, '/') : 'https://api.telegram.org';
+    $url = $apiBase . "/bot" . TELEGRAM_BOT_TOKEN . "/sendMessage";
 
     $data = [
         'chat_id' => TELEGRAM_CHAT_ID,
@@ -280,6 +281,9 @@ function sendTelegramNotification($message) {
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        if (defined('TELEGRAM_FORCE_IPV6') && TELEGRAM_FORCE_IPV6) {
+            curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V6);
+        }
 
         $lastResponse = curl_exec($ch);
         $lastHttpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);

@@ -15,6 +15,17 @@ define('TELEGRAM_BOT_TOKEN', '8107804993:AAGdmEXHBGNP365ZLZTPNKCzIiFwcfikX1E');
 // Узнать можно у @userinfobot
 define('TELEGRAM_CHAT_ID', '711863588');
 
+// База Telegram Bot API. По умолчанию — официальный домен.
+// Если ваш хостинг блокирует api.telegram.org (типично для российских VPS),
+// поднимите Cloudflare Worker как прокси (см. CLOUDFLARE_SETUP.md) и
+// замените эту строку на URL вашего Worker-а, например:
+//   define('TELEGRAM_API_BASE', 'https://tg-proxy.YOURNAME.workers.dev');
+define('TELEGRAM_API_BASE', 'https://api.telegram.org');
+
+// Принудительно использовать IPv6 при подключении к Telegram API.
+// Иногда IPv4-маршрут блокируется, а IPv6 работает. Если не уверены — false.
+define('TELEGRAM_FORCE_IPV6', false);
+
 // Путь к файлу с данными
 define('DATA_FILE', __DIR__ . '/../data/bookings.json');
 

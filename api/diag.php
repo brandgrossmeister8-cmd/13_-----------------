@@ -40,14 +40,21 @@ if (function_exists('curl_version')) {
     $report['curl_ssl_version'] = $cv['ssl_version'] ?? 'unknown';
 }
 
-// Тест 1: достучаться до api.telegram.org getMe
+$apiBase = defined('TELEGRAM_API_BASE') ? rtrim(TELEGRAM_API_BASE, '/') : 'https://api.telegram.org';
+$report['telegram_api_base'] = $apiBase;
+$report['force_ipv6'] = defined('TELEGRAM_FORCE_IPV6') && TELEGRAM_FORCE_IPV6;
+
+// Тест 1: достучаться до Telegram API через настроенный base
 $report['tests'] = [];
 if (function_exists('curl_init') && !empty(TELEGRAM_BOT_TOKEN)) {
-    $ch = curl_init('https://api.telegram.org/bot' . TELEGRAM_BOT_TOKEN . '/getMe');
+    $ch = curl_init($apiBase . '/bot' . TELEGRAM_BOT_TOKEN . '/getMe');
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, 10);
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    if (defined('TELEGRAM_FORCE_IPV6') && TELEGRAM_FORCE_IPV6) {
+        curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V6);
+    }
     $resp = curl_exec($ch);
     $report['tests']['getMe'] = [
         'http_code' => curl_getinfo($ch, CURLINFO_HTTP_CODE),
