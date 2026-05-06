@@ -187,11 +187,23 @@ if (!$success) {
     ], 500);
 }
 
-// Пробуем отправить сразу + добиваем все pending-заявки
-retryPendingTelegramNotifications();
-
-// Возвращаем успешный ответ (даже если ТГ упал — заявка сохранена, контролёр доотправит)
-sendJsonResponse([
+// Сразу отвечаем клиенту — НЕ ЗАСТАВЛЯЕМ ЕГО ЖДАТЬ сетевых попыток ТГ
+http_response_code(200);
+header('Content-Type: application/json; charset=utf-8');
+header('Connection: close');
+echo json_encode([
     'success' => true,
     'message' => 'Ваша заявка успешно отправлена! Мы свяжемся с вами в ближайшее время.'
-]);
+], JSON_UNESCAPED_UNICODE);
+
+// Закрываем соединение с пользователем (PHP-FPM) и продолжаем работу в фоне
+if (function_exists('fastcgi_finish_request')) {
+    fastcgi_finish_request();
+}
+
+// Снимаем ограничение времени — фоновая отправка может занять до пары минут
+@set_time_limit(0);
+@ignore_user_abort(true);
+
+// Только теперь пробуем доставить уведомление в Telegram (3 попытки внутри + другие pending)
+retryPendingTelegramNotifications();

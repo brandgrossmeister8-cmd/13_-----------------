@@ -61,9 +61,6 @@ switch ($method) {
  * Получить все бронирования
  */
 function handleGetBookings() {
-    // Контролёр: при каждой загрузке админки пытаемся доотправить пропущенные ТГ-уведомления
-    $retryStats = retryPendingTelegramNotifications();
-
     $data = readJsonData(DATA_FILE);
 
     // Сортируем по дате и времени
@@ -75,13 +72,27 @@ function handleGetBookings() {
         return strcmp($a['time'], $b['time']);
     });
 
-    sendJsonResponse([
+    // Сразу отвечаем админу — не ждём попыток отправки в ТГ
+    http_response_code(200);
+    header('Content-Type: application/json; charset=utf-8');
+    header('Connection: close');
+    echo json_encode([
         'success' => true,
         'bookings' => $data['bookings'],
         'blocked_dates' => $data['blocked_dates'],
-        'blocked_slots' => $data['blocked_slots'],
-        'telegram_retry' => $retryStats
-    ]);
+        'blocked_slots' => $data['blocked_slots']
+    ], JSON_UNESCAPED_UNICODE);
+
+    if (function_exists('fastcgi_finish_request')) {
+        fastcgi_finish_request();
+    }
+
+    @set_time_limit(0);
+    @ignore_user_abort(true);
+
+    // Контролёр работает в фоне: при следующей загрузке админка покажет уже обновлённые бейджи
+    retryPendingTelegramNotifications();
+    exit;
 }
 
 /**
