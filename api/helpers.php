@@ -258,36 +258,58 @@ function sendTelegramNotification($message) {
         'parse_mode' => 'HTML'
     ];
 
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    // 3 попытки с backoff: связь до api.telegram.org с российских хостингов
+    // часто прерывистая — одна попытка часто не проходит, вторая/третья — да.
+    $attempts = 3;
+    $backoffSeconds = [0, 1, 2]; // задержка ПЕРЕД попыткой 1, 2, 3
+    $lastResponse = false;
+    $lastHttpCode = 0;
+    $lastCurlError = '';
+    $tryHistory = [];
 
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $curlError = curl_error($ch);
-    curl_close($ch);
+    for ($i = 0; $i < $attempts; $i++) {
+        if ($backoffSeconds[$i] > 0) {
+            sleep($backoffSeconds[$i]);
+        }
 
-    $ok = ($response !== false && $httpCode === 200);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+        $lastResponse = curl_exec($ch);
+        $lastHttpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $lastCurlError = curl_error($ch);
+        curl_close($ch);
+
+        $tryHistory[] = "try " . ($i + 1) . ": http=" . $lastHttpCode . ($lastCurlError ? " curl=" . $lastCurlError : "");
+
+        if ($lastResponse !== false && $lastHttpCode === 200) {
+            break; // получилось — не делаем ещё попыток
+        }
+    }
+
+    $ok = ($lastResponse !== false && $lastHttpCode === 200);
     $errorMsg = '';
     if (!$ok) {
-        if ($curlError) {
-            $errorMsg = 'cURL: ' . $curlError;
-        } elseif ($httpCode !== 200) {
-            $errorMsg = 'HTTP ' . $httpCode . ': ' . substr((string)$response, 0, 500);
+        if ($lastCurlError) {
+            $errorMsg = 'cURL: ' . $lastCurlError;
+        } elseif ($lastHttpCode !== 200) {
+            $errorMsg = 'HTTP ' . $lastHttpCode . ': ' . substr((string)$lastResponse, 0, 500);
         } else {
             $errorMsg = 'unknown';
         }
+        $errorMsg .= ' [' . implode('; ', $tryHistory) . ']';
     }
 
     $result = [
         'ok' => $ok,
-        'http_code' => $httpCode,
-        'response' => is_string($response) ? $response : '',
+        'http_code' => $lastHttpCode,
+        'response' => is_string($lastResponse) ? $lastResponse : '',
         'error' => $errorMsg
     ];
 
