@@ -42,6 +42,8 @@ switch ($method) {
             handleUnblockSlot();
         } elseif ($action === 'unblock_date') {
             handleUnblockDate();
+        } elseif ($action === 'resend_telegram') {
+            handleResendTelegram();
         } else {
             sendJsonResponse(['success' => false, 'error' => 'Неизвестное действие'], 400);
         }
@@ -117,6 +119,66 @@ function handleDeleteBooking() {
         sendJsonResponse([
             'success' => false,
             'error' => 'Ошибка при удалении'
+        ], 500);
+    }
+}
+
+/**
+ * Переотправить уведомление в Telegram по существующей записи
+ */
+function handleResendTelegram() {
+    $id = (int)($_GET['id'] ?? 0);
+    if ($id <= 0) {
+        sendJsonResponse(['success' => false, 'error' => 'Не указан ID'], 400);
+    }
+
+    $data = readJsonData(DATA_FILE);
+    $booking = null;
+    foreach ($data['bookings'] as $b) {
+        if ((int)($b['id'] ?? 0) === $id) {
+            $booking = $b;
+            break;
+        }
+    }
+
+    if (!$booking) {
+        sendJsonResponse(['success' => false, 'error' => 'Запись не найдена'], 404);
+    }
+
+    $message = "🔁 <b>Повторная отправка — запись на диагностику</b>\n\n";
+    $message .= "📅 <b>Дата:</b> " . date('d.m.Y', strtotime($booking['date'])) . "\n";
+    $message .= "🕐 <b>Время:</b> " . htmlspecialchars($booking['time']) . "\n\n";
+    $message .= "👤 <b>Имя:</b> " . htmlspecialchars($booking['name']) . "\n";
+    $message .= "💬 <b>Telegram:</b> " . htmlspecialchars($booking['telegram'] ?? '—') . "\n";
+    if (!empty($booking['phone'])) {
+        $message .= "📱 <b>Телефон:</b> " . htmlspecialchars($booking['phone']) . "\n";
+    }
+    if (!empty($booking['email'])) {
+        $message .= "📧 <b>Email:</b> " . htmlspecialchars($booking['email']) . "\n";
+    }
+    if (!empty($booking['socialLinks'])) {
+        $message .= "\n🔗 <b>Ссылки на соцсети/сайт:</b>\n" . htmlspecialchars($booking['socialLinks']) . "\n";
+    }
+    if (!empty($booking['competitorLinks'])) {
+        $message .= "\n🎯 <b>Ссылки на конкурентов:</b>\n" . htmlspecialchars($booking['competitorLinks']) . "\n";
+    }
+    if (!empty($booking['problem'])) {
+        $message .= "\n📝 <b>Проблема:</b>\n" . htmlspecialchars($booking['problem']) . "\n";
+    }
+    $createdAt = !empty($booking['created_at']) ? date('d.m.Y H:i', strtotime($booking['created_at'])) : '—';
+    $message .= "\n⏰ <b>Создано изначально:</b> $createdAt";
+
+    $result = sendTelegramNotification($message);
+
+    if (!empty($result['ok'])) {
+        sendJsonResponse([
+            'success' => true,
+            'message' => 'Уведомление отправлено в Telegram'
+        ]);
+    } else {
+        sendJsonResponse([
+            'success' => false,
+            'error' => 'Не удалось отправить в Telegram: ' . ($result['error'] ?? 'unknown')
         ], 500);
     }
 }

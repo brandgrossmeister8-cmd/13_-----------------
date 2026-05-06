@@ -237,11 +237,19 @@ function getDayStatus($allData, $date) {
 /**
  * Отправка уведомления в Telegram
  * @param string $message Сообщение
- * @return bool
+ * @return array ['ok' => bool, 'http_code' => int, 'response' => string, 'error' => string]
  */
 function sendTelegramNotification($message) {
     if (empty(TELEGRAM_BOT_TOKEN) || empty(TELEGRAM_CHAT_ID)) {
-        return false;
+        $res = ['ok' => false, 'http_code' => 0, 'response' => '', 'error' => 'TELEGRAM_BOT_TOKEN или TELEGRAM_CHAT_ID не заданы'];
+        logTelegramResult($res, $message);
+        return $res;
+    }
+
+    if (!function_exists('curl_init')) {
+        $res = ['ok' => false, 'http_code' => 0, 'response' => '', 'error' => 'curl extension не установлен на сервере'];
+        logTelegramResult($res, $message);
+        return $res;
     }
 
     $url = "https://api.telegram.org/bot" . TELEGRAM_BOT_TOKEN . "/sendMessage";
@@ -252,20 +260,58 @@ function sendTelegramNotification($message) {
         'parse_mode' => 'HTML'
     ];
 
-    // Используем cURL (работает на Timeweb и других хостингах)
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
-    $result = curl_exec($ch);
+    $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
     curl_close($ch);
 
-    return $result !== false && $httpCode === 200;
+    $ok = ($response !== false && $httpCode === 200);
+    $errorMsg = '';
+    if (!$ok) {
+        if ($curlError) {
+            $errorMsg = 'cURL: ' . $curlError;
+        } elseif ($httpCode !== 200) {
+            $errorMsg = 'HTTP ' . $httpCode . ': ' . substr((string)$response, 0, 500);
+        } else {
+            $errorMsg = 'unknown';
+        }
+    }
+
+    $result = [
+        'ok' => $ok,
+        'http_code' => $httpCode,
+        'response' => is_string($response) ? $response : '',
+        'error' => $errorMsg
+    ];
+
+    if (!$ok) {
+        logTelegramResult($result, $message);
+    }
+
+    return $result;
+}
+
+/**
+ * Запись результата отправки в лог-файл (только при ошибке)
+ */
+function logTelegramResult($result, $message) {
+    $logFile = __DIR__ . '/../data/telegram.log';
+    $line = '[' . date('c') . '] '
+        . 'http=' . ($result['http_code'] ?? 0) . ' '
+        . 'error=' . ($result['error'] ?? '') . ' '
+        . 'response=' . substr((string)($result['response'] ?? ''), 0, 300) . ' '
+        . 'msg_preview=' . substr(preg_replace('/\s+/', ' ', $message), 0, 100)
+        . "\n";
+    @file_put_contents($logFile, $line, FILE_APPEND | LOCK_EX);
 }
 
 /**

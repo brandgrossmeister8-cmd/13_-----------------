@@ -1305,11 +1305,15 @@
             color: #333;
         }
 
-        .admin-booking-delete-btn {
+        .admin-booking-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .admin-booking-delete-btn,
+        .admin-booking-resend-btn {
             padding: 8px 16px;
-            background: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #fecaca;
             border-radius: 8px;
             font-size: 13px;
             cursor: pointer;
@@ -1320,10 +1324,64 @@
             width: auto;
         }
 
+        .admin-booking-delete-btn {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
         .admin-booking-delete-btn:hover {
             background: #fecaca;
             transform: none;
             box-shadow: none;
+        }
+
+        .admin-booking-resend-btn {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+
+        .admin-booking-resend-btn:hover {
+            background: #bfdbfe;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .admin-booking-resend-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .admin-booking-resend-btn.success {
+            background: #d1fae5;
+            color: #065f46;
+            border-color: #a7f3d0;
+        }
+
+        .admin-booking-resend-btn.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border-color: #fecaca;
+        }
+
+        .admin-booking-multiline {
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .admin-booking-wide {
+            grid-column: 1 / -1;
+        }
+
+        .admin-booking-detail-value a {
+            color: #2563eb;
+            text-decoration: none;
+            word-break: break-all;
+        }
+
+        .admin-booking-detail-value a:hover {
+            text-decoration: underline;
         }
 
         .admin-booking-details {
@@ -3432,35 +3490,60 @@
                                     ${booking.time}
                                 </div>
                             </div>
-                            <button type="button" class="admin-booking-delete-btn" onclick="deleteBooking(${booking.id})">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="3 6 5 6 21 6"></polyline>
-                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                </svg>
-                                Удалить
-                            </button>
+                            <div class="admin-booking-actions">
+                                <button type="button" class="admin-booking-resend-btn" onclick="resendTelegram(${booking.id}, this)">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                    </svg>
+                                    Отправить в ТГ
+                                </button>
+                                <button type="button" class="admin-booking-delete-btn" onclick="deleteBooking(${booking.id})">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    </svg>
+                                    Удалить
+                                </button>
+                            </div>
                         </div>
                         <div class="admin-booking-details">
                             <div class="admin-booking-detail">
                                 <span class="admin-booking-detail-label">Имя</span>
-                                <span class="admin-booking-detail-value">${booking.name}</span>
+                                <span class="admin-booking-detail-value">${escapeHtml(booking.name || '')}</span>
+                            </div>
+                            <div class="admin-booking-detail">
+                                <span class="admin-booking-detail-label">Telegram</span>
+                                <span class="admin-booking-detail-value">${renderTelegramLink(booking.telegram)}</span>
                             </div>
                             <div class="admin-booking-detail">
                                 <span class="admin-booking-detail-label">Телефон</span>
-                                <span class="admin-booking-detail-value">${booking.phone}</span>
+                                <span class="admin-booking-detail-value">${escapeHtml(booking.phone || '—')}</span>
                             </div>
                             <div class="admin-booking-detail">
                                 <span class="admin-booking-detail-label">Email</span>
-                                <span class="admin-booking-detail-value">${booking.email}</span>
+                                <span class="admin-booking-detail-value">${escapeHtml(booking.email || '—')}</span>
                             </div>
                             <div class="admin-booking-detail">
                                 <span class="admin-booking-detail-label">Создано</span>
                                 <span class="admin-booking-detail-value">${new Date(booking.created_at).toLocaleString('ru-RU')}</span>
                             </div>
+                            ${booking.socialLinks ? `
+                                <div class="admin-booking-detail admin-booking-wide">
+                                    <span class="admin-booking-detail-label">Соцсети / сайт</span>
+                                    <span class="admin-booking-detail-value admin-booking-multiline">${linkifyText(booking.socialLinks)}</span>
+                                </div>
+                            ` : ''}
+                            ${booking.competitorLinks ? `
+                                <div class="admin-booking-detail admin-booking-wide">
+                                    <span class="admin-booking-detail-label">Конкуренты</span>
+                                    <span class="admin-booking-detail-value admin-booking-multiline">${linkifyText(booking.competitorLinks)}</span>
+                                </div>
+                            ` : ''}
                             ${booking.problem ? `
                                 <div class="admin-booking-detail admin-booking-problem">
                                     <span class="admin-booking-detail-label">Проблема</span>
-                                    <span class="admin-booking-detail-value">${booking.problem}</span>
+                                    <span class="admin-booking-detail-value admin-booking-multiline">${escapeHtml(booking.problem)}</span>
                                 </div>
                             ` : ''}
                         </div>
@@ -3469,6 +3552,69 @@
             });
 
             container.innerHTML = html;
+        }
+
+        // Безопасное экранирование HTML
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        // Telegram username -> кликабельная ссылка
+        function renderTelegramLink(value) {
+            if (!value) return '—';
+            const trimmed = String(value).trim();
+            const username = trimmed.replace(/^@/, '');
+            if (/^[a-zA-Z0-9_]{4,32}$/.test(username)) {
+                return `<a href="https://t.me/${username}" target="_blank" rel="noopener">@${escapeHtml(username)}</a>`;
+            }
+            return escapeHtml(trimmed);
+        }
+
+        // Превращение URL-ов в тексте в кликабельные ссылки (с экранированием)
+        function linkifyText(text) {
+            const escaped = escapeHtml(text);
+            return escaped.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+        }
+
+        // Повторная отправка уведомления в Telegram
+        async function resendTelegram(id, btn) {
+            const originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.classList.remove('success', 'error');
+            btn.innerHTML = 'Отправляю…';
+
+            try {
+                const response = await fetch(`api/bookings.php?action=resend_telegram&id=${id}`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    btn.classList.add('success');
+                    btn.innerHTML = '✓ Отправлено';
+                } else {
+                    btn.classList.add('error');
+                    btn.innerHTML = '✕ Ошибка';
+                    alert('Не удалось отправить: ' + (data.error || 'неизвестная ошибка'));
+                }
+            } catch (error) {
+                console.error('Ошибка переотправки:', error);
+                btn.classList.add('error');
+                btn.innerHTML = '✕ Ошибка';
+                alert('Ошибка соединения');
+            }
+
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.classList.remove('success', 'error');
+                btn.innerHTML = originalHtml;
+            }, 3000);
         }
 
         // Удаление бронирования
