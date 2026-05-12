@@ -374,6 +374,35 @@
             display: none;
         }
 
+        .conditional-field {
+            background: #fdf2f8;
+            border: 2px solid #f9a8d4;
+            border-radius: 12px;
+            padding: 16px 18px;
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+
+        .conditional-field.filled {
+            background: #f0fdf4;
+            border-color: #86efac;
+        }
+
+        .conditional-hint {
+            color: #be185d;
+            font-size: 13px;
+            line-height: 1.4;
+            margin: 4px 0 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .conditional-field.filled .conditional-hint {
+            color: #166534;
+        }
+
         /* Чекбокс согласия */
         .consent-group {
             margin-bottom: 24px;
@@ -1675,6 +1704,7 @@
 
                 <div class="form-group conditional-field hidden" data-method="telegram" id="telegramGroup">
                     <label for="telegram">Аккаунт в телеграм <span class="required">*</span></label>
+                    <div class="conditional-hint">На этот канал вам придёт ссылка на Zoom-встречу</div>
                     <div class="input-wrapper">
                         <input
                             type="text"
@@ -1705,6 +1735,7 @@
 
                 <div class="form-group conditional-field hidden" data-method="email" id="emailGroup">
                     <label for="email">Электронная почта <span class="required">*</span></label>
+                    <div class="conditional-hint">На этот канал вам придёт ссылка на Zoom-встречу</div>
                     <div class="input-wrapper">
                         <input
                             type="email"
@@ -1736,6 +1767,7 @@
 
                 <div class="form-group conditional-field hidden" data-method="vk" id="vkGroup">
                     <label for="vk">Аккаунт ВКонтакте <span class="required">*</span></label>
+                    <div class="conditional-hint">На этот канал вам придёт ссылка на Zoom-встречу</div>
                     <div class="input-wrapper">
                         <input
                             type="text"
@@ -1767,6 +1799,7 @@
 
                 <div class="form-group conditional-field hidden" data-method="max" id="maxGroup">
                     <label for="max">Телефон для связи в MAX <span class="required">*</span></label>
+                    <div class="conditional-hint">На этот канал вам придёт ссылка на Zoom-встречу</div>
                     <div class="input-wrapper">
                         <input
                             type="tel"
@@ -2422,6 +2455,27 @@
             }
         };
 
+        function isConditionalFilled(method, value) {
+            const v = (value || '').trim();
+            if (!v) return false;
+            if (method === 'telegram') return isValidTelegram(v);
+            if (method === 'email') return isValidEmail(v);
+            if (method === 'vk') return isValidVk(v);
+            if (method === 'max') return isValidPhone(v);
+            return false;
+        }
+
+        function updateConditionalState(method) {
+            const group = conditionalGroups[method];
+            const fieldInput = conditionalInputs[method];
+            if (!group || !fieldInput) return;
+            if (isConditionalFilled(method, fieldInput.value)) {
+                group.classList.add('filled');
+            } else {
+                group.classList.remove('filled');
+            }
+        }
+
         function syncConditionalFields() {
             const selected = getSelectedPreferredContact();
             Object.keys(conditionalGroups).forEach(method => {
@@ -2431,8 +2485,10 @@
                 if (!group || !fieldInput) return;
                 if (method === selected) {
                     group.classList.remove('hidden');
+                    updateConditionalState(method);
                 } else {
                     group.classList.add('hidden');
+                    group.classList.remove('filled');
                     if (fieldInput.value) {
                         fieldInput.value = '';
                     }
@@ -3060,6 +3116,7 @@
             } else {
                 showError(this, emailError, emailIconValid, emailIconInvalid, false);
             }
+            updateConditionalState('email');
         });
 
         telegramInput.addEventListener('blur', function() {
@@ -3072,6 +3129,7 @@
             } else {
                 showError(this, telegramError, telegramIconValid, telegramIconInvalid, false);
             }
+            updateConditionalState('telegram');
         });
 
         // Валидация ВК (необязательное поле)
@@ -3094,6 +3152,7 @@
             } else {
                 showError(this, vkError, vkIconValid, vkIconInvalid, false);
             }
+            updateConditionalState('vk');
         });
 
         maxInput.addEventListener('blur', function() {
@@ -3106,6 +3165,7 @@
             } else {
                 showError(this, maxError, maxIconValid, maxIconInvalid, false);
             }
+            updateConditionalState('max');
         });
 
         // Убираем ошибку при вводе
@@ -3128,6 +3188,7 @@
             this.classList.remove('invalid');
             emailError.classList.remove('show');
             emailIconInvalid.classList.remove('show');
+            updateConditionalState('email');
         });
 
         telegramInput.addEventListener('input', function() {
@@ -3135,6 +3196,7 @@
             this.classList.remove('invalid');
             telegramError.classList.remove('show');
             telegramIconInvalid.classList.remove('show');
+            updateConditionalState('telegram');
         });
 
         vkInput.addEventListener('input', function() {
@@ -3142,6 +3204,7 @@
             this.classList.remove('invalid');
             vkError.classList.remove('show');
             vkIconInvalid.classList.remove('show');
+            updateConditionalState('vk');
         });
 
         maxInput.addEventListener('input', function() {
@@ -3149,6 +3212,7 @@
             this.classList.remove('invalid');
             maxError.classList.remove('show');
             maxIconInvalid.classList.remove('show');
+            updateConditionalState('max');
         });
 
         // Отправка формы
