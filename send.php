@@ -25,11 +25,20 @@ $name = trim($postData['name'] ?? '');
 $phone = trim($postData['phone'] ?? '');
 $email = trim($postData['email'] ?? '');
 $telegram = trim($postData['telegram'] ?? '');
+$vk = trim($postData['vk'] ?? '');
+$max = trim($postData['max'] ?? '');
+$preferredContact = trim($postData['preferredContact'] ?? '');
 $dateRaw = trim($postData['date'] ?? '');
 $time = trim($postData['time'] ?? '');
 $socialLinks = trim($postData['socialLinks'] ?? '');
 $competitorLinks = trim($postData['competitorLinks'] ?? '');
 $problem = trim($postData['problem'] ?? '');
+
+// Допустимые значения для preferredContact
+$allowedPreferred = ['', 'telegram', 'phone', 'email', 'vk', 'max'];
+if (!in_array($preferredContact, $allowedPreferred, true)) {
+    $preferredContact = '';
+}
 
 $errors = [];
 
@@ -56,6 +65,14 @@ if (!empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
 // Проверка Telegram (обязательное поле)
 if (empty($telegram)) {
     $errors[] = 'Telegram не заполнен';
+}
+
+// Проверка MAX (необязательное поле, формат — российский телефон если заполнено)
+if (!empty($max)) {
+    $maxDigits = preg_replace('/\D/', '', $max);
+    if (strlen($maxDigits) !== 11 || $maxDigits[0] !== '7') {
+        $errors[] = 'Некорректный номер для MAX';
+    }
 }
 
 // Преобразование даты из DD.MM.YYYY в YYYY-MM-DD
@@ -152,7 +169,7 @@ if (!isSlotAvailable($allData, $date, $time)) {
 
 // Создаем запись (telegram_sent=false по умолчанию — контролёр потом досылает)
 $newBookingId = null;
-$success = atomicJsonUpdate(DATA_FILE, function($data) use ($name, $phone, $email, $telegram, $date, $time, $socialLinks, $competitorLinks, $problem, &$newBookingId) {
+$success = atomicJsonUpdate(DATA_FILE, function($data) use ($name, $phone, $email, $telegram, $vk, $max, $preferredContact, $date, $time, $socialLinks, $competitorLinks, $problem, &$newBookingId) {
     $id = generateId($data['bookings']);
     $newBookingId = $id;
 
@@ -164,6 +181,9 @@ $success = atomicJsonUpdate(DATA_FILE, function($data) use ($name, $phone, $emai
         'phone' => $phone,
         'email' => $email,
         'telegram' => $telegram,
+        'vk' => $vk,
+        'max' => $max,
+        'preferredContact' => $preferredContact,
         'socialLinks' => $socialLinks,
         'competitorLinks' => $competitorLinks,
         'problem' => $problem,

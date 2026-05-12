@@ -1670,6 +1670,83 @@
                     </div>
                 </div>
 
+                <div class="form-group">
+                    <label for="vk">Аккаунт ВКонтакте <span style="color: #888; font-weight: normal;">(необязательно)</span></label>
+                    <div class="input-wrapper">
+                        <input
+                            type="text"
+                            id="vk"
+                            name="vk"
+                            placeholder="vk.com/username или @id123456"
+                            autocomplete="off"
+                        >
+                        <svg class="status-icon valid" id="vkIconValid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        <svg class="status-icon invalid" id="vkIconInvalid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </div>
+                    <div class="error-message" id="vkError">
+                        <div class="error-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            <span id="vkErrorTitle">Некорректный аккаунт ВКонтакте</span>
+                        </div>
+                        <div class="error-description" id="vkErrorDesc">Укажите ссылку на профиль (vk.com/username) или короткий идентификатор (@id123456).</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="max">Телефон для связи в MAX <span style="color: #888; font-weight: normal;">(необязательно)</span></label>
+                    <div class="input-wrapper">
+                        <input
+                            type="tel"
+                            id="max"
+                            name="max"
+                            placeholder="+7 (999) 123-45-67"
+                            autocomplete="off"
+                        >
+                        <svg class="status-icon valid" id="maxIconValid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        <svg class="status-icon invalid" id="maxIconInvalid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </div>
+                    <div class="phone-hint">Номер, привязанный к мессенджеру MAX</div>
+                    <div class="error-message" id="maxError">
+                        <div class="error-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            <span id="maxErrorTitle">Некорректный номер для MAX</span>
+                        </div>
+                        <div class="error-description" id="maxErrorDesc">Введите полный номер телефона в формате +7 (XXX) XXX-XX-XX. Номер должен содержать 11 цифр.</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="preferredContact">Предпочтительный вид связи</label>
+                    <div class="input-wrapper">
+                        <select id="preferredContact" name="preferredContact">
+                            <option value="">Не важно — свяжемся любым из указанных способов</option>
+                            <option value="telegram">Telegram</option>
+                            <option value="phone">Телефон (звонок)</option>
+                            <option value="email">Email</option>
+                            <option value="vk">ВКонтакте</option>
+                            <option value="max">MAX</option>
+                        </select>
+                    </div>
+                </div>
+
                 <!-- Информация о записи -->
                 <div class="info-block">
                     <p>Запись на следующий месяц открывается 20 числа текущего месяца.</p>
@@ -1959,6 +2036,9 @@
                     <li>Аккаунт в Telegram или номер телефона, привязанный к Telegram</li>
                     <li>Номер телефона (при указании)</li>
                     <li>Адрес электронной почты (при указании)</li>
+                    <li>Аккаунт ВКонтакте (при указании)</li>
+                    <li>Номер телефона для связи в мессенджере MAX (при указании)</li>
+                    <li>Предпочтительный способ связи (при указании)</li>
                     <li>Ссылки на сайты и социальные сети</li>
                     <li>Ссылки на конкурентов</li>
                     <li>Описание проблемы</li>
@@ -2022,6 +2102,9 @@
                     <li>Аккаунт в Telegram или номер телефона, привязанный к Telegram</li>
                     <li>Номер контактного телефона (при указании)</li>
                     <li>Адрес электронной почты (при указании)</li>
+                    <li>Аккаунт ВКонтакте (при указании)</li>
+                    <li>Номер телефона для связи в мессенджере MAX (при указании)</li>
+                    <li>Предпочтительный способ связи (при указании)</li>
                     <li>Ссылки на сайты и социальные сети пользователя</li>
                     <li>Ссылки на сайты и социальные сети конкурентов</li>
                     <li>Описание проблемы бизнеса</li>
@@ -2212,6 +2295,9 @@
         const phoneInput = document.getElementById('phone');
         const emailInput = document.getElementById('email');
         const telegramInput = document.getElementById('telegram');
+        const vkInput = document.getElementById('vk');
+        const maxInput = document.getElementById('max');
+        const preferredContactInput = document.getElementById('preferredContact');
         const socialLinksInput = document.getElementById('socialLinks');
         const competitorLinksInput = document.getElementById('competitorLinks');
         const problemInput = document.getElementById('problem');
@@ -2220,6 +2306,12 @@
         const telegramError = document.getElementById('telegramError');
         const telegramIconValid = document.getElementById('telegramIconValid');
         const telegramIconInvalid = document.getElementById('telegramIconInvalid');
+        const vkError = document.getElementById('vkError');
+        const vkIconValid = document.getElementById('vkIconValid');
+        const vkIconInvalid = document.getElementById('vkIconInvalid');
+        const maxError = document.getElementById('maxError');
+        const maxIconValid = document.getElementById('maxIconValid');
+        const maxIconInvalid = document.getElementById('maxIconInvalid');
         const socialLinksError = document.getElementById('socialLinksError');
         const competitorLinksError = document.getElementById('competitorLinksError');
         const problemError = document.getElementById('problemError');
@@ -2851,6 +2943,40 @@
             }
         });
 
+        // Валидация ВК (необязательное поле)
+        function isValidVk(value) {
+            const v = value.trim();
+            if (v === '') return true;
+            // vk.com/something, m.vk.com/something, @id123, или просто короткое имя из латиницы/цифр/точек/подчёркиваний
+            const urlRe = /^(https?:\/\/)?(m\.)?vk\.(com|ru)\/[a-zA-Z0-9._]{2,}\/?$/;
+            const idRe = /^@?(id)?\d{3,}$/i;
+            const usernameRe = /^@?[a-zA-Z][a-zA-Z0-9._]{2,}$/;
+            return urlRe.test(v) || idRe.test(v) || usernameRe.test(v);
+        }
+
+        vkInput.addEventListener('blur', function() {
+            hideErrorsSummary();
+            if (this.value.trim() === '') {
+                resetField(this, vkError, vkIconValid, vkIconInvalid);
+            } else if (!isValidVk(this.value)) {
+                showError(this, vkError, vkIconValid, vkIconInvalid, true);
+            } else {
+                showError(this, vkError, vkIconValid, vkIconInvalid, false);
+            }
+        });
+
+        maxInput.addEventListener('blur', function() {
+            hideErrorsSummary();
+            if (this.value.trim() === '') {
+                resetField(this, maxError, maxIconValid, maxIconInvalid);
+            } else if (!isValidPhone(this.value)) {
+                const err = getPhoneError(this.value);
+                showError(this, maxError, maxIconValid, maxIconInvalid, true, err);
+            } else {
+                showError(this, maxError, maxIconValid, maxIconInvalid, false);
+            }
+        });
+
         // Убираем ошибку при вводе
         nameInput.addEventListener('input', function() {
             hideErrorsSummary();
@@ -2878,6 +3004,20 @@
             this.classList.remove('invalid');
             telegramError.classList.remove('show');
             telegramIconInvalid.classList.remove('show');
+        });
+
+        vkInput.addEventListener('input', function() {
+            hideErrorsSummary();
+            this.classList.remove('invalid');
+            vkError.classList.remove('show');
+            vkIconInvalid.classList.remove('show');
+        });
+
+        maxInput.addEventListener('input', function() {
+            hideErrorsSummary();
+            this.classList.remove('invalid');
+            maxError.classList.remove('show');
+            maxIconInvalid.classList.remove('show');
         });
 
         // Отправка формы
@@ -2933,6 +3073,29 @@
                 isValid = false;
             } else {
                 showError(telegramInput, telegramError, telegramIconValid, telegramIconInvalid, false);
+            }
+
+            // Проверка ВКонтакте (необязательное поле, формат если заполнено)
+            if (vkInput.value.trim() !== '' && !isValidVk(vkInput.value)) {
+                showError(vkInput, vkError, vkIconValid, vkIconInvalid, true);
+                errors.push('Исправьте аккаунт ВКонтакте');
+                isValid = false;
+            } else if (vkInput.value.trim() !== '') {
+                showError(vkInput, vkError, vkIconValid, vkIconInvalid, false);
+            } else {
+                resetField(vkInput, vkError, vkIconValid, vkIconInvalid);
+            }
+
+            // Проверка MAX (необязательное поле, телефон если заполнено)
+            if (maxInput.value.trim() !== '' && !isValidPhone(maxInput.value)) {
+                const err = getPhoneError(maxInput.value);
+                showError(maxInput, maxError, maxIconValid, maxIconInvalid, true, err);
+                errors.push('Исправьте номер для MAX');
+                isValid = false;
+            } else if (maxInput.value.trim() !== '') {
+                showError(maxInput, maxError, maxIconValid, maxIconInvalid, false);
+            } else {
+                resetField(maxInput, maxError, maxIconValid, maxIconInvalid);
             }
 
             // Проверка даты и времени
@@ -3039,6 +3202,9 @@
                 phone: phoneInput.value,
                 email: emailInput.value,
                 telegram: telegramInput.value,
+                vk: vkInput.value,
+                max: maxInput.value,
+                preferredContact: preferredContactInput.value,
                 date: dateInput.value,
                 time: timeInput.value,
                 socialLinks: socialLinksInput.value,
@@ -3575,6 +3741,18 @@
                                 <span class="admin-booking-detail-value">${escapeHtml(booking.email || '—')}</span>
                             </div>
                             <div class="admin-booking-detail">
+                                <span class="admin-booking-detail-label">ВКонтакте</span>
+                                <span class="admin-booking-detail-value">${renderVkLink(booking.vk)}</span>
+                            </div>
+                            <div class="admin-booking-detail">
+                                <span class="admin-booking-detail-label">MAX</span>
+                                <span class="admin-booking-detail-value">${escapeHtml(booking.max || '—')}</span>
+                            </div>
+                            <div class="admin-booking-detail">
+                                <span class="admin-booking-detail-label">Предпочт. связь</span>
+                                <span class="admin-booking-detail-value">${escapeHtml(formatPreferredContact(booking.preferredContact))}</span>
+                            </div>
+                            <div class="admin-booking-detail">
                                 <span class="admin-booking-detail-label">Создано</span>
                                 <span class="admin-booking-detail-value">${new Date(booking.created_at).toLocaleString('ru-RU')}</span>
                             </div>
@@ -3629,6 +3807,41 @@
                 return `<a href="https://t.me/${username}" target="_blank" rel="noopener">@${escapeHtml(username)}</a>`;
             }
             return escapeHtml(trimmed);
+        }
+
+        // ВК -> кликабельная ссылка на профиль
+        function renderVkLink(value) {
+            if (!value) return '—';
+            const trimmed = String(value).trim();
+            const urlMatch = trimmed.match(/^(https?:\/\/)?(m\.)?vk\.(com|ru)\/([a-zA-Z0-9._]+)\/?$/);
+            if (urlMatch) {
+                const slug = urlMatch[4];
+                return `<a href="https://vk.com/${slug}" target="_blank" rel="noopener">vk.com/${escapeHtml(slug)}</a>`;
+            }
+            const idMatch = trimmed.match(/^@?(id)?(\d{3,})$/i);
+            if (idMatch) {
+                const id = idMatch[2];
+                return `<a href="https://vk.com/id${id}" target="_blank" rel="noopener">vk.com/id${escapeHtml(id)}</a>`;
+            }
+            const usernameMatch = trimmed.match(/^@?([a-zA-Z][a-zA-Z0-9._]{2,})$/);
+            if (usernameMatch) {
+                const slug = usernameMatch[1];
+                return `<a href="https://vk.com/${slug}" target="_blank" rel="noopener">vk.com/${escapeHtml(slug)}</a>`;
+            }
+            return escapeHtml(trimmed);
+        }
+
+        // Удобочитаемая метка предпочтительного способа связи
+        function formatPreferredContact(value) {
+            const map = {
+                telegram: 'Telegram',
+                phone: 'Телефон (звонок)',
+                email: 'Email',
+                vk: 'ВКонтакте',
+                max: 'MAX'
+            };
+            if (!value) return 'Не указано';
+            return map[value] || value;
         }
 
         // Бейдж со статусом доставки в Telegram
