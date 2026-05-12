@@ -365,6 +365,32 @@
             margin-bottom: 24px;
         }
 
+        .preferred-contact-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 12px 14px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            background: #fafbfc;
+            transition: all 0.3s ease;
+        }
+
+        .preferred-contact-options.invalid {
+            border-color: #ef4444;
+            background: #fef2f2;
+            animation: shake 0.5s ease;
+        }
+
+        .preferred-contact-options .checkbox-wrapper {
+            align-items: center;
+        }
+
+        .preferred-contact-options .consent-text {
+            font-size: 15px;
+            color: #333;
+        }
+
         .checkbox-wrapper {
             display: flex;
             align-items: flex-start;
@@ -1640,7 +1666,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="telegram">Ваш аккаунт в Telegram или номер телефона, привязанный к аккаунту <span class="required">*</span></label>
+                    <label for="telegram">Аккаунт в телеграм <span class="required">*</span></label>
                     <div class="input-wrapper">
                         <input
                             type="text"
@@ -1734,16 +1760,55 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="preferredContact">Предпочтительный вид связи</label>
-                    <div class="input-wrapper">
-                        <select id="preferredContact" name="preferredContact">
-                            <option value="">Не важно — свяжемся любым из указанных способов</option>
-                            <option value="telegram">Telegram</option>
-                            <option value="phone">Телефон (звонок)</option>
-                            <option value="email">Email</option>
-                            <option value="vk">ВКонтакте</option>
-                            <option value="max">MAX</option>
-                        </select>
+                    <label>Предпочтительный вид связи для получения ссылки на встречу в Zoom <span class="required">*</span> <span style="color: #888; font-weight: normal;">(можно выбрать несколько)</span></label>
+                    <div class="preferred-contact-options" id="preferredContactOptions">
+                        <label class="checkbox-wrapper">
+                            <input type="checkbox" name="preferredContact" value="telegram">
+                            <span class="custom-checkbox">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                            </span>
+                            <span class="consent-text">Telegram</span>
+                        </label>
+                        <label class="checkbox-wrapper">
+                            <input type="checkbox" name="preferredContact" value="email">
+                            <span class="custom-checkbox">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                            </span>
+                            <span class="consent-text">Email</span>
+                        </label>
+                        <label class="checkbox-wrapper">
+                            <input type="checkbox" name="preferredContact" value="vk">
+                            <span class="custom-checkbox">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                            </span>
+                            <span class="consent-text">ВКонтакте</span>
+                        </label>
+                        <label class="checkbox-wrapper">
+                            <input type="checkbox" name="preferredContact" value="max">
+                            <span class="custom-checkbox">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                            </span>
+                            <span class="consent-text">MAX</span>
+                        </label>
+                    </div>
+                    <div class="error-message" id="preferredContactError">
+                        <div class="error-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            <span id="preferredContactErrorTitle">Выберите хотя бы один способ связи</span>
+                        </div>
+                        <div class="error-description" id="preferredContactErrorDesc">Отметьте, как вам удобнее получить ссылку на встречу в Zoom.</div>
                     </div>
                 </div>
 
@@ -2038,7 +2103,7 @@
                     <li>Адрес электронной почты (при указании)</li>
                     <li>Аккаунт ВКонтакте (при указании)</li>
                     <li>Номер телефона для связи в мессенджере MAX (при указании)</li>
-                    <li>Предпочтительный способ связи (при указании)</li>
+                    <li>Предпочтительный способ связи для получения ссылки на встречу в Zoom (при указании)</li>
                     <li>Ссылки на сайты и социальные сети</li>
                     <li>Ссылки на конкурентов</li>
                     <li>Описание проблемы</li>
@@ -2104,7 +2169,7 @@
                     <li>Адрес электронной почты (при указании)</li>
                     <li>Аккаунт ВКонтакте (при указании)</li>
                     <li>Номер телефона для связи в мессенджере MAX (при указании)</li>
-                    <li>Предпочтительный способ связи (при указании)</li>
+                    <li>Предпочтительный способ связи для получения ссылки на встречу в Zoom</li>
                     <li>Ссылки на сайты и социальные сети пользователя</li>
                     <li>Ссылки на сайты и социальные сети конкурентов</li>
                     <li>Описание проблемы бизнеса</li>
@@ -2297,7 +2362,34 @@
         const telegramInput = document.getElementById('telegram');
         const vkInput = document.getElementById('vk');
         const maxInput = document.getElementById('max');
-        const preferredContactInput = document.getElementById('preferredContact');
+        const preferredContactInputs = document.querySelectorAll('input[name="preferredContact"]');
+        const preferredContactOptions = document.getElementById('preferredContactOptions');
+        const preferredContactError = document.getElementById('preferredContactError');
+        const preferredContactErrorTitle = document.getElementById('preferredContactErrorTitle');
+        const preferredContactErrorDesc = document.getElementById('preferredContactErrorDesc');
+
+        const preferredContactLabels = {
+            telegram: 'Telegram',
+            email: 'Email',
+            vk: 'ВКонтакте',
+            max: 'MAX'
+        };
+
+        function getSelectedPreferredContacts() {
+            return Array.from(preferredContactInputs).filter(cb => cb.checked).map(cb => cb.value);
+        }
+
+        function clearPreferredContactError() {
+            preferredContactOptions.classList.remove('invalid');
+            preferredContactError.classList.remove('show');
+        }
+
+        preferredContactInputs.forEach(cb => {
+            cb.addEventListener('change', function() {
+                hideErrorsSummary();
+                clearPreferredContactError();
+            });
+        });
         const socialLinksInput = document.getElementById('socialLinks');
         const competitorLinksInput = document.getElementById('competitorLinks');
         const problemInput = document.getElementById('problem');
@@ -3098,6 +3190,59 @@
                 resetField(maxInput, maxError, maxIconValid, maxIconInvalid);
             }
 
+            // Проверка предпочтительного вида связи (обязательно: хотя бы один и заполненные данные)
+            const selectedPreferred = getSelectedPreferredContacts();
+            if (selectedPreferred.length === 0) {
+                preferredContactOptions.classList.add('invalid');
+                preferredContactErrorTitle.textContent = 'Выберите хотя бы один способ связи';
+                preferredContactErrorDesc.textContent = 'Отметьте, как вам удобнее получить ссылку на встречу в Zoom.';
+                preferredContactError.classList.add('show');
+                errors.push('Выберите способ связи для ссылки Zoom');
+                isValid = false;
+            } else {
+                // Проверяем, что для каждого выбранного способа есть заполненные данные
+                const missing = [];
+                selectedPreferred.forEach(method => {
+                    if (method === 'telegram') {
+                        if (telegramInput.value.trim() === '' || !isValidTelegram(telegramInput.value)) {
+                            missing.push(preferredContactLabels.telegram);
+                        }
+                    } else if (method === 'email') {
+                        if (emailInput.value.trim() === '' || !isValidEmail(emailInput.value)) {
+                            missing.push(preferredContactLabels.email);
+                            emailInput.classList.add('invalid');
+                            emailError.classList.add('show');
+                            if (emailIconInvalid) emailIconInvalid.classList.add('show');
+                        }
+                    } else if (method === 'vk') {
+                        if (vkInput.value.trim() === '' || !isValidVk(vkInput.value)) {
+                            missing.push(preferredContactLabels.vk);
+                            vkInput.classList.add('invalid');
+                            vkError.classList.add('show');
+                            if (vkIconInvalid) vkIconInvalid.classList.add('show');
+                        }
+                    } else if (method === 'max') {
+                        if (maxInput.value.trim() === '' || !isValidPhone(maxInput.value)) {
+                            missing.push(preferredContactLabels.max);
+                            maxInput.classList.add('invalid');
+                            maxError.classList.add('show');
+                            if (maxIconInvalid) maxIconInvalid.classList.add('show');
+                        }
+                    }
+                });
+
+                if (missing.length > 0) {
+                    preferredContactOptions.classList.add('invalid');
+                    preferredContactErrorTitle.textContent = 'Заполните данные по выбранному виду связи';
+                    preferredContactErrorDesc.textContent = 'Не хватает данных для: ' + missing.join(', ') + '.';
+                    preferredContactError.classList.add('show');
+                    errors.push('Заполните данные по выбранному виду связи (' + missing.join(', ') + ')');
+                    isValid = false;
+                } else {
+                    clearPreferredContactError();
+                }
+            }
+
             // Проверка даты и времени
             if (!selectedDate && !selectedTime) {
                 datetimeErrorText.textContent = 'Выберите дату и время для записи';
@@ -3204,7 +3349,9 @@
                 telegram: telegramInput.value,
                 vk: vkInput.value,
                 max: maxInput.value,
-                preferredContact: preferredContactInput.value,
+                preferredContact: Array.from(preferredContactInputs)
+                    .filter(cb => cb.checked)
+                    .map(cb => cb.value),
                 date: dateInput.value,
                 time: timeInput.value,
                 socialLinks: socialLinksInput.value,
@@ -3749,7 +3896,7 @@
                                 <span class="admin-booking-detail-value">${escapeHtml(booking.max || '—')}</span>
                             </div>
                             <div class="admin-booking-detail">
-                                <span class="admin-booking-detail-label">Предпочт. связь</span>
+                                <span class="admin-booking-detail-label">Связь для ссылки Zoom</span>
                                 <span class="admin-booking-detail-value">${escapeHtml(formatPreferredContact(booking.preferredContact))}</span>
                             </div>
                             <div class="admin-booking-detail">
@@ -3831,17 +3978,18 @@
             return escapeHtml(trimmed);
         }
 
-        // Удобочитаемая метка предпочтительного способа связи
+        // Удобочитаемая метка предпочтительного способа связи (массив или строка)
         function formatPreferredContact(value) {
             const map = {
                 telegram: 'Telegram',
-                phone: 'Телефон (звонок)',
                 email: 'Email',
                 vk: 'ВКонтакте',
                 max: 'MAX'
             };
             if (!value) return 'Не указано';
-            return map[value] || value;
+            const items = Array.isArray(value) ? value : [value];
+            const labels = items.map(v => map[v] || v).filter(Boolean);
+            return labels.length ? labels.join(', ') : 'Не указано';
         }
 
         // Бейдж со статусом доставки в Telegram

@@ -352,13 +352,18 @@ function buildTelegramMessageForBooking($booking, $isRetry = false) {
     if (!empty($booking['preferredContact'])) {
         $preferredMap = [
             'telegram' => 'Telegram',
-            'phone' => 'Телефон (звонок)',
             'email' => 'Email',
             'vk' => 'ВКонтакте',
             'max' => 'MAX'
         ];
-        $preferredLabel = $preferredMap[$booking['preferredContact']] ?? $booking['preferredContact'];
-        $msg .= "⭐ <b>Предпочт. связь:</b> " . htmlspecialchars($preferredLabel) . "\n";
+        $items = is_array($booking['preferredContact']) ? $booking['preferredContact'] : [$booking['preferredContact']];
+        $labels = [];
+        foreach ($items as $it) {
+            $labels[] = $preferredMap[$it] ?? $it;
+        }
+        if (!empty($labels)) {
+            $msg .= "⭐ <b>Связь для ссылки Zoom:</b> " . htmlspecialchars(implode(', ', $labels)) . "\n";
+        }
     }
     if (!empty($booking['socialLinks'])) {
         $msg .= "\n🔗 <b>Ссылки на соцсети/сайт:</b>\n" . htmlspecialchars($booking['socialLinks']) . "\n";

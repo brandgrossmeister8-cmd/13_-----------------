@@ -27,17 +27,25 @@ $email = trim($postData['email'] ?? '');
 $telegram = trim($postData['telegram'] ?? '');
 $vk = trim($postData['vk'] ?? '');
 $max = trim($postData['max'] ?? '');
-$preferredContact = trim($postData['preferredContact'] ?? '');
+$preferredContactRaw = $postData['preferredContact'] ?? [];
 $dateRaw = trim($postData['date'] ?? '');
 $time = trim($postData['time'] ?? '');
 $socialLinks = trim($postData['socialLinks'] ?? '');
 $competitorLinks = trim($postData['competitorLinks'] ?? '');
 $problem = trim($postData['problem'] ?? '');
 
-// Допустимые значения для preferredContact
-$allowedPreferred = ['', 'telegram', 'phone', 'email', 'vk', 'max'];
-if (!in_array($preferredContact, $allowedPreferred, true)) {
-    $preferredContact = '';
+// Нормализуем preferredContact в массив допустимых значений
+$allowedPreferred = ['telegram', 'email', 'vk', 'max'];
+$preferredContact = [];
+if (is_array($preferredContactRaw)) {
+    foreach ($preferredContactRaw as $v) {
+        if (is_string($v) && in_array($v, $allowedPreferred, true) && !in_array($v, $preferredContact, true)) {
+            $preferredContact[] = $v;
+        }
+    }
+} elseif (is_string($preferredContactRaw) && in_array($preferredContactRaw, $allowedPreferred, true)) {
+    // обратная совместимость со старым форматом (строка)
+    $preferredContact = [$preferredContactRaw];
 }
 
 $errors = [];
@@ -72,6 +80,33 @@ if (!empty($max)) {
     $maxDigits = preg_replace('/\D/', '', $max);
     if (strlen($maxDigits) !== 11 || $maxDigits[0] !== '7') {
         $errors[] = 'Некорректный номер для MAX';
+    }
+}
+
+// Проверка предпочтительного способа связи: обязателен и данные должны быть заполнены
+if (empty($preferredContact)) {
+    $errors[] = 'Выберите хотя бы один способ связи для ссылки Zoom';
+} else {
+    $labels = ['telegram' => 'Telegram', 'email' => 'Email', 'vk' => 'ВКонтакте', 'max' => 'MAX'];
+    $missing = [];
+    foreach ($preferredContact as $m) {
+        if ($m === 'telegram' && empty($telegram)) {
+            $missing[] = $labels[$m];
+        } elseif ($m === 'email') {
+            if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $missing[] = $labels[$m];
+            }
+        } elseif ($m === 'vk' && empty($vk)) {
+            $missing[] = $labels[$m];
+        } elseif ($m === 'max') {
+            $maxDigits = preg_replace('/\D/', '', $max);
+            if (empty($max) || strlen($maxDigits) !== 11 || $maxDigits[0] !== '7') {
+                $missing[] = $labels[$m];
+            }
+        }
+    }
+    if (!empty($missing)) {
+        $errors[] = 'Заполните данные по выбранному виду связи: ' . implode(', ', $missing);
     }
 }
 
