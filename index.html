@@ -1640,10 +1640,10 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Предпочтительный вид связи для получения ссылки на встречу в Zoom <span class="required">*</span> <span style="color: #888; font-weight: normal;">(можно выбрать несколько)</span></label>
+                    <label>Предпочтительный вид связи для получения ссылки на встречу в Zoom <span class="required">*</span></label>
                     <div class="preferred-contact-options" id="preferredContactOptions">
                         <label class="checkbox-wrapper">
-                            <input type="checkbox" name="preferredContact" value="telegram">
+                            <input type="radio" name="preferredContact" value="telegram">
                             <span class="custom-checkbox">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                                     <polyline points="20 6 9 17 4 12"></polyline>
@@ -1652,7 +1652,7 @@
                             <span class="consent-text">Telegram</span>
                         </label>
                         <label class="checkbox-wrapper">
-                            <input type="checkbox" name="preferredContact" value="email">
+                            <input type="radio" name="preferredContact" value="email">
                             <span class="custom-checkbox">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                                     <polyline points="20 6 9 17 4 12"></polyline>
@@ -1661,7 +1661,7 @@
                             <span class="consent-text">Email</span>
                         </label>
                         <label class="checkbox-wrapper">
-                            <input type="checkbox" name="preferredContact" value="vk">
+                            <input type="radio" name="preferredContact" value="vk">
                             <span class="custom-checkbox">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                                     <polyline points="20 6 9 17 4 12"></polyline>
@@ -1670,7 +1670,7 @@
                             <span class="consent-text">ВКонтакте</span>
                         </label>
                         <label class="checkbox-wrapper">
-                            <input type="checkbox" name="preferredContact" value="max">
+                            <input type="radio" name="preferredContact" value="max">
                             <span class="custom-checkbox">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                                     <polyline points="20 6 9 17 4 12"></polyline>
@@ -2408,25 +2408,30 @@
             max: { err: maxError, iconValid: maxIconValid, iconInvalid: maxIconInvalid }
         };
 
-        function toggleConditionalField(method, show) {
-            const group = conditionalGroups[method];
-            const input = conditionalInputs[method];
-            const meta = conditionalErrors[method];
-            if (!group || !input) return;
-            if (show) {
-                group.classList.remove('hidden');
-            } else {
-                group.classList.add('hidden');
-                input.value = '';
-                resetField(input, meta.err, meta.iconValid, meta.iconInvalid);
-            }
+        function syncConditionalFields() {
+            Array.from(preferredContactInputs).forEach(input => {
+                const method = input.value;
+                const group = conditionalGroups[method];
+                const fieldInput = conditionalInputs[method];
+                const meta = conditionalErrors[method];
+                if (!group || !fieldInput) return;
+                if (input.checked) {
+                    group.classList.remove('hidden');
+                } else {
+                    group.classList.add('hidden');
+                    if (fieldInput.value) {
+                        fieldInput.value = '';
+                    }
+                    resetField(fieldInput, meta.err, meta.iconValid, meta.iconInvalid);
+                }
+            });
         }
 
         preferredContactInputs.forEach(cb => {
             cb.addEventListener('change', function() {
                 hideErrorsSummary();
                 clearPreferredContactError();
-                toggleConditionalField(this.value, this.checked);
+                syncConditionalFields();
             });
         });
         const socialLinksInput = document.getElementById('socialLinks');
