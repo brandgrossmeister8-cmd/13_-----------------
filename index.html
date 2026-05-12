@@ -360,6 +360,10 @@
             display: none;
         }
 
+        .conditional-field.hidden {
+            display: none;
+        }
+
         /* Чекбокс согласия */
         .consent-group {
             margin-bottom: 24px;
@@ -1603,7 +1607,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="phone">Телефон <span style="color: #888; font-weight: normal;">(необязательно)</span></label>
+                    <label for="phone">Телефон <span class="required">*</span></label>
                     <div class="input-wrapper">
                         <input
                             type="tel"
@@ -1611,6 +1615,7 @@
                             name="phone"
                             placeholder="+7 (999) 123-45-67"
                             autocomplete="tel"
+                            required
                         >
                         <svg class="status-icon valid" id="phoneIconValid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                             <polyline points="20 6 9 17 4 12"></polyline>
@@ -1631,131 +1636,6 @@
                             <span id="phoneErrorTitle">Некорректный номер телефона</span>
                         </div>
                         <div class="error-description" id="phoneErrorDesc">Введите полный номер телефона в формате +7 (XXX) XXX-XX-XX. Номер должен содержать 11 цифр, начиная с 7 или 8.</div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="email">Электронная почта <span style="color: #888; font-weight: normal;">(необязательно)</span></label>
-                    <div class="input-wrapper">
-                        <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            placeholder="example@mail.ru"
-                            autocomplete="email"
-                        >
-                        <svg class="status-icon valid" id="emailIconValid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                        <svg class="status-icon invalid" id="emailIconInvalid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                    </div>
-                    <div class="error-message" id="emailError">
-                        <div class="error-title">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <line x1="12" y1="8" x2="12" y2="12"></line>
-                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                            </svg>
-                            <span id="emailErrorTitle">Некорректный адрес почты</span>
-                        </div>
-                        <div class="error-description" id="emailErrorDesc">Введите корректный email в формате: имя@домен.зона. Например: ivan@mail.ru или info@company.com</div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="telegram">Аккаунт в телеграм <span class="required">*</span></label>
-                    <div class="input-wrapper">
-                        <input
-                            type="text"
-                            id="telegram"
-                            name="telegram"
-                            placeholder="@username или +7 (999) 123-45-67"
-                            required
-                        >
-                        <svg class="status-icon valid" id="telegramIconValid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                        <svg class="status-icon invalid" id="telegramIconInvalid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                    </div>
-                    <div class="error-message" id="telegramError">
-                        <div class="error-title">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <line x1="12" y1="8" x2="12" y2="12"></line>
-                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                            </svg>
-                            <span id="telegramErrorTitle">Telegram не заполнен</span>
-                        </div>
-                        <div class="error-description" id="telegramErrorDesc">Введите ваш аккаунт Telegram (@username) или номер телефона, привязанный к Telegram.</div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="vk">Аккаунт ВКонтакте <span style="color: #888; font-weight: normal;">(необязательно)</span></label>
-                    <div class="input-wrapper">
-                        <input
-                            type="text"
-                            id="vk"
-                            name="vk"
-                            placeholder="vk.com/username или @id123456"
-                            autocomplete="off"
-                        >
-                        <svg class="status-icon valid" id="vkIconValid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                        <svg class="status-icon invalid" id="vkIconInvalid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                    </div>
-                    <div class="error-message" id="vkError">
-                        <div class="error-title">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <line x1="12" y1="8" x2="12" y2="12"></line>
-                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                            </svg>
-                            <span id="vkErrorTitle">Некорректный аккаунт ВКонтакте</span>
-                        </div>
-                        <div class="error-description" id="vkErrorDesc">Укажите ссылку на профиль (vk.com/username) или короткий идентификатор (@id123456).</div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="max">Телефон для связи в MAX <span style="color: #888; font-weight: normal;">(необязательно)</span></label>
-                    <div class="input-wrapper">
-                        <input
-                            type="tel"
-                            id="max"
-                            name="max"
-                            placeholder="+7 (999) 123-45-67"
-                            autocomplete="off"
-                        >
-                        <svg class="status-icon valid" id="maxIconValid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                        <svg class="status-icon invalid" id="maxIconInvalid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                    </div>
-                    <div class="phone-hint">Номер, привязанный к мессенджеру MAX</div>
-                    <div class="error-message" id="maxError">
-                        <div class="error-title">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <line x1="12" y1="8" x2="12" y2="12"></line>
-                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                            </svg>
-                            <span id="maxErrorTitle">Некорректный номер для MAX</span>
-                        </div>
-                        <div class="error-description" id="maxErrorDesc">Введите полный номер телефона в формате +7 (XXX) XXX-XX-XX. Номер должен содержать 11 цифр.</div>
                     </div>
                 </div>
 
@@ -1809,6 +1689,130 @@
                             <span id="preferredContactErrorTitle">Выберите хотя бы один способ связи</span>
                         </div>
                         <div class="error-description" id="preferredContactErrorDesc">Отметьте, как вам удобнее получить ссылку на встречу в Zoom.</div>
+                    </div>
+                </div>
+
+                <div class="form-group conditional-field hidden" data-method="telegram" id="telegramGroup">
+                    <label for="telegram">Аккаунт в телеграм <span class="required">*</span></label>
+                    <div class="input-wrapper">
+                        <input
+                            type="text"
+                            id="telegram"
+                            name="telegram"
+                            placeholder="@username или +7 (999) 123-45-67"
+                        >
+                        <svg class="status-icon valid" id="telegramIconValid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        <svg class="status-icon invalid" id="telegramIconInvalid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </div>
+                    <div class="error-message" id="telegramError">
+                        <div class="error-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            <span id="telegramErrorTitle">Telegram не заполнен</span>
+                        </div>
+                        <div class="error-description" id="telegramErrorDesc">Введите ваш аккаунт Telegram (@username) или номер телефона, привязанный к Telegram.</div>
+                    </div>
+                </div>
+
+                <div class="form-group conditional-field hidden" data-method="email" id="emailGroup">
+                    <label for="email">Электронная почта <span class="required">*</span></label>
+                    <div class="input-wrapper">
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="example@mail.ru"
+                            autocomplete="email"
+                        >
+                        <svg class="status-icon valid" id="emailIconValid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        <svg class="status-icon invalid" id="emailIconInvalid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </div>
+                    <div class="error-message" id="emailError">
+                        <div class="error-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            <span id="emailErrorTitle">Некорректный адрес почты</span>
+                        </div>
+                        <div class="error-description" id="emailErrorDesc">Введите корректный email в формате: имя@домен.зона. Например: ivan@mail.ru или info@company.com</div>
+                    </div>
+                </div>
+
+                <div class="form-group conditional-field hidden" data-method="vk" id="vkGroup">
+                    <label for="vk">Аккаунт ВКонтакте <span class="required">*</span></label>
+                    <div class="input-wrapper">
+                        <input
+                            type="text"
+                            id="vk"
+                            name="vk"
+                            placeholder="vk.com/username или @id123456"
+                            autocomplete="off"
+                        >
+                        <svg class="status-icon valid" id="vkIconValid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        <svg class="status-icon invalid" id="vkIconInvalid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </div>
+                    <div class="error-message" id="vkError">
+                        <div class="error-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            <span id="vkErrorTitle">Некорректный аккаунт ВКонтакте</span>
+                        </div>
+                        <div class="error-description" id="vkErrorDesc">Укажите ссылку на профиль (vk.com/username) или короткий идентификатор (@id123456).</div>
+                    </div>
+                </div>
+
+                <div class="form-group conditional-field hidden" data-method="max" id="maxGroup">
+                    <label for="max">Телефон для связи в MAX <span class="required">*</span></label>
+                    <div class="input-wrapper">
+                        <input
+                            type="tel"
+                            id="max"
+                            name="max"
+                            placeholder="+7 (999) 123-45-67"
+                            autocomplete="off"
+                        >
+                        <svg class="status-icon valid" id="maxIconValid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        <svg class="status-icon invalid" id="maxIconInvalid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </div>
+                    <div class="phone-hint">Номер, привязанный к мессенджеру MAX</div>
+                    <div class="error-message" id="maxError">
+                        <div class="error-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            <span id="maxErrorTitle">Некорректный номер для MAX</span>
+                        </div>
+                        <div class="error-description" id="maxErrorDesc">Введите полный номер телефона в формате +7 (XXX) XXX-XX-XX. Номер должен содержать 11 цифр.</div>
                     </div>
                 </div>
 
@@ -2098,12 +2102,12 @@
                 <p>на обработку моих персональных данных, а именно:</p>
                 <ul>
                     <li>Имя</li>
-                    <li>Аккаунт в Telegram или номер телефона, привязанный к Telegram</li>
-                    <li>Номер телефона (при указании)</li>
-                    <li>Адрес электронной почты (при указании)</li>
-                    <li>Аккаунт ВКонтакте (при указании)</li>
-                    <li>Номер телефона для связи в мессенджере MAX (при указании)</li>
-                    <li>Предпочтительный способ связи для получения ссылки на встречу в Zoom (при указании)</li>
+                    <li>Номер контактного телефона</li>
+                    <li>Аккаунт в Telegram (при выборе данного способа связи)</li>
+                    <li>Адрес электронной почты (при выборе данного способа связи)</li>
+                    <li>Аккаунт ВКонтакте (при выборе данного способа связи)</li>
+                    <li>Номер телефона для связи в мессенджере MAX (при выборе данного способа связи)</li>
+                    <li>Предпочтительный способ связи для получения ссылки на встречу в Zoom</li>
                     <li>Ссылки на сайты и социальные сети</li>
                     <li>Ссылки на конкурентов</li>
                     <li>Описание проблемы</li>
@@ -2164,11 +2168,11 @@
                 <p>2.1. Оператор может обрабатывать следующие персональные данные:</p>
                 <ul>
                     <li>Имя</li>
-                    <li>Аккаунт в Telegram или номер телефона, привязанный к Telegram</li>
-                    <li>Номер контактного телефона (при указании)</li>
-                    <li>Адрес электронной почты (при указании)</li>
-                    <li>Аккаунт ВКонтакте (при указании)</li>
-                    <li>Номер телефона для связи в мессенджере MAX (при указании)</li>
+                    <li>Номер контактного телефона</li>
+                    <li>Аккаунт в Telegram (при выборе данного способа связи)</li>
+                    <li>Адрес электронной почты (при выборе данного способа связи)</li>
+                    <li>Аккаунт ВКонтакте (при выборе данного способа связи)</li>
+                    <li>Номер телефона для связи в мессенджере MAX (при выборе данного способа связи)</li>
                     <li>Предпочтительный способ связи для получения ссылки на встречу в Zoom</li>
                     <li>Ссылки на сайты и социальные сети пользователя</li>
                     <li>Ссылки на сайты и социальные сети конкурентов</li>
@@ -2384,10 +2388,45 @@
             preferredContactError.classList.remove('show');
         }
 
+        // Тоггл показа поля по выбору чекбокса
+        const conditionalGroups = {
+            telegram: document.getElementById('telegramGroup'),
+            email: document.getElementById('emailGroup'),
+            vk: document.getElementById('vkGroup'),
+            max: document.getElementById('maxGroup')
+        };
+        const conditionalInputs = {
+            telegram: telegramInput,
+            email: emailInput,
+            vk: vkInput,
+            max: maxInput
+        };
+        const conditionalErrors = {
+            telegram: { err: telegramError, iconValid: telegramIconValid, iconInvalid: telegramIconInvalid },
+            email: { err: emailError, iconValid: emailIconValid, iconInvalid: emailIconInvalid },
+            vk: { err: vkError, iconValid: vkIconValid, iconInvalid: vkIconInvalid },
+            max: { err: maxError, iconValid: maxIconValid, iconInvalid: maxIconInvalid }
+        };
+
+        function toggleConditionalField(method, show) {
+            const group = conditionalGroups[method];
+            const input = conditionalInputs[method];
+            const meta = conditionalErrors[method];
+            if (!group || !input) return;
+            if (show) {
+                group.classList.remove('hidden');
+            } else {
+                group.classList.add('hidden');
+                input.value = '';
+                resetField(input, meta.err, meta.iconValid, meta.iconInvalid);
+            }
+        }
+
         preferredContactInputs.forEach(cb => {
             cb.addEventListener('change', function() {
                 hideErrorsSummary();
                 clearPreferredContactError();
+                toggleConditionalField(this.value, this.checked);
             });
         });
         const socialLinksInput = document.getElementById('socialLinks');
@@ -3128,66 +3167,19 @@
                 showError(nameInput, nameError, nameIconValid, nameIconInvalid, false);
             }
 
-            // Проверка телефона (необязательное поле, но если заполнено - проверяем формат)
-            if (phoneInput.value.trim() !== '' && !isValidPhone(phoneInput.value)) {
+            // Проверка телефона (обязательное поле)
+            if (phoneInput.value.trim() === '') {
+                const err = getPhoneError('');
+                showError(phoneInput, phoneError, phoneIconValid, phoneIconInvalid, true, err);
+                errors.push('Заполните номер телефона');
+                isValid = false;
+            } else if (!isValidPhone(phoneInput.value)) {
                 const err = getPhoneError(phoneInput.value);
                 showError(phoneInput, phoneError, phoneIconValid, phoneIconInvalid, true, err);
                 errors.push('Исправьте номер телефона');
                 isValid = false;
-            } else if (phoneInput.value.trim() !== '') {
+            } else {
                 showError(phoneInput, phoneError, phoneIconValid, phoneIconInvalid, false);
-            } else {
-                resetField(phoneInput, phoneError, phoneIconValid, phoneIconInvalid);
-            }
-
-            // Проверка email (необязательное поле, но если заполнено - проверяем формат)
-            if (emailInput.value.trim() !== '' && !isValidEmail(emailInput.value)) {
-                const err = getEmailError(emailInput.value);
-                showError(emailInput, emailError, emailIconValid, emailIconInvalid, true, err);
-                errors.push('Исправьте адрес электронной почты');
-                isValid = false;
-            } else if (emailInput.value.trim() !== '') {
-                showError(emailInput, emailError, emailIconValid, emailIconInvalid, false);
-            } else {
-                resetField(emailInput, emailError, emailIconValid, emailIconInvalid);
-            }
-
-            // Проверка Telegram (обязательное поле)
-            if (telegramInput.value.trim() === '') {
-                const err = getTelegramError('');
-                showError(telegramInput, telegramError, telegramIconValid, telegramIconInvalid, true, err);
-                errors.push('Заполните поле «Telegram»');
-                isValid = false;
-            } else if (!isValidTelegram(telegramInput.value)) {
-                const err = getTelegramError(telegramInput.value);
-                showError(telegramInput, telegramError, telegramIconValid, telegramIconInvalid, true, err);
-                errors.push('Исправьте аккаунт Telegram');
-                isValid = false;
-            } else {
-                showError(telegramInput, telegramError, telegramIconValid, telegramIconInvalid, false);
-            }
-
-            // Проверка ВКонтакте (необязательное поле, формат если заполнено)
-            if (vkInput.value.trim() !== '' && !isValidVk(vkInput.value)) {
-                showError(vkInput, vkError, vkIconValid, vkIconInvalid, true);
-                errors.push('Исправьте аккаунт ВКонтакте');
-                isValid = false;
-            } else if (vkInput.value.trim() !== '') {
-                showError(vkInput, vkError, vkIconValid, vkIconInvalid, false);
-            } else {
-                resetField(vkInput, vkError, vkIconValid, vkIconInvalid);
-            }
-
-            // Проверка MAX (необязательное поле, телефон если заполнено)
-            if (maxInput.value.trim() !== '' && !isValidPhone(maxInput.value)) {
-                const err = getPhoneError(maxInput.value);
-                showError(maxInput, maxError, maxIconValid, maxIconInvalid, true, err);
-                errors.push('Исправьте номер для MAX');
-                isValid = false;
-            } else if (maxInput.value.trim() !== '') {
-                showError(maxInput, maxError, maxIconValid, maxIconInvalid, false);
-            } else {
-                resetField(maxInput, maxError, maxIconValid, maxIconInvalid);
             }
 
             // Проверка предпочтительного вида связи (обязательно: хотя бы один и заполненные данные)
@@ -3206,6 +3198,9 @@
                     if (method === 'telegram') {
                         if (telegramInput.value.trim() === '' || !isValidTelegram(telegramInput.value)) {
                             missing.push(preferredContactLabels.telegram);
+                            telegramInput.classList.add('invalid');
+                            telegramError.classList.add('show');
+                            if (telegramIconInvalid) telegramIconInvalid.classList.add('show');
                         }
                     } else if (method === 'email') {
                         if (emailInput.value.trim() === '' || !isValidEmail(emailInput.value)) {

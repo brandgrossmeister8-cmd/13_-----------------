@@ -57,29 +57,13 @@ if (empty($name)) {
     $errors[] = 'Имя содержит недопустимые символы';
 }
 
-// Проверка телефона (необязательное поле, но если заполнено - проверяем формат)
-if (!empty($phone)) {
+// Проверка телефона (обязательное поле)
+if (empty($phone)) {
+    $errors[] = 'Телефон не заполнен';
+} else {
     $phoneDigits = preg_replace('/\D/', '', $phone);
     if (strlen($phoneDigits) !== 11 || $phoneDigits[0] !== '7') {
         $errors[] = 'Некорректный номер телефона';
-    }
-}
-
-// Проверка email (необязательное поле, но если заполнено - проверяем формат)
-if (!empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    $errors[] = 'Некорректный email';
-}
-
-// Проверка Telegram (обязательное поле)
-if (empty($telegram)) {
-    $errors[] = 'Telegram не заполнен';
-}
-
-// Проверка MAX (необязательное поле, формат — российский телефон если заполнено)
-if (!empty($max)) {
-    $maxDigits = preg_replace('/\D/', '', $max);
-    if (strlen($maxDigits) !== 11 || $maxDigits[0] !== '7') {
-        $errors[] = 'Некорректный номер для MAX';
     }
 }
 
