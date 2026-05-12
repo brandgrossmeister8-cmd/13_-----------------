@@ -2400,10 +2400,26 @@
             max: maxInput
         };
         const conditionalErrors = {
-            telegram: { err: telegramError, iconValid: telegramIconValid, iconInvalid: telegramIconInvalid },
-            email: { err: emailError, iconValid: emailIconValid, iconInvalid: emailIconInvalid },
-            vk: { err: vkError, iconValid: vkIconValid, iconInvalid: vkIconInvalid },
-            max: { err: maxError, iconValid: maxIconValid, iconInvalid: maxIconInvalid }
+            telegram: {
+                err: document.getElementById('telegramError'),
+                iconValid: document.getElementById('telegramIconValid'),
+                iconInvalid: document.getElementById('telegramIconInvalid')
+            },
+            email: {
+                err: document.getElementById('emailError'),
+                iconValid: document.getElementById('emailIconValid'),
+                iconInvalid: document.getElementById('emailIconInvalid')
+            },
+            vk: {
+                err: document.getElementById('vkError'),
+                iconValid: document.getElementById('vkIconValid'),
+                iconInvalid: document.getElementById('vkIconInvalid')
+            },
+            max: {
+                err: document.getElementById('maxError'),
+                iconValid: document.getElementById('maxIconValid'),
+                iconInvalid: document.getElementById('maxIconInvalid')
+            }
         };
 
         function syncConditionalFields() {
