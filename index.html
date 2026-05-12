@@ -1639,9 +1639,9 @@
                                 <line x1="12" y1="8" x2="12" y2="12"></line>
                                 <line x1="12" y1="16" x2="12.01" y2="16"></line>
                             </svg>
-                            Имя не заполнено
+                            <span id="nameErrorTitle">Имя не заполнено</span>
                         </div>
-                        <div class="error-description">Введите ваше имя, чтобы мы знали, как к вам обращаться. Допускаются буквы русского и латинского алфавита.</div>
+                        <div class="error-description" id="nameErrorDesc">Введите ваше имя — буквами, без цифр и спецсимволов. Допускаются буквы русского/латинского алфавита, пробел и дефис.</div>
                     </div>
                 </div>
 
@@ -3084,11 +3084,25 @@
         const emailIconValid = document.getElementById('emailIconValid');
         const emailIconInvalid = document.getElementById('emailIconInvalid');
 
+        // Валидация имени: только буквы/пробелы/дефисы
+        function isValidName(value) {
+            return /^[а-яёА-ЯЁa-zA-Z\s\-]+$/u.test(value.trim());
+        }
+
         // Валидация при потере фокуса
         nameInput.addEventListener('blur', function() {
             hideErrorsSummary();
-            if (this.value.trim() === '') {
-                showError(this, nameError, nameIconValid, nameIconInvalid, true);
+            const v = this.value.trim();
+            if (v === '') {
+                showError(this, nameError, nameIconValid, nameIconInvalid, true, {
+                    title: 'Имя не заполнено',
+                    desc: 'Введите ваше имя — буквами, без цифр и спецсимволов.'
+                });
+            } else if (!isValidName(v)) {
+                showError(this, nameError, nameIconValid, nameIconInvalid, true, {
+                    title: 'Имя содержит недопустимые символы',
+                    desc: 'Допускаются только буквы русского/латинского алфавита, пробел и дефис. Например: «Маргарита» или «Анна-Мария».'
+                });
             } else {
                 showError(this, nameError, nameIconValid, nameIconInvalid, false);
             }
@@ -3224,8 +3238,18 @@
 
             // Проверка имени
             if (nameInput.value.trim() === '') {
-                showError(nameInput, nameError, nameIconValid, nameIconInvalid, true);
+                showError(nameInput, nameError, nameIconValid, nameIconInvalid, true, {
+                    title: 'Имя не заполнено',
+                    desc: 'Введите ваше имя — буквами, без цифр и спецсимволов.'
+                });
                 errors.push('Заполните поле «Имя»');
+                isValid = false;
+            } else if (!isValidName(nameInput.value)) {
+                showError(nameInput, nameError, nameIconValid, nameIconInvalid, true, {
+                    title: 'Имя содержит недопустимые символы',
+                    desc: 'Допускаются только буквы, пробел и дефис. Например: «Маргарита» или «Анна-Мария».'
+                });
+                errors.push('Имя содержит недопустимые символы');
                 isValid = false;
             } else {
                 showError(nameInput, nameError, nameIconValid, nameIconInvalid, false);
@@ -3442,7 +3466,10 @@
             })
             .catch(error => {
                 console.error('Ошибка:', error);
-                alert('Произошла ошибка при отправке заявки. Попробуйте ещё раз или позвоните нам.');
+                const msg = (error && error.message && error.message !== 'Failed to fetch')
+                    ? error.message
+                    : 'Произошла ошибка при отправке заявки. Проверьте интернет и попробуйте ещё раз.';
+                alert(msg);
                 submitBtn.disabled = false;
                 submitBtn.textContent = originalBtnText;
             });
