@@ -2368,7 +2368,25 @@
             preferredContactError.classList.remove('show');
         }
 
-        // Тоггл показа поля по выбору чекбокса
+        const socialLinksInput = document.getElementById('socialLinks');
+        const competitorLinksInput = document.getElementById('competitorLinks');
+        const problemInput = document.getElementById('problem');
+
+        // Элементы ошибок для новых полей
+        const telegramError = document.getElementById('telegramError');
+        const telegramIconValid = document.getElementById('telegramIconValid');
+        const telegramIconInvalid = document.getElementById('telegramIconInvalid');
+        const vkError = document.getElementById('vkError');
+        const vkIconValid = document.getElementById('vkIconValid');
+        const vkIconInvalid = document.getElementById('vkIconInvalid');
+        const maxError = document.getElementById('maxError');
+        const maxIconValid = document.getElementById('maxIconValid');
+        const maxIconInvalid = document.getElementById('maxIconInvalid');
+        const socialLinksError = document.getElementById('socialLinksError');
+        const competitorLinksError = document.getElementById('competitorLinksError');
+        const problemError = document.getElementById('problemError');
+
+        // Тоггл показа условных полей по выбранному способу связи
         const conditionalGroups = {
             telegram: document.getElementById('telegramGroup'),
             email: document.getElementById('emailGroup'),
@@ -2412,23 +2430,6 @@
             clearPreferredContactError();
             syncConditionalFields();
         });
-        const socialLinksInput = document.getElementById('socialLinks');
-        const competitorLinksInput = document.getElementById('competitorLinks');
-        const problemInput = document.getElementById('problem');
-
-        // Элементы ошибок для новых полей
-        const telegramError = document.getElementById('telegramError');
-        const telegramIconValid = document.getElementById('telegramIconValid');
-        const telegramIconInvalid = document.getElementById('telegramIconInvalid');
-        const vkError = document.getElementById('vkError');
-        const vkIconValid = document.getElementById('vkIconValid');
-        const vkIconInvalid = document.getElementById('vkIconInvalid');
-        const maxError = document.getElementById('maxError');
-        const maxIconValid = document.getElementById('maxIconValid');
-        const maxIconInvalid = document.getElementById('maxIconInvalid');
-        const socialLinksError = document.getElementById('socialLinksError');
-        const competitorLinksError = document.getElementById('competitorLinksError');
-        const problemError = document.getElementById('problemError');
 
         // Чекбоксы согласий
         const consentPDInput = document.getElementById('consentPD');
