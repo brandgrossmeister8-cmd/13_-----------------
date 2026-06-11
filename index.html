@@ -1142,7 +1142,7 @@
             color: var(--primary);
         }
 
-        /* ===== Консультации: час с разбивкой на 15-минутные интервалы ===== */
+        /* ===== Консультации: час с разбивкой на 20-минутные интервалы ===== */
         .time-slots--consultation {
             display: block;
         }
@@ -1190,13 +1190,13 @@
 
         .time-subslots {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 8px;
         }
 
         @media (max-width: 500px) {
             .time-subslots {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(3, 1fr);
             }
         }
 
@@ -1928,7 +1928,7 @@
     <div class="form-container">
         <div class="form-content">
             <h1>Запись на встречу</h1>
-            <p class="form-lead">Консультация на 15 минут или диагностика на 1 час. После записи я отправлю ссылку на Zoom в выбранный канал связи.</p>
+            <p class="form-lead">Консультация на 20 минут или диагностика на 1 час. После записи я отправлю ссылку на Zoom в выбранный канал связи.</p>
 
             <!-- Общий блок ошибок -->
             <div class="form-errors-summary" id="errorsSummary">
@@ -2174,7 +2174,7 @@
                         <div class="meeting-type-options">
                             <button type="button" class="meeting-type-option" data-type="consultation">
                                 <span class="meeting-type-title">1. Консультация</span>
-                                <span class="meeting-type-sub">15 минут</span>
+                                <span class="meeting-type-sub">20 минут</span>
                             </button>
                             <button type="button" class="meeting-type-option" data-type="diagnostic">
                                 <span class="meeting-type-title">2. Диагностика</span>
@@ -3231,7 +3231,7 @@
                     html += `<button type="button" class="time-slot ${cls}" data-time="${slot.time}" ${available ? '' : 'disabled'}>${slot.time}</button>`;
                 });
             } else {
-                // Консультация: каждый час с разбивкой на 15-минутные интервалы
+                // Консультация: каждый час с разбивкой на 20-минутные интервалы
                 legendLilac.style.display = 'flex';
                 timeSlotsContainer.className = 'time-slots time-slots--consultation';
                 currentDateSlots.forEach(hour => {
@@ -4249,12 +4249,14 @@
                     statusClass = 'booked';
                     statusText = 'Диагностика (1 ч)';
                 } else if (slot.status === 'full') {
+                    const total = (slot.subSlots || []).length;
                     statusClass = 'booked';
-                    statusText = 'Занято (4/4)';
+                    statusText = `Занято (${total}/${total})`;
                     detail = (slot.consultations || []).join(', ');
                 } else if (slot.status === 'partial') {
+                    const total = (slot.subSlots || []).length;
                     statusClass = 'partial';
-                    statusText = `Консультации: ${slot.count}/4`;
+                    statusText = `Консультации: ${slot.count}/${total}`;
                     detail = (slot.consultations || []).join(', ');
                 }
 
@@ -4410,7 +4412,7 @@
                 const displayDate = `${day}.${month}.${year}`;
                 const tgBadge = renderTgBadge(booking);
                 const isConsultation = booking.type === 'consultation';
-                const typeLabel = isConsultation ? 'Консультация (15 мин)' : 'Диагностика (1 час)';
+                const typeLabel = isConsultation ? 'Консультация (20 мин)' : 'Диагностика (1 час)';
                 const typeBadge = `<span class="admin-booking-type-badge ${isConsultation ? 'consultation' : 'diagnostic'}">${typeLabel}</span>`;
 
                 html += `

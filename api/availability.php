@@ -134,7 +134,7 @@ function handleDateAvailability($date, $type = 'diagnostic') {
     $slots = [];
 
     if ($type === 'consultation') {
-        // Консультации: каждый час с разбивкой на 15-минутные интервалы
+        // Консультации: каждый час с разбивкой на 20-минутные интервалы
         foreach ($hours as $info) {
             $slots[] = [
                 'time'      => $info['hour'],

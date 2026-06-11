@@ -126,7 +126,7 @@ function validateTime($time) {
 /**
  * Валидация времени с учётом типа записи.
  * Для диагностики — это рабочий час (HH:00).
- * Для консультации — 15-минутный интервал (HH:MM, MM ∈ 00/15/30/45) внутри рабочего часа.
+ * Для консультации — 20-минутный интервал (HH:MM, MM ∈ 00/20/40) внутри рабочего часа.
  * @param string $time
  * @param string $type 'diagnostic' | 'consultation'
  * @return bool
@@ -162,7 +162,7 @@ function getHourOf($time) {
 }
 
 /**
- * 15-минутные интервалы внутри часа: "10:00" -> ["10:00","10:15","10:30","10:45"]
+ * 20-минутные интервалы внутри часа: "10:00" -> ["10:00","10:20","10:40"]
  * @param string $hour
  * @return array
  */
@@ -202,13 +202,13 @@ function isHourBlocked($allData, $date, $hour) {
  *
  * Правила:
  *  - Диагностика (1 час) возможна, только если час полностью свободен (нет консультаций и нет диагностики).
- *  - Консультация (15 мин) возможна, если час не занят диагностикой и заняты не все 4 интервала.
+ *  - Консультация (20 мин) возможна, если час не занят диагностикой и заняты не все интервалы.
  *
  * status: blocked | diagnostic_booked | free | partial | full
  *  - free    — час полностью свободен (зелёный)
  *  - partial — заняты 1–3 интервала консультациями (сиреневый): диагностику поставить нельзя,
- *              но свободные 15-мин интервалы ещё можно выбрать
- *  - full    — заняты все 4 интервала (красный)
+ *              но свободные 20-мин интервалы ещё можно выбрать
+ *  - full    — заняты все интервалы часа (красный)
  *
  * @param array $allData
  * @param string $date
@@ -243,14 +243,14 @@ function getHourInfo($allData, $date, $hour) {
         $status = 'diagnostic_booked';
     } elseif ($count === 0) {
         $status = 'free';
-    } elseif ($count >= 4) {
+    } elseif ($count >= count(CONSULTATION_INTERVALS)) {
         $status = 'full';
     } else {
         $status = 'partial';
     }
 
     $diagnosticAvailable = !$blocked && !$diagnosticBooked && $count === 0;
-    $consultationAvailable = !$blocked && !$diagnosticBooked && $count < 4;
+    $consultationAvailable = !$blocked && !$diagnosticBooked && $count < count(CONSULTATION_INTERVALS);
 
     $subSlots = [];
     foreach (getHourSubSlots($hour) as $sub) {
@@ -513,7 +513,7 @@ function sendTelegramNotification($message) {
  */
 function buildTelegramMessageForBooking($booking, $isRetry = false) {
     $isConsultation = (getBookingType($booking) === 'consultation');
-    $typeLabel = $isConsultation ? 'Консультация (15 мин)' : 'Диагностика (1 час)';
+    $typeLabel = $isConsultation ? 'Консультация (20 мин)' : 'Диагностика (1 час)';
     if ($isRetry) {
         $title = "🔁 <b>Доставка после сбоя — новая запись</b>";
     } else {
