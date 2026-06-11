@@ -11,38 +11,83 @@
             padding: 0;
         }
 
+        :root {
+            --bg: #f4f7f9;
+            --surface: #ffffff;
+            --surface-soft: #f7fafc;
+            --text: #172026;
+            --muted: #60707c;
+            --line: #d9e3ea;
+            --primary: #235f73;
+            --primary-dark: #174554;
+            --primary-soft: #e4f2f5;
+            --accent: #c45135;
+            --success: #1f8a5b;
+            --success-soft: #e7f6ee;
+            --danger: #c83a32;
+            --danger-soft: #fff0ed;
+            --warning-soft: #fff4d8;
+            --warning-text: #7a4f00;
+            --shadow: 0 24px 70px rgba(21, 42, 53, 0.16);
+            --radius: 8px;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background:
+                linear-gradient(180deg, rgba(35, 95, 115, 0.11) 0, rgba(35, 95, 115, 0) 280px),
+                var(--bg);
             min-height: 100vh;
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: center;
-            padding: 20px;
+            padding: 36px 20px;
+            color: var(--text);
+            line-height: 1.5;
         }
 
         .form-container {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 40px;
+            background: var(--surface);
+            border: 1px solid rgba(217, 227, 234, 0.9);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 34px;
             width: 100%;
-            max-width: 520px;
+            max-width: 760px;
         }
 
         h1 {
-            color: #333;
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 24px;
-            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 8px;
+            font-size: 30px;
+            line-height: 1.15;
+            font-weight: 700;
+            letter-spacing: 0;
+        }
+
+        .form-lead {
+            color: var(--muted);
+            font-size: 15px;
+            margin-bottom: 24px;
+            max-width: 560px;
+        }
+
+        .section-title {
+            color: var(--text);
+            font-size: 16px;
+            margin: 4px 0 18px;
+            font-weight: 700;
+        }
+
+        .form-content {
+            position: relative;
         }
 
         /* Общий блок ошибок вверху формы */
         .form-errors-summary {
-            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-            border: 2px solid #ef4444;
-            border-radius: 12px;
+            background: var(--danger-soft);
+            border: 1px solid #f0b4ad;
+            border-radius: var(--radius);
             padding: 16px 20px;
             margin-bottom: 24px;
             display: none;
@@ -54,7 +99,7 @@
         }
 
         .form-errors-summary h3 {
-            color: #dc2626;
+            color: var(--danger);
             font-size: 16px;
             margin-bottom: 10px;
             display: flex;
@@ -65,7 +110,7 @@
         .form-errors-summary ul {
             margin: 0;
             padding-left: 28px;
-            color: #b91c1c;
+            color: #8f2b26;
             font-size: 14px;
         }
 
@@ -92,13 +137,13 @@
         label {
             display: block;
             margin-bottom: 8px;
-            color: #555;
+            color: #31424d;
             font-weight: 500;
             font-size: 14px;
         }
 
         label .required {
-            color: #e74c3c;
+            color: var(--accent);
         }
 
         .input-wrapper {
@@ -109,11 +154,13 @@
             width: 100%;
             padding: 14px 16px;
             padding-right: 45px;
-            border: 2px solid #e1e5e9;
-            border-radius: 10px;
+            border: 1.5px solid var(--line);
+            border-radius: var(--radius);
             font-size: 16px;
             transition: all 0.3s ease;
             font-family: inherit;
+            color: var(--text);
+            background: #fff;
         }
 
         select {
@@ -128,35 +175,35 @@
 
         select:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(35, 95, 115, 0.14);
         }
 
         select.valid {
-            border-color: #22c55e;
-            background-color: #f0fdf4;
+            border-color: var(--success);
+            background-color: var(--success-soft);
         }
 
         select.invalid {
-            border-color: #ef4444;
-            background-color: #fef2f2;
+            border-color: var(--danger);
+            background-color: var(--danger-soft);
             animation: shake 0.5s ease;
         }
 
         select.invalid:focus {
-            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2);
+            box-shadow: 0 0 0 4px rgba(200, 58, 50, 0.16);
         }
 
         .info-block {
-            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-            border: 1px solid #7dd3fc;
-            border-radius: 12px;
+            background: var(--primary-soft);
+            border: 1px solid #b9dbe2;
+            border-radius: var(--radius);
             padding: 16px 20px;
             margin-bottom: 24px;
         }
 
         .info-block h4 {
-            color: #0369a1;
+            color: var(--primary-dark);
             font-size: 14px;
             margin-bottom: 10px;
             display: flex;
@@ -167,7 +214,7 @@
         .info-block ul {
             margin: 0;
             padding-left: 24px;
-            color: #0c4a6e;
+            color: var(--primary-dark);
             font-size: 13px;
             line-height: 1.6;
         }
@@ -177,7 +224,7 @@
         }
 
         .info-block p {
-            color: #0c4a6e;
+            color: var(--primary-dark);
             font-size: 13px;
             line-height: 1.6;
             margin: 0;
@@ -193,47 +240,47 @@
 
         input:focus, textarea:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(35, 95, 115, 0.14);
         }
 
         input.valid {
-            border-color: #22c55e;
-            background-color: #f0fdf4;
+            border-color: var(--success);
+            background-color: var(--success-soft);
         }
 
         input.invalid {
-            border-color: #ef4444;
-            background-color: #fef2f2;
+            border-color: var(--danger);
+            background-color: var(--danger-soft);
             animation: shake 0.5s ease;
         }
 
         input.invalid:focus {
-            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2);
+            box-shadow: 0 0 0 4px rgba(200, 58, 50, 0.16);
         }
 
         input.valid:focus {
-            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.2);
+            box-shadow: 0 0 0 4px rgba(31, 138, 91, 0.16);
         }
 
         /* Стилизация textarea */
         textarea.valid {
-            border-color: #22c55e;
-            background-color: #f0fdf4;
+            border-color: var(--success);
+            background-color: var(--success-soft);
         }
 
         textarea.invalid {
-            border-color: #ef4444;
-            background-color: #fef2f2;
+            border-color: var(--danger);
+            background-color: var(--danger-soft);
             animation: shake 0.5s ease;
         }
 
         textarea.invalid:focus {
-            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2);
+            box-shadow: 0 0 0 4px rgba(200, 58, 50, 0.16);
         }
 
         textarea.valid:focus {
-            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.2);
+            box-shadow: 0 0 0 4px rgba(31, 138, 91, 0.16);
         }
 
         @keyframes shake {
@@ -258,11 +305,11 @@
         }
 
         .status-icon.valid {
-            color: #22c55e;
+            color: var(--success);
         }
 
         .status-icon.invalid {
-            color: #ef4444;
+            color: var(--danger);
         }
 
         textarea {
@@ -272,9 +319,9 @@
 
         /* Блок ошибки под полем */
         .error-message {
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            border-radius: 8px;
+            background: var(--danger-soft);
+            border: 1px solid #f0b4ad;
+            border-radius: var(--radius);
             padding: 12px 14px;
             margin-top: 8px;
             display: none;
@@ -291,7 +338,7 @@
         }
 
         .error-message .error-title {
-            color: #dc2626;
+            color: var(--danger);
             font-weight: 600;
             font-size: 13px;
             display: flex;
@@ -301,14 +348,14 @@
         }
 
         .error-message .error-description {
-            color: #7f1d1d;
+            color: #74312e;
             font-size: 12px;
             line-height: 1.4;
             padding-left: 22px;
         }
 
         .phone-hint {
-            color: #888;
+            color: var(--muted);
             font-size: 12px;
             margin-top: 4px;
         }
@@ -316,10 +363,10 @@
         button {
             width: 100%;
             padding: 16px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--primary);
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: var(--radius);
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
@@ -328,7 +375,7 @@
 
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 10px 24px rgba(35, 95, 115, 0.24);
         }
 
         button:active {
@@ -336,7 +383,7 @@
         }
 
         button:disabled {
-            background: #ccc;
+            background: #a8b4bb;
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
@@ -353,7 +400,7 @@
         }
 
         .success-message h2 {
-            color: #22c55e;
+            color: var(--success);
             margin-bottom: 15px;
             display: flex;
             align-items: center;
@@ -380,20 +427,20 @@
         }
 
         .conditional-field {
-            background: #fdf2f8;
-            border: 2px solid #f9a8d4;
-            border-radius: 12px;
+            background: #fff7f3;
+            border: 1.5px solid #efc3b5;
+            border-radius: var(--radius);
             padding: 16px 18px;
             transition: background 0.3s ease, border-color 0.3s ease;
         }
 
         .conditional-field.filled {
-            background: #f0fdf4;
-            border-color: #86efac;
+            background: var(--success-soft);
+            border-color: #9fd8bb;
         }
 
         .conditional-hint {
-            color: #be185d;
+            color: #8f442e;
             font-size: 13px;
             line-height: 1.4;
             margin: 4px 0 12px;
@@ -405,7 +452,7 @@
         }
 
         .conditional-field.filled .conditional-hint {
-            color: #166534;
+            color: #17623f;
         }
 
         /* Чекбокс согласия */
@@ -418,15 +465,15 @@
             flex-direction: column;
             gap: 10px;
             padding: 12px 14px;
-            border: 2px solid #e1e5e9;
-            border-radius: 10px;
-            background: #fafbfc;
+            border: 1.5px solid var(--line);
+            border-radius: var(--radius);
+            background: var(--surface-soft);
             transition: all 0.3s ease;
         }
 
         .preferred-contact-options.invalid {
-            border-color: #ef4444;
-            background: #fef2f2;
+            border-color: var(--danger);
+            background: var(--danger-soft);
             animation: shake 0.5s ease;
         }
 
@@ -436,7 +483,7 @@
 
         .preferred-contact-options .consent-text {
             font-size: 15px;
-            color: #333;
+            color: var(--text);
         }
 
         .checkbox-wrapper {
@@ -454,7 +501,7 @@
             width: 22px;
             height: 22px;
             min-width: 22px;
-            border: 2px solid #e1e5e9;
+            border: 1.5px solid var(--line);
             border-radius: 6px;
             display: flex;
             align-items: center;
@@ -464,12 +511,12 @@
         }
 
         .checkbox-wrapper:hover .custom-checkbox {
-            border-color: #667eea;
+            border-color: var(--primary);
         }
 
         .checkbox-wrapper input[type="checkbox"]:checked + .custom-checkbox {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-color: #667eea;
+            background: var(--primary);
+            border-color: var(--primary);
         }
 
         .custom-checkbox svg {
@@ -487,37 +534,37 @@
         }
 
         .custom-checkbox.invalid {
-            border-color: #ef4444;
-            background-color: #fef2f2;
+            border-color: var(--danger);
+            background-color: var(--danger-soft);
             animation: shake 0.5s ease;
         }
 
         .consent-text {
             font-size: 13px;
-            color: #555;
+            color: #43535d;
             line-height: 1.5;
         }
 
         .consent-text a {
-            color: #667eea;
+            color: var(--primary);
             text-decoration: underline;
             cursor: pointer;
             transition: color 0.2s ease;
         }
 
         .consent-text a:hover {
-            color: #764ba2;
+            color: var(--primary-dark);
         }
 
         .consent-error {
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            border-radius: 8px;
+            background: var(--danger-soft);
+            border: 1px solid #f0b4ad;
+            border-radius: var(--radius);
             padding: 10px 14px;
             margin-top: 8px;
             display: none;
             animation: fadeIn 0.3s ease;
-            color: #dc2626;
+            color: var(--danger);
             font-size: 13px;
         }
 
@@ -534,7 +581,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(15, 28, 35, 0.56);
             display: none;
             align-items: center;
             justify-content: center;
@@ -551,7 +598,7 @@
 
         .modal-content {
             background: white;
-            border-radius: 16px;
+            border-radius: var(--radius);
             max-width: 600px;
             width: 100%;
             max-height: 80vh;
@@ -568,7 +615,7 @@
 
         .modal-header {
             padding: 20px 24px;
-            border-bottom: 1px solid #e1e5e9;
+            border-bottom: 1px solid var(--line);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -576,7 +623,7 @@
 
         .modal-header h2 {
             font-size: 18px;
-            color: #333;
+            color: var(--text);
             margin: 0;
         }
 
@@ -584,8 +631,8 @@
             width: 32px;
             height: 32px;
             border: none;
-            background: #f3f4f6;
-            border-radius: 8px;
+            background: var(--surface-soft);
+            border-radius: var(--radius);
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -594,19 +641,19 @@
         }
 
         .modal-close:hover {
-            background: #e5e7eb;
+            background: #e8eff3;
         }
 
         .modal-body {
             padding: 24px;
             overflow-y: auto;
             font-size: 14px;
-            color: #555;
+            color: #43535d;
             line-height: 1.7;
         }
 
         .modal-body h3 {
-            color: #333;
+            color: var(--text);
             font-size: 15px;
             margin: 20px 0 10px 0;
         }
@@ -628,9 +675,30 @@
             margin-bottom: 6px;
         }
 
+        .policy-note,
+        .operator-card {
+            margin-top: 20px;
+            padding: 12px;
+            background: var(--primary-soft);
+            border-radius: var(--radius);
+            font-size: 13px;
+        }
+
+        .operator-card {
+            margin-top: 0;
+            margin-bottom: 20px;
+            background: var(--surface-soft);
+        }
+
+        .policy-updated {
+            margin-top: 16px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
         .modal-footer {
             padding: 16px 24px;
-            border-top: 1px solid #e1e5e9;
+            border-top: 1px solid var(--line);
             display: flex;
             justify-content: flex-end;
         }
@@ -660,7 +728,7 @@
         .datetime-field label {
             display: block;
             margin-bottom: 8px;
-            color: #555;
+            color: #31424d;
             font-weight: 500;
             font-size: 14px;
         }
@@ -681,29 +749,29 @@
             transform: translateY(-50%);
             width: 20px;
             height: 20px;
-            color: #888;
+            color: var(--muted);
             pointer-events: none;
             transition: color 0.3s ease;
         }
 
         /* Состояния поля даты */
         .date-input-wrapper input.valid {
-            border-color: #22c55e;
-            background-color: #f0fdf4;
+            border-color: var(--success);
+            background-color: var(--success-soft);
         }
 
         .date-input-wrapper input.valid + .calendar-icon {
-            color: #22c55e;
+            color: var(--success);
         }
 
         .date-input-wrapper input.invalid {
-            border-color: #ef4444;
-            background-color: #fef2f2;
+            border-color: var(--danger);
+            background-color: var(--danger-soft);
             animation: shake 0.5s ease;
         }
 
         .date-input-wrapper input.invalid + .calendar-icon {
-            color: #ef4444;
+            color: var(--danger);
         }
 
         /* Кастомный календарь */
@@ -712,8 +780,9 @@
             top: calc(100% + 8px);
             left: 0;
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            box-shadow: 0 16px 45px rgba(21, 42, 53, 0.16);
             padding: 16px;
             z-index: 100;
             display: none;
@@ -734,10 +803,10 @@
 
         .calendar-header button {
             padding: 6px 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--primary);
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: var(--radius);
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -755,7 +824,7 @@
 
         .calendar-month-year {
             font-weight: 600;
-            color: #333;
+            color: var(--text);
             font-size: 15px;
         }
 
@@ -769,7 +838,7 @@
         .calendar-weekday {
             text-align: center;
             font-size: 12px;
-            color: #888;
+            color: var(--muted);
             font-weight: 500;
             padding: 4px;
         }
@@ -791,23 +860,23 @@
             transition: all 0.2s ease;
             border: none;
             background: none;
-            color: #333;
+            color: var(--text);
             padding: 0;
             width: 100%;
         }
 
         .calendar-day:hover:not(.disabled):not(.selected) {
-            background: #f3f4f6;
+            background: var(--surface-soft);
             transform: none;
             box-shadow: none;
         }
 
         .calendar-day.today {
-            border: 2px solid #667eea;
+            border: 2px solid var(--primary);
         }
 
         .calendar-day.selected {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--primary);
             color: white;
         }
 
@@ -821,18 +890,18 @@
         }
 
         .calendar-day.status-free:not(.disabled):not(.selected) {
-            background: #dcfce7;
-            color: #166534;
+            background: var(--success-soft);
+            color: #17623f;
             font-weight: 600;
         }
 
         .calendar-day.status-free:not(.disabled):not(.selected):hover {
-            background: #bbf7d0;
+            background: #d4efdf;
         }
 
         .calendar-day.status-full {
-            background: #fee2e2;
-            color: #991b1b;
+            background: var(--danger-soft);
+            color: #8f2b26;
             font-weight: 600;
         }
 
@@ -850,7 +919,7 @@
             align-items: center;
             gap: 4px;
             font-size: 11px;
-            color: #555;
+            color: #43535d;
         }
 
         .calendar-legend-color {
@@ -860,18 +929,18 @@
         }
 
         .calendar-legend-color.green {
-            background: #dcfce7;
-            border: 1px solid #86efac;
+            background: var(--success-soft);
+            border: 1px solid #9fd8bb;
         }
 
         .calendar-legend-color.red {
-            background: #fee2e2;
-            border: 1px solid #fca5a5;
+            background: var(--danger-soft);
+            border: 1px solid #f0b4ad;
         }
 
         .calendar-legend-color.gray {
-            background: #f3f4f6;
-            border: 1px solid #d1d5db;
+            background: var(--surface-soft);
+            border: 1px solid var(--line);
         }
 
         /* Выбор времени */
@@ -889,44 +958,44 @@
 
         .time-slot {
             padding: 10px 8px;
-            border: 2px solid #e1e5e9;
-            border-radius: 8px;
+            border: 1.5px solid var(--line);
+            border-radius: var(--radius);
             background: white;
             cursor: pointer;
             font-size: 14px;
             font-weight: 500;
-            color: #555;
+            color: #43535d;
             transition: all 0.2s ease;
             text-align: center;
         }
 
         .time-slot.available {
-            background: #dcfce7;
-            border-color: #86efac;
-            color: #166534;
+            background: var(--success-soft);
+            border-color: #9fd8bb;
+            color: #17623f;
         }
 
         .time-slot.available:hover:not(.selected) {
-            border-color: #22c55e;
+            border-color: var(--success);
         }
 
         .time-slot.unavailable {
-            background: #fee2e2;
-            border-color: #fca5a5;
-            color: #991b1b;
+            background: var(--danger-soft);
+            border-color: #f0b4ad;
+            color: #8f2b26;
             opacity: 0.7;
             cursor: not-allowed;
         }
 
         .time-slot:hover:not(.selected):not(.unavailable) {
-            border-color: #667eea;
+            border-color: var(--primary);
             transform: none;
             box-shadow: none;
         }
 
         .time-slot.selected {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-color: #667eea;
+            background: var(--primary);
+            border-color: var(--primary);
             color: white;
         }
 
@@ -937,7 +1006,7 @@
             margin-top: 10px;
             flex-wrap: wrap;
             font-size: 12px;
-            color: #666;
+            color: var(--muted);
         }
 
         .time-slots-legend-item {
@@ -955,18 +1024,18 @@
         }
 
         .time-slots-legend-color.green {
-            background: #dcfce7;
-            border-color: #86efac;
+            background: var(--success-soft);
+            border-color: #9fd8bb;
         }
 
         .time-slots-legend-color.red {
-            background: #fee2e2;
-            border-color: #fca5a5;
+            background: var(--danger-soft);
+            border-color: #f0b4ad;
         }
 
         .time-slots-legend-color.lilac {
-            background: #ede9fe;
-            border-color: #c4b5fd;
+            background: #eef2f6;
+            border-color: #bdcbd4;
         }
 
         /* ===== Выбор типа записи ===== */
@@ -977,7 +1046,7 @@
         .meeting-type-group > label {
             display: block;
             font-weight: 600;
-            color: #333;
+            color: var(--text);
             margin-bottom: 10px;
             font-size: 14px;
         }
@@ -1000,8 +1069,8 @@
             align-items: flex-start;
             gap: 2px;
             padding: 14px 16px;
-            border: 2px solid #e1e5e9;
-            border-radius: 10px;
+            border: 1.5px solid var(--line);
+            border-radius: var(--radius);
             background: white;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -1009,23 +1078,24 @@
         }
 
         .meeting-type-option:hover:not(.selected) {
-            border-color: #667eea;
+            border-color: var(--primary);
+            background: var(--primary-soft);
         }
 
         .meeting-type-option.selected {
-            border-color: #667eea;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: var(--primary);
+            background: var(--primary);
         }
 
         .meeting-type-title {
             font-size: 15px;
             font-weight: 600;
-            color: #333;
+            color: var(--text);
         }
 
         .meeting-type-sub {
             font-size: 13px;
-            color: #888;
+            color: var(--muted);
         }
 
         .meeting-type-option.selected .meeting-type-title,
@@ -1038,7 +1108,7 @@
             align-items: center;
             gap: 8px;
             margin-top: 8px;
-            color: #dc2626;
+            color: var(--danger);
             font-size: 13px;
         }
 
@@ -1048,9 +1118,9 @@
 
         /* Сиреневый: час частично занят консультациями (диагностика невозможна) */
         .time-slot.partial {
-            background: #ede9fe;
-            border-color: #c4b5fd;
-            color: #6d28d9;
+            background: #eef2f6;
+            border-color: #bdcbd4;
+            color: #395461;
         }
 
         /* Заглушка, пока не выбран тип/дата */
@@ -1060,11 +1130,16 @@
 
         .time-slots-placeholder {
             padding: 14px;
-            border: 2px dashed #e1e5e9;
-            border-radius: 8px;
-            color: #999;
+            border: 1.5px dashed var(--line);
+            border-radius: var(--radius);
+            color: var(--muted);
             font-size: 13px;
             text-align: center;
+            background: var(--surface-soft);
+        }
+
+        .time-slots-placeholder.loading {
+            color: var(--primary);
         }
 
         /* ===== Консультации: час с разбивкой на 15-минутные интервалы ===== */
@@ -1086,31 +1161,31 @@
             gap: 8px;
             font-size: 13px;
             font-weight: 600;
-            color: #555;
+            color: #43535d;
             margin-bottom: 6px;
         }
 
         .time-hour-header .time-hour-note {
             font-weight: 500;
             font-size: 12px;
-            color: #888;
+            color: var(--muted);
         }
 
         .time-hour-header.partial {
-            color: #6d28d9;
+            color: #395461;
         }
 
         .time-hour-header.partial .time-hour-badge {
-            background: #ede9fe;
-            border: 1px solid #c4b5fd;
-            color: #6d28d9;
+            background: #eef2f6;
+            border: 1px solid #bdcbd4;
+            color: #395461;
             border-radius: 6px;
             padding: 1px 8px;
             font-size: 11px;
         }
 
         .time-hour-header.full {
-            color: #991b1b;
+            color: #8f2b26;
         }
 
         .time-subslots {
@@ -1132,8 +1207,8 @@
 
         /* Состояние ошибки для слотов времени */
         .time-slots.invalid .time-slot:not(.selected):not(.unavailable) {
-            border-color: #fca5a5;
-            background-color: #fef2f2;
+            border-color: #f0b4ad;
+            background-color: var(--danger-soft);
         }
 
         .time-slots.invalid {
@@ -1142,14 +1217,14 @@
 
         .datetime-error {
             grid-column: 1 / -1;
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            border-radius: 8px;
+            background: var(--danger-soft);
+            border: 1px solid #f0b4ad;
+            border-radius: var(--radius);
             padding: 10px 14px;
             margin-top: 8px;
             display: none;
             animation: fadeIn 0.3s ease;
-            color: #dc2626;
+            color: var(--danger);
             font-size: 13px;
             align-items: center;
             gap: 8px;
@@ -1188,8 +1263,8 @@
 
         .admin-logout-btn {
             padding: 8px 16px;
-            background: #f3f4f6;
-            color: #555;
+            background: var(--surface-soft);
+            color: #43535d;
             border: none;
             border-radius: 8px;
             font-size: 14px;
@@ -1202,14 +1277,14 @@
         }
 
         .admin-logout-btn:hover {
-            background: #e5e7eb;
+            background: #e8eff3;
             transform: none;
             box-shadow: none;
         }
 
         .admin-tabs {
             display: flex;
-            border-bottom: 2px solid #e5e7eb;
+            border-bottom: 1px solid var(--line);
             padding: 0 24px;
         }
 
@@ -1217,7 +1292,7 @@
             padding: 12px 20px;
             background: none;
             border: none;
-            color: #6b7280;
+            color: var(--muted);
             font-size: 14px;
             font-weight: 500;
             cursor: pointer;
@@ -1231,14 +1306,14 @@
         }
 
         .admin-tab:hover {
-            color: #667eea;
+            color: var(--primary);
             transform: none;
             box-shadow: none;
         }
 
         .admin-tab.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
+            color: var(--primary);
+            border-bottom-color: var(--primary);
         }
 
         .admin-tab-content {
@@ -1257,8 +1332,8 @@
 
         /* Календарь админки */
         .admin-calendar-container {
-            background: #f9fafb;
-            border-radius: 12px;
+            background: var(--surface-soft);
+            border-radius: var(--radius);
             padding: 20px;
             margin-bottom: 24px;
         }
@@ -1275,8 +1350,8 @@
             height: 36px;
             padding: 0;
             background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -1285,8 +1360,8 @@
         }
 
         .admin-calendar-nav-btn:hover {
-            background: #f3f4f6;
-            border-color: #667eea;
+            background: #e8eff3;
+            border-color: var(--primary);
             transform: none;
             box-shadow: none;
         }
@@ -1294,7 +1369,7 @@
         .admin-calendar-month-year {
             font-weight: 600;
             font-size: 16px;
-            color: #333;
+            color: var(--text);
         }
 
         .admin-calendar-weekdays {
@@ -1307,7 +1382,7 @@
         .admin-calendar-weekdays span {
             text-align: center;
             font-size: 12px;
-            color: #6b7280;
+            color: var(--muted);
             font-weight: 600;
             padding: 8px;
         }
@@ -1324,12 +1399,12 @@
             align-items: center;
             justify-content: center;
             font-size: 14px;
-            border-radius: 8px;
+            border-radius: var(--radius);
             cursor: pointer;
             transition: all 0.2s ease;
             border: 2px solid transparent;
             background: white;
-            color: #333;
+            color: var(--text);
             padding: 0;
             width: 100%;
             position: relative;
@@ -1337,14 +1412,14 @@
         }
 
         .admin-calendar-day:hover:not(.disabled):not(.other-month) {
-            border-color: #667eea;
+            border-color: var(--primary);
             transform: none;
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+            box-shadow: 0 2px 8px rgba(35, 95, 115, 0.18);
         }
 
         .admin-calendar-day.selected {
-            border-color: #667eea;
-            background: #667eea;
+            border-color: var(--primary);
+            background: var(--primary);
             color: white;
         }
 
@@ -1352,34 +1427,34 @@
         .admin-calendar-day.other-month {
             color: #d1d5db;
             cursor: not-allowed;
-            background: #f9fafb;
+            background: var(--surface-soft);
         }
 
         /* Цветовая индикация статусов */
         .admin-calendar-day.status-free {
-            background: #dcfce7;
-            color: #166534;
+            background: var(--success-soft);
+            color: #17623f;
         }
 
         .admin-calendar-day.status-partial {
-            background: #fef3c7;
-            color: #92400e;
+            background: var(--warning-soft);
+            color: var(--warning-text);
         }
 
         .admin-calendar-day.status-full {
-            background: #fee2e2;
-            color: #991b1b;
+            background: var(--danger-soft);
+            color: #8f2b26;
         }
 
         .admin-calendar-day.status-blocked {
-            background: #e5e7eb;
-            color: #374151;
+            background: #e8eff3;
+            color: #43535d;
         }
 
         /* Панель управления слотами */
         .admin-date-slots-panel {
-            background: #f9fafb;
-            border-radius: 12px;
+            background: var(--surface-soft);
+            border-radius: var(--radius);
             padding: 20px;
         }
 
@@ -1392,16 +1467,16 @@
 
         .admin-date-slots-header h3 {
             font-size: 16px;
-            color: #333;
+            color: var(--text);
             margin: 0;
         }
 
         .admin-block-day-btn {
             padding: 8px 16px;
-            background: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #fecaca;
-            border-radius: 8px;
+            background: var(--danger-soft);
+            color: #8f2b26;
+            border: 1px solid #f0b4ad;
+            border-radius: var(--radius);
             font-size: 13px;
             cursor: pointer;
             display: flex;
@@ -1413,19 +1488,19 @@
         }
 
         .admin-block-day-btn:hover {
-            background: #fecaca;
+            background: #f9d6d1;
             transform: none;
             box-shadow: none;
         }
 
         .admin-block-day-btn.unblock {
-            background: #dcfce7;
-            color: #166534;
-            border-color: #bbf7d0;
+            background: var(--success-soft);
+            color: #17623f;
+            border-color: #9fd8bb;
         }
 
         .admin-block-day-btn.unblock:hover {
-            background: #bbf7d0;
+            background: #d4efdf;
         }
 
         .admin-time-slots {
@@ -1443,8 +1518,8 @@
         .admin-time-slot {
             padding: 12px;
             background: white;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
+            border: 1.5px solid var(--line);
+            border-radius: var(--radius);
             cursor: pointer;
             transition: all 0.2s ease;
             display: flex;
@@ -1454,7 +1529,7 @@
         }
 
         .admin-time-slot:hover {
-            border-color: #667eea;
+            border-color: var(--primary);
             transform: none;
             box-shadow: none;
         }
@@ -1462,7 +1537,7 @@
         .admin-time-slot-time {
             font-size: 16px;
             font-weight: 600;
-            color: #333;
+            color: var(--text);
         }
 
         .admin-time-slot-status {
@@ -1473,48 +1548,48 @@
         }
 
         .admin-time-slot.available {
-            background: #dcfce7;
-            border-color: #bbf7d0;
+            background: var(--success-soft);
+            border-color: #9fd8bb;
         }
 
         .admin-time-slot.available .admin-time-slot-status {
-            background: #166534;
+            background: #17623f;
             color: white;
         }
 
         .admin-time-slot.booked {
-            background: #fee2e2;
-            border-color: #fecaca;
+            background: var(--danger-soft);
+            border-color: #f0b4ad;
         }
 
         .admin-time-slot.booked .admin-time-slot-status {
-            background: #991b1b;
+            background: #8f2b26;
             color: white;
         }
 
         .admin-time-slot.blocked {
-            background: #e5e7eb;
-            border-color: #d1d5db;
+            background: #e8eff3;
+            border-color: #c8d5dd;
         }
 
         .admin-time-slot.blocked .admin-time-slot-status {
-            background: #374151;
+            background: #43535d;
             color: white;
         }
 
         .admin-time-slot.partial {
-            background: #ede9fe;
-            border-color: #ddd6fe;
+            background: #eef2f6;
+            border-color: #bdcbd4;
         }
 
         .admin-time-slot.partial .admin-time-slot-status {
-            background: #6d28d9;
+            background: #395461;
             color: white;
         }
 
         .admin-time-slot-detail {
             font-size: 10px;
-            color: #6b7280;
+            color: var(--muted);
             text-align: center;
             line-height: 1.3;
         }
@@ -1529,13 +1604,13 @@
         }
 
         .admin-booking-type-badge.consultation {
-            background: #ede9fe;
-            color: #6d28d9;
+            background: #eef2f6;
+            color: #395461;
         }
 
         .admin-booking-type-badge.diagnostic {
-            background: #e0e7ff;
-            color: #3730a3;
+            background: var(--primary-soft);
+            color: var(--primary-dark);
         }
 
         /* Список бронирований */
@@ -1547,14 +1622,14 @@
 
         .admin-booking-card {
             background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
             padding: 20px;
             transition: all 0.2s ease;
         }
 
         .admin-booking-card:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 8px 22px rgba(21, 42, 53, 0.09);
         }
 
         .admin-booking-header {
@@ -1563,7 +1638,7 @@
             justify-content: space-between;
             margin-bottom: 16px;
             padding-bottom: 16px;
-            border-bottom: 1px solid #f3f4f6;
+            border-bottom: 1px solid #edf2f5;
         }
 
         .admin-booking-datetime {
@@ -1578,7 +1653,7 @@
             align-items: center;
             gap: 6px;
             font-weight: 600;
-            color: #333;
+            color: var(--text);
         }
 
         .admin-booking-actions {
@@ -1590,7 +1665,7 @@
         .admin-booking-delete-btn,
         .admin-booking-resend-btn {
             padding: 8px 16px;
-            border-radius: 8px;
+            border-radius: var(--radius);
             font-size: 13px;
             cursor: pointer;
             display: flex;
@@ -1601,25 +1676,25 @@
         }
 
         .admin-booking-delete-btn {
-            background: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #fecaca;
+            background: var(--danger-soft);
+            color: #8f2b26;
+            border: 1px solid #f0b4ad;
         }
 
         .admin-booking-delete-btn:hover {
-            background: #fecaca;
+            background: #f9d6d1;
             transform: none;
             box-shadow: none;
         }
 
         .admin-booking-resend-btn {
-            background: #dbeafe;
-            color: #1e40af;
-            border: 1px solid #bfdbfe;
+            background: var(--primary-soft);
+            color: var(--primary-dark);
+            border: 1px solid #b9dbe2;
         }
 
         .admin-booking-resend-btn:hover {
-            background: #bfdbfe;
+            background: #d2e8ee;
             transform: none;
             box-shadow: none;
         }
@@ -1630,15 +1705,15 @@
         }
 
         .admin-booking-resend-btn.success {
-            background: #d1fae5;
-            color: #065f46;
-            border-color: #a7f3d0;
+            background: var(--success-soft);
+            color: #17623f;
+            border-color: #9fd8bb;
         }
 
         .admin-booking-resend-btn.error {
-            background: #fee2e2;
-            color: #991b1b;
-            border-color: #fecaca;
+            background: var(--danger-soft);
+            color: #8f2b26;
+            border-color: #f0b4ad;
         }
 
         .admin-booking-multiline {
@@ -1651,7 +1726,7 @@
         }
 
         .admin-booking-detail-value a {
-            color: #2563eb;
+            color: var(--primary);
             text-decoration: none;
             word-break: break-all;
         }
@@ -1680,31 +1755,31 @@
         }
 
         .admin-tg-badge.sent {
-            background: #d1fae5;
-            color: #065f46;
+            background: var(--success-soft);
+            color: #17623f;
         }
-        .admin-tg-badge.sent::before { background: #10b981; }
+        .admin-tg-badge.sent::before { background: var(--success); }
 
         .admin-tg-badge.pending {
-            background: #fee2e2;
-            color: #991b1b;
+            background: var(--danger-soft);
+            color: #8f2b26;
         }
-        .admin-tg-badge.pending::before { background: #ef4444; }
+        .admin-tg-badge.pending::before { background: var(--danger); }
 
         .admin-tg-badge.unknown {
-            background: #f3f4f6;
-            color: #4b5563;
+            background: var(--surface-soft);
+            color: #43535d;
         }
         .admin-tg-badge.unknown::before { background: #9ca3af; }
 
         .admin-tg-error {
             grid-column: 1 / -1;
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            border-radius: 8px;
+            background: var(--danger-soft);
+            border: 1px solid #f0b4ad;
+            border-radius: var(--radius);
             padding: 8px 12px;
             font-size: 12px;
-            color: #991b1b;
+            color: #8f2b26;
             margin-top: 4px;
         }
 
@@ -1728,26 +1803,26 @@
 
         .admin-booking-detail-label {
             font-size: 12px;
-            color: #6b7280;
+            color: var(--muted);
             font-weight: 500;
         }
 
         .admin-booking-detail-value {
             font-size: 14px;
-            color: #333;
+            color: var(--text);
         }
 
         .admin-booking-problem {
             grid-column: 1 / -1;
             margin-top: 8px;
             padding-top: 12px;
-            border-top: 1px solid #f3f4f6;
+            border-top: 1px solid #edf2f5;
         }
 
         .admin-empty-state {
             text-align: center;
             padding: 60px 20px;
-            color: #6b7280;
+            color: var(--muted);
         }
 
         .admin-empty-state svg {
@@ -1763,23 +1838,27 @@
             bottom: 20px;
             right: 20px;
             background: rgba(255, 255, 255, 0.95);
-            border: 2px solid #667eea;
+            border: 1.5px solid var(--primary);
             border-radius: 50%;
             width: 56px;
             height: 56px;
-            display: flex;
+            display: none;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 4px 12px rgba(35, 95, 115, 0.2);
             transition: all 0.3s ease;
             z-index: 999;
         }
 
+        body.admin-access .admin-login-button {
+            display: flex;
+        }
+
         .admin-login-button:hover {
-            background: #667eea;
+            background: var(--primary);
             transform: scale(1.1);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+            box-shadow: 0 6px 20px rgba(35, 95, 115, 0.32);
         }
 
         .admin-login-button:hover svg {
@@ -1787,11 +1866,23 @@
         }
 
         .admin-login-button svg {
-            stroke: #667eea;
+            stroke: var(--primary);
             transition: stroke 0.3s ease;
         }
 
         @media (max-width: 768px) {
+            body {
+                padding: 18px 12px;
+            }
+
+            .form-container {
+                padding: 22px;
+            }
+
+            h1 {
+                font-size: 25px;
+            }
+
             .admin-login-button {
                 width: 48px;
                 height: 48px;
@@ -1799,12 +1890,46 @@
                 right: 16px;
             }
         }
+
+        @media (max-width: 560px) {
+            .form-container {
+                padding: 18px;
+            }
+
+            .calendar-dropdown {
+                left: 50%;
+                min-width: min(320px, calc(100vw - 36px));
+                transform: translateX(-50%);
+            }
+
+            .modal-header,
+            .modal-body,
+            .modal-footer,
+            .admin-tab-content {
+                padding-left: 18px;
+                padding-right: 18px;
+            }
+
+            .admin-tabs {
+                padding: 0 18px;
+                overflow-x: auto;
+            }
+
+            .admin-date-slots-header,
+            .admin-booking-header,
+            .admin-booking-datetime {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- autodeploy-check-1 -->
     <div class="form-container">
         <div class="form-content">
             <h1>Запись на встречу</h1>
+            <p class="form-lead">Консультация на 15 минут или диагностика на 1 час. После записи я отправлю ссылку на Zoom в выбранный канал связи.</p>
 
             <!-- Общий блок ошибок -->
             <div class="form-errors-summary" id="errorsSummary">
@@ -2179,7 +2304,7 @@
                     </ul>
                 </div>
 
-                <h3 style="color: #333; font-size: 16px; margin-bottom: 20px; font-weight: 600;">Введите данные ниже &#8595;</h3>
+                <h3 class="section-title">Детали запроса</h3>
 
                 <div class="form-group diagnostic-only" id="socialLinksGroup">
                     <label for="socialLinks">Ссылки на ваши сайты и соцсети <span class="required">*</span></label>
@@ -2224,11 +2349,11 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="problem">Сформулируйте вашу проблему <span class="required">*</span></label>
+                    <label for="problem">Опишите задачу или проблему <span class="required">*</span></label>
                     <textarea
                         id="problem"
                         name="problem"
-                        placeholder="Чётко опишите проблему, с которой вы столкнулись в вашем бизнесе..."
+                        placeholder="Коротко опишите, с чем хотите разобраться на встрече..."
                         required
                     ></textarea>
                     <div class="error-message" id="problemError">
@@ -2238,9 +2363,9 @@
                                 <line x1="12" y1="8" x2="12" y2="12"></line>
                                 <line x1="12" y1="16" x2="12.01" y2="16"></line>
                             </svg>
-                            Проблема не описана
+                            Задача не описана
                         </div>
-                        <div class="error-description">Опишите вашу проблему, чтобы мы могли подготовиться к диагностике.</div>
+                        <div class="error-description">Опишите задачу, чтобы мы могли подготовиться к встрече.</div>
                     </div>
                 </div>
 
@@ -2307,7 +2432,7 @@
                 </svg>
                 Заявка отправлена!
             </h2>
-            <p>Спасибо за обращение. Я направлю вам ссылку на зум-встречу на указанный канал. Проверяйте, пожалуйста!</p>
+            <p>Спасибо за обращение. Я направлю вам ссылку на Zoom-встречу на указанный канал. Проверяйте, пожалуйста!</p>
         </div>
     </div>
 
@@ -2355,9 +2480,9 @@
 
                 <h3>Цели обработки персональных данных:</h3>
                 <ul>
-                    <li>Обработка заявки на запись на диагностику</li>
-                    <li>Проведение диагностики бизнеса</li>
-                    <li>Связь через Telegram для уточнения деталей и подтверждения записи</li>
+                    <li>Обработка заявки на запись на консультацию или диагностику</li>
+                    <li>Проведение консультации или диагностики бизнеса</li>
+                    <li>Связь через выбранный канал для уточнения деталей и подтверждения записи</li>
                     <li>Информирование об образовательных и консультационных услугах</li>
                     <li>Направление уведомлений, связанных с оказанием услуг</li>
                 </ul>
@@ -2368,7 +2493,7 @@
                 <h3>Срок действия согласия:</h3>
                 <p>Согласие действует с момента его предоставления до момента отзыва. Согласие может быть отозвано путём направления письменного заявления на адрес электронной почты: <strong>margaritaosmaeva@yandex.ru</strong></p>
 
-                <p style="margin-top: 20px; padding: 12px; background: #f0f9ff; border-radius: 8px; font-size: 13px;">
+                <p class="policy-note">
                     Нажимая кнопку «Записаться», я подтверждаю, что ознакомлен(а) с условиями обработки персональных данных и даю своё согласие на их обработку.
                 </p>
             </div>
@@ -2391,7 +2516,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <p style="background: #f3f4f6; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
+                <p class="operator-card">
                     <strong>Оператор персональных данных:</strong><br>
                     ИП ОСМАЕВА МАРГАРИТА ВИТАЛЬЕВНА<br>
                     ИНН: 772151276390<br>
@@ -2422,9 +2547,9 @@
                 <h3>3. Цели обработки персональных данных</h3>
                 <p>3.1. Персональные данные обрабатываются в следующих целях:</p>
                 <ul>
-                    <li>Обработка входящих заявок на диагностику</li>
-                    <li>Проведение диагностики бизнеса</li>
-                    <li>Связь с пользователем через Telegram для уточнения информации</li>
+                    <li>Обработка входящих заявок на консультацию или диагностику</li>
+                    <li>Проведение консультации или диагностики бизнеса</li>
+                    <li>Связь с пользователем через выбранный канал для уточнения информации</li>
                     <li>Оказание консультационных и образовательных услуг</li>
                     <li>Направление информационных сообщений (с согласия пользователя)</li>
                     <li>Улучшение качества обслуживания</li>
@@ -2469,7 +2594,7 @@
 
                 <h3>10. Заключительные положения</h3>
                 <p>10.1. Настоящая Политика может быть изменена Оператором в одностороннем порядке. Новая редакция вступает в силу с момента её размещения на сайте.</p>
-                <p style="margin-top: 16px; color: #888; font-size: 12px;">Дата последнего обновления: февраль 2026 г.</p>
+                <p class="policy-updated">Дата последнего обновления: февраль 2026 г.</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="modal-accept" data-modal="privacyModal">Понятно</button>
@@ -3040,6 +3165,7 @@
 
         // Загрузка доступных слотов времени для выбранной даты
         async function loadUserTimeSlots(dateStr) {
+            showTimeSlotsMessage('Загружаю свободное время...', true);
             try {
                 const type = selectedType || 'diagnostic';
                 const response = await fetch(`api/availability.php?date=${dateStr}&type=${type}`);
@@ -3048,9 +3174,14 @@
                 if (data.success && data.slots) {
                     currentDateSlots = data.slots;
                     renderTimeSlots();
+                } else {
+                    currentDateSlots = [];
+                    showTimeSlotsMessage('Не удалось получить свободное время. Попробуйте выбрать дату ещё раз.');
                 }
             } catch (error) {
                 console.error('Ошибка загрузки слотов:', error);
+                currentDateSlots = [];
+                showTimeSlotsMessage('Не удалось загрузить свободное время. Проверьте соединение и попробуйте ещё раз.');
             }
         }
 
@@ -3079,6 +3210,11 @@
                 timeSlotsContainer.className = 'time-slots time-slots-empty';
                 timeSlotsContainer.innerHTML = `<div class="time-slots-placeholder">${selectedType ? 'Выберите дату' : 'Сначала выберите тип записи'}</div>`;
                 legend.style.display = 'none';
+                return;
+            }
+
+            if (!currentDateSlots.length) {
+                showTimeSlotsMessage('На выбранную дату нет свободных слотов.');
                 return;
             }
 
@@ -3154,12 +3290,18 @@
             timeSlotsContainer.classList.remove('invalid');
         });
 
+        function showTimeSlotsMessage(message, loading = false) {
+            const legend = document.getElementById('timeSlotsLegend');
+            timeSlotsContainer.className = 'time-slots time-slots-empty';
+            timeSlotsContainer.innerHTML = `<div class="time-slots-placeholder${loading ? ' loading' : ''}">${message}</div>`;
+            if (legend) legend.style.display = 'none';
+        }
+
         // Инициализация календаря
         loadUserCalendarData();
 
-        // Форматирование телефона
-        phoneInput.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
+        function formatRussianPhoneValue(rawValue) {
+            let value = rawValue.replace(/\D/g, '');
 
             if (value.length > 0) {
                 if (value[0] === '8') {
@@ -3187,7 +3329,16 @@
                 formatted += '-' + value.slice(9, 11);
             }
 
-            e.target.value = formatted;
+            return formatted;
+        }
+
+        function applyPhoneMask(input) {
+            input.value = formatRussianPhoneValue(input.value);
+        }
+
+        // Форматирование телефона
+        phoneInput.addEventListener('input', function(e) {
+            applyPhoneMask(e.target);
         });
 
         // Валидация email
@@ -3540,6 +3691,7 @@
 
         maxInput.addEventListener('input', function() {
             hideErrorsSummary();
+            applyPhoneMask(this);
             this.classList.remove('invalid');
             maxError.classList.remove('show');
             maxIconInvalid.classList.remove('show');
@@ -3711,7 +3863,7 @@
             if (problemInput.value.trim() === '') {
                 problemInput.classList.add('invalid');
                 problemError.classList.add('show');
-                errors.push('Сформулируйте вашу проблему');
+                errors.push('Опишите задачу или проблему');
                 isValid = false;
             } else {
                 problemInput.classList.remove('invalid');
@@ -3799,7 +3951,7 @@
                 const msg = (error && error.message && error.message !== 'Failed to fetch')
                     ? error.message
                     : 'Произошла ошибка при отправке заявки. Проверьте интернет и попробуйте ещё раз.';
-                alert(msg);
+                showErrorsSummary([msg]);
                 submitBtn.disabled = false;
                 submitBtn.textContent = originalBtnText;
             });
@@ -3820,12 +3972,14 @@
         document.addEventListener('keydown', function(e) {
             if (e.ctrlKey && e.shiftKey && e.key === 'A') {
                 e.preventDefault();
+                document.body.classList.add('admin-access');
                 openAdminModal();
             }
         });
 
         // Открытие админ-панели по параметру ?admin=1
         if (window.location.search.includes('admin=1')) {
+            document.body.classList.add('admin-access');
             openAdminModal();
         }
 
