@@ -1116,6 +1116,25 @@
             display: flex;
         }
 
+        /* Сообщение под выбором типа (например, про платную диагностику) */
+        .meeting-type-note {
+            align-items: flex-start;
+            gap: 8px;
+            margin-top: 10px;
+            padding: 10px 12px;
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            border-radius: 8px;
+            color: #9a3412;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .meeting-type-note svg {
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
         /* Сиреневый: час частично занят консультациями (диагностика невозможна) */
         .time-slot.partial {
             background: #eef2f6;
@@ -2263,8 +2282,16 @@
                             </button>
                             <button type="button" class="meeting-type-option" data-type="diagnostic">
                                 <span class="meeting-type-title">2. Диагностика</span>
-                                <span class="meeting-type-sub">1 час</span>
+                                <span class="meeting-type-sub">90 минут</span>
                             </button>
+                        </div>
+                        <div class="meeting-type-note" id="diagnosticNote" style="display: none;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="16" x2="12" y2="12"></line>
+                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                            </svg>
+                            <span>Диагностика — платная услуга. Длительность встречи — 90 минут.</span>
                         </div>
                         <div class="meeting-type-error" id="meetingTypeError">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -3064,6 +3091,10 @@
             const diagnosticOnly = document.querySelectorAll('.diagnostic-only');
             const isConsultation = (type === 'consultation');
             diagnosticOnly.forEach(el => el.classList.toggle('hidden', isConsultation));
+
+            // Сообщение про платную диагностику (90 минут) — только при выборе диагностики
+            const diagnosticNote = document.getElementById('diagnosticNote');
+            if (diagnosticNote) diagnosticNote.style.display = (type === 'diagnostic') ? 'flex' : 'none';
             if (isConsultation) {
                 // Сбрасываем возможные ошибки на скрытых полях, чтобы они не мешали отправке
                 ['socialLinks', 'competitorLinks'].forEach(id => {
@@ -3292,7 +3323,7 @@
             // Нет типа или даты — показываем заглушку
             if (!selectedType || !selectedDate) {
                 timeSlotsContainer.className = 'time-slots time-slots-empty';
-                timeSlotsContainer.innerHTML = `<div class="time-slots-placeholder">${selectedType ? 'Выберите дату' : 'Сначала выберите тип записи'}</div>`;
+                timeSlotsContainer.innerHTML = `<div class="time-slots-placeholder">${selectedType ? 'Выберите время' : 'Сначала выберите тип записи'}</div>`;
                 legend.style.display = 'none';
                 return;
             }
