@@ -2054,6 +2054,47 @@
             </div>
 
             <form id="diagnosticForm" novalidate>
+                <!-- Шаг 1: выбор типа встречи (виден всегда) -->
+                <div class="meeting-type-group">
+                    <label>Выберите тип встречи <span class="required">*</span></label>
+                    <div class="meeting-type-options">
+                        <button type="button" class="meeting-type-option" data-type="consultation">
+                            <span class="meeting-type-title">1. Экспресс-консультация</span>
+                            <span class="meeting-type-sub">20 минут</span>
+                        </button>
+                        <button type="button" class="meeting-type-option" data-type="diagnostic">
+                            <span class="meeting-type-title">2. Диагностика</span>
+                            <span class="meeting-type-sub">90 минут</span>
+                        </button>
+                    </div>
+                    <div class="meeting-type-note free" id="consultationNote" style="display: none;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                        <span>Экспресс-консультация — бесплатно. Чтобы встреча была результативной, заранее сформулируйте конкретный запрос.</span>
+                    </div>
+                    <div class="meeting-type-note" id="diagnosticNote" style="display: none;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                        <span>Диагностика — платная услуга. Стоимость — 15 000 рублей. Длительность встречи — 90 минут.</span>
+                    </div>
+                    <div class="meeting-type-error" id="meetingTypeError">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        <span>Сначала выберите тип записи</span>
+                    </div>
+                </div>
+
+                <!-- Детали записи — появляются только после выбора типа -->
+                <div id="bookingDetails" style="display: none;">
                 <div class="form-group">
                     <label for="name">Ваше имя <span class="required">*</span></label>
                     <div class="input-wrapper">
@@ -2278,45 +2319,6 @@
 
                 <!-- Выбор даты и времени -->
                 <div class="datetime-group">
-                    <!-- Шаг 1: тип записи -->
-                    <div class="meeting-type-group">
-                        <label>Выберите тип встречи <span class="required">*</span></label>
-                        <div class="meeting-type-options">
-                            <button type="button" class="meeting-type-option" data-type="consultation">
-                                <span class="meeting-type-title">1. Экспресс-консультация</span>
-                                <span class="meeting-type-sub">20 минут</span>
-                            </button>
-                            <button type="button" class="meeting-type-option" data-type="diagnostic">
-                                <span class="meeting-type-title">2. Диагностика</span>
-                                <span class="meeting-type-sub">90 минут</span>
-                            </button>
-                        </div>
-                        <div class="meeting-type-note free" id="consultationNote" style="display: none;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <line x1="12" y1="16" x2="12" y2="12"></line>
-                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                            </svg>
-                            <span>Экспресс-консультация — бесплатно. Чтобы встреча была результативной, заранее сформулируйте конкретный запрос.</span>
-                        </div>
-                        <div class="meeting-type-note" id="diagnosticNote" style="display: none;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <line x1="12" y1="16" x2="12" y2="12"></line>
-                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                            </svg>
-                            <span>Диагностика — платная услуга. Стоимость — 15 000 рублей. Длительность встречи — 90 минут.</span>
-                        </div>
-                        <div class="meeting-type-error" id="meetingTypeError">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <line x1="12" y1="8" x2="12" y2="12"></line>
-                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                            </svg>
-                            <span>Сначала выберите тип записи</span>
-                        </div>
-                    </div>
-
                     <div class="datetime-row">
                         <div class="datetime-field">
                             <label>Желаемая дата <span class="required">*</span></label>
@@ -2546,6 +2548,7 @@
                 </div>
 
                 <button type="submit">Записаться</button>
+                </div>
             </form>
         </div>
 
@@ -3111,6 +3114,10 @@
             const consultationNote = document.getElementById('consultationNote');
             if (diagnosticNote) diagnosticNote.style.display = (type === 'diagnostic') ? 'flex' : 'none';
             if (consultationNote) consultationNote.style.display = (type === 'consultation') ? 'flex' : 'none';
+
+            // Показываем остальные поля формы только после выбора типа
+            const bookingDetails = document.getElementById('bookingDetails');
+            if (bookingDetails) bookingDetails.style.display = '';
             if (isConsultation) {
                 // Сбрасываем возможные ошибки на скрытых полях, чтобы они не мешали отправке
                 ['socialLinks', 'competitorLinks'].forEach(id => {
