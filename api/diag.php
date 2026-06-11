@@ -52,6 +52,8 @@ if (function_exists('curl_init') && !empty(TELEGRAM_BOT_TOKEN)) {
     curl_setopt($ch, CURLOPT_TIMEOUT, 10);
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+    applyTelegramProxyOpts($ch);
     if (defined('TELEGRAM_FORCE_IPV6') && TELEGRAM_FORCE_IPV6) {
         curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V6);
     }

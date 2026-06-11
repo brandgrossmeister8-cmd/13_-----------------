@@ -460,6 +460,26 @@ function getDayStatus($allData, $date, $type = 'diagnostic') {
 }
 
 /**
+ * Применяет к curl-хендлу настройки прокси и заголовок Host для обхода
+ * блокировки Telegram на хостинге. Значения берутся из config.php на сервере
+ * (TELEGRAM_PROXY / TELEGRAM_PROXY_AUTH / TELEGRAM_API_HOST). В репозитории
+ * их нет — поэтому при отсутствии констант поведение не меняется.
+ * @param resource|CurlHandle $ch
+ */
+function applyTelegramProxyOpts($ch) {
+    if (defined('TELEGRAM_PROXY') && TELEGRAM_PROXY) {
+        curl_setopt($ch, CURLOPT_PROXY, TELEGRAM_PROXY);
+        if (defined('TELEGRAM_PROXY_AUTH') && TELEGRAM_PROXY_AUTH) {
+            curl_setopt($ch, CURLOPT_PROXYUSERPWD, TELEGRAM_PROXY_AUTH);
+        }
+    }
+    // Если базовый адрес — это IP (обход блокировки по имени/SNI), задаём правильный Host
+    if (defined('TELEGRAM_API_HOST') && TELEGRAM_API_HOST) {
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Host: ' . TELEGRAM_API_HOST]);
+    }
+}
+
+/**
  * Отправка уведомления в Telegram
  * @param string $message Сообщение
  * @return array ['ok' => bool, 'http_code' => int, 'response' => string, 'error' => string]
@@ -508,6 +528,8 @@ function sendTelegramNotification($message) {
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        applyTelegramProxyOpts($ch);
         if (defined('TELEGRAM_FORCE_IPV6') && TELEGRAM_FORCE_IPV6) {
             curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V6);
         }
