@@ -559,7 +559,7 @@ function sendTelegramNotification($message) {
  */
 function buildTelegramMessageForBooking($booking, $isRetry = false) {
     $isConsultation = (getBookingType($booking) === 'consultation');
-    $typeLabel = $isConsultation ? 'Консультация (20 мин)' : 'Диагностика (1 час)';
+    $typeLabel = $isConsultation ? 'Экспресс-консультация (20 мин)' : 'Диагностика (1 час)';
     if ($isRetry) {
         $title = "🔁 <b>Доставка после сбоя — новая запись</b>";
     } else {

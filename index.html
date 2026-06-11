@@ -1135,6 +1135,12 @@
             margin-top: 1px;
         }
 
+        .meeting-type-note.free {
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+            color: #166534;
+        }
+
         /* Сиреневый: час частично занят консультациями (диагностика невозможна) */
         .time-slot.partial {
             background: #eef2f6;
@@ -2032,7 +2038,7 @@
     <div class="form-container">
         <div class="form-content">
             <h1>Запись на встречу</h1>
-            <p class="form-lead">Консультация на 20 минут или диагностика на 1 час. После записи я отправлю ссылку на Zoom в выбранный канал связи.</p>
+            <p class="form-lead">Экспресс-консультация на 20 минут или диагностика на 90 минут. После записи я отправлю ссылку на Zoom в выбранный канал связи.</p>
 
             <!-- Общий блок ошибок -->
             <div class="form-errors-summary" id="errorsSummary">
@@ -2277,13 +2283,21 @@
                         <label>Выберите тип встречи <span class="required">*</span></label>
                         <div class="meeting-type-options">
                             <button type="button" class="meeting-type-option" data-type="consultation">
-                                <span class="meeting-type-title">1. Консультация</span>
+                                <span class="meeting-type-title">1. Экспресс-консультация</span>
                                 <span class="meeting-type-sub">20 минут</span>
                             </button>
                             <button type="button" class="meeting-type-option" data-type="diagnostic">
                                 <span class="meeting-type-title">2. Диагностика</span>
                                 <span class="meeting-type-sub">90 минут</span>
                             </button>
+                        </div>
+                        <div class="meeting-type-note free" id="consultationNote" style="display: none;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="16" x2="12" y2="12"></line>
+                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                            </svg>
+                            <span>Экспресс-консультация — бесплатно. Чтобы встреча была результативной, заранее сформулируйте конкретный запрос.</span>
                         </div>
                         <div class="meeting-type-note" id="diagnosticNote" style="display: none;">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -3092,9 +3106,11 @@
             const isConsultation = (type === 'consultation');
             diagnosticOnly.forEach(el => el.classList.toggle('hidden', isConsultation));
 
-            // Сообщение про платную диагностику (90 минут) — только при выборе диагностики
+            // Заметки под выбором типа: бесплатная экспресс-консультация / платная диагностика
             const diagnosticNote = document.getElementById('diagnosticNote');
+            const consultationNote = document.getElementById('consultationNote');
             if (diagnosticNote) diagnosticNote.style.display = (type === 'diagnostic') ? 'flex' : 'none';
+            if (consultationNote) consultationNote.style.display = (type === 'consultation') ? 'flex' : 'none';
             if (isConsultation) {
                 // Сбрасываем возможные ошибки на скрытых полях, чтобы они не мешали отправке
                 ['socialLinks', 'competitorLinks'].forEach(id => {
@@ -4534,7 +4550,7 @@
                 const displayDate = `${day}.${month}.${year}`;
                 const tgBadge = renderTgBadge(booking);
                 const isConsultation = booking.type === 'consultation';
-                const typeLabel = isConsultation ? 'Консультация (20 мин)' : 'Диагностика (1 час)';
+                const typeLabel = isConsultation ? 'Экспресс-консультация (20 мин)' : 'Диагностика (1 час)';
                 const typeBadge = `<span class="admin-booking-type-badge ${isConsultation ? 'consultation' : 'diagnostic'}">${typeLabel}</span>`;
 
                 html += `
