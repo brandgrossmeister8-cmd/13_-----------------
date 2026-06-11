@@ -21,12 +21,18 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 $month = $_GET['month'] ?? null;
 $date = $_GET['date'] ?? null;
 
+// Тип записи: 'diagnostic' (по умолчанию), 'consultation' или 'admin' (полная инфо для админки)
+$typeParam = $_GET['type'] ?? 'diagnostic';
+if (!in_array($typeParam, ['diagnostic', 'consultation', 'admin'], true)) {
+    $typeParam = 'diagnostic';
+}
+
 if ($month) {
     // Получить доступность для всего месяца
-    handleMonthAvailability($month);
+    handleMonthAvailability($month, $typeParam);
 } elseif ($date) {
     // Получить доступность слотов для конкретной даты
-    handleDateAvailability($date);
+    handleDateAvailability($date, $typeParam);
 } else {
     sendJsonResponse(['success' => false, 'error' => 'Не указан параметр month или date'], 400);
 }
@@ -35,7 +41,9 @@ if ($month) {
  * Получить доступность для месяца
  * @param string $month Месяц в формате YYYY-MM
  */
-function handleMonthAvailability($month) {
+function handleMonthAvailability($month, $type = 'diagnostic') {
+    // 'admin' видит общую картину как для диагностики (по часам)
+    $dayType = ($type === 'consultation') ? 'consultation' : 'diagnostic';
     if (!preg_match('/^\d{4}-\d{2}$/', $month)) {
         sendJsonResponse(['success' => false, 'error' => 'Неверный формат месяца. Используйте YYYY-MM'], 400);
     }
@@ -74,7 +82,7 @@ function handleMonthAvailability($month) {
             continue;
         }
 
-        $dayStatus = getDayStatus($data, $dateStr);
+        $dayStatus = getDayStatus($data, $dateStr, $dayType);
         $dates[$dateStr] = $dayStatus;
     }
 
@@ -88,7 +96,7 @@ function handleMonthAvailability($month) {
  * Получить доступность слотов для конкретной даты
  * @param string $date Дата в формате YYYY-MM-DD
  */
-function handleDateAvailability($date) {
+function handleDateAvailability($date, $type = 'diagnostic') {
     if (!validateDate($date)) {
         sendJsonResponse(['success' => false, 'error' => 'Неверный формат даты. Используйте YYYY-MM-DD'], 400);
     }
@@ -110,51 +118,72 @@ function handleDateAvailability($date) {
         sendJsonResponse([
             'success' => true,
             'date' => $date,
+            'type' => $type,
             'blocked' => true,
             'reason' => $blockReason,
             'slots' => []
         ]);
     }
 
-    // Получаем информацию о каждом слоте
+    // Собираем полную информацию по каждому часу
+    $hours = [];
+    foreach (WORKING_HOURS as $hour) {
+        $hours[] = getHourInfo($data, $date, $hour);
+    }
+
     $slots = [];
-    foreach (WORKING_HOURS as $time) {
-        $available = isSlotAvailable($data, $date, $time);
 
-        $slotInfo = [
-            'time' => $time,
-            'available' => $available
-        ];
-
-        // Если слот недоступен, пытаемся найти причину
-        if (!$available) {
-            // Проверяем блокировку слота
-            foreach ($data['blocked_slots'] as $blocked) {
-                if ($blocked['date'] === $date && $blocked['time'] === $time) {
-                    $slotInfo['reason'] = $blocked['reason'] ?? 'Заблокировано';
-                    $slotInfo['blocked'] = true;
-                    break;
-                }
-            }
-
-            // Проверяем бронирование
-            if (!isset($slotInfo['blocked'])) {
-                foreach ($data['bookings'] as $booking) {
-                    if ($booking['date'] === $date && $booking['time'] === $time) {
-                        $slotInfo['reason'] = 'Занято';
-                        $slotInfo['booked'] = true;
-                        break;
-                    }
-                }
-            }
+    if ($type === 'consultation') {
+        // Консультации: каждый час с разбивкой на 15-минутные интервалы
+        foreach ($hours as $info) {
+            $slots[] = [
+                'time'      => $info['hour'],
+                'status'    => $info['status'],      // free | partial | full | blocked | diagnostic_booked
+                'available' => $info['consultationAvailable'],
+                'subSlots'  => $info['subSlots']
+            ];
         }
-
-        $slots[] = $slotInfo;
+    } elseif ($type === 'admin') {
+        // Админка: полная картина по часу
+        foreach ($hours as $info) {
+            $slots[] = [
+                'time'             => $info['hour'],
+                'status'           => $info['status'],
+                'blocked'          => $info['blocked'],
+                'diagnosticBooked' => $info['diagnosticBooked'],
+                'consultations'    => $info['consultations'],
+                'count'            => $info['count'],
+                'subSlots'         => $info['subSlots']
+            ];
+        }
+    } else {
+        // Диагностика: один слот = один час, доступен только если час полностью свободен
+        foreach ($hours as $info) {
+            $slotInfo = [
+                'time'      => $info['hour'],
+                'available' => $info['diagnosticAvailable'],
+                'status'    => $info['status']
+            ];
+            if (!$info['diagnosticAvailable']) {
+                if ($info['blocked']) {
+                    $slotInfo['blocked'] = true;
+                    $slotInfo['reason'] = 'Заблокировано';
+                } elseif ($info['diagnosticBooked']) {
+                    $slotInfo['booked'] = true;
+                    $slotInfo['reason'] = 'Занято';
+                } else {
+                    // Час частично занят консультациями — целиком под диагностику не годится
+                    $slotInfo['reason'] = 'Занято консультациями';
+                }
+            }
+            $slots[] = $slotInfo;
+        }
     }
 
     sendJsonResponse([
         'success' => true,
         'date' => $date,
+        'type' => $type,
         'blocked' => false,
         'slots' => $slots
     ]);

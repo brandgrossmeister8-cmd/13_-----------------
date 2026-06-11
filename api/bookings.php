@@ -161,7 +161,9 @@ function handleResendTelegram() {
         sendJsonResponse(['success' => false, 'error' => 'Запись не найдена'], 404);
     }
 
-    $message = "🔁 <b>Повторная отправка — запись на диагностику</b>\n\n";
+    $typeLabel = (getBookingType($booking) === 'consultation') ? 'Консультация (15 мин)' : 'Диагностика (1 час)';
+    $message = "🔁 <b>Повторная отправка — запись</b>\n\n";
+    $message .= "🧩 <b>Тип:</b> " . $typeLabel . "\n";
     $message .= "📅 <b>Дата:</b> " . date('d.m.Y', strtotime($booking['date'])) . "\n";
     $message .= "🕐 <b>Время:</b> " . htmlspecialchars($booking['time']) . "\n\n";
     $message .= "👤 <b>Имя:</b> " . htmlspecialchars($booking['name']) . "\n";

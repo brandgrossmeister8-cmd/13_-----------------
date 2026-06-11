@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Запись на диагностику</title>
+    <title>Запись на встречу</title>
     <style>
         * {
             box-sizing: border-box;
@@ -371,6 +371,11 @@
         }
 
         .conditional-field.hidden {
+            display: none;
+        }
+
+        /* Поля только для диагностики — скрываются при выборе консультации */
+        .diagnostic-only.hidden {
             display: none;
         }
 
@@ -959,6 +964,172 @@
             border-color: #fca5a5;
         }
 
+        .time-slots-legend-color.lilac {
+            background: #ede9fe;
+            border-color: #c4b5fd;
+        }
+
+        /* ===== Выбор типа записи ===== */
+        .meeting-type-group {
+            margin-bottom: 20px;
+        }
+
+        .meeting-type-group > label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .meeting-type-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        @media (max-width: 500px) {
+            .meeting-type-options {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .meeting-type-option {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 2px;
+            padding: 14px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+
+        .meeting-type-option:hover:not(.selected) {
+            border-color: #667eea;
+        }
+
+        .meeting-type-option.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .meeting-type-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .meeting-type-sub {
+            font-size: 13px;
+            color: #888;
+        }
+
+        .meeting-type-option.selected .meeting-type-title,
+        .meeting-type-option.selected .meeting-type-sub {
+            color: white;
+        }
+
+        .meeting-type-error {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            color: #dc2626;
+            font-size: 13px;
+        }
+
+        .meeting-type-error.show {
+            display: flex;
+        }
+
+        /* Сиреневый: час частично занят консультациями (диагностика невозможна) */
+        .time-slot.partial {
+            background: #ede9fe;
+            border-color: #c4b5fd;
+            color: #6d28d9;
+        }
+
+        /* Заглушка, пока не выбран тип/дата */
+        .time-slots-empty {
+            display: block;
+        }
+
+        .time-slots-placeholder {
+            padding: 14px;
+            border: 2px dashed #e1e5e9;
+            border-radius: 8px;
+            color: #999;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        /* ===== Консультации: час с разбивкой на 15-минутные интервалы ===== */
+        .time-slots--consultation {
+            display: block;
+        }
+
+        .time-hour-group {
+            margin-bottom: 12px;
+        }
+
+        .time-hour-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .time-hour-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 6px;
+        }
+
+        .time-hour-header .time-hour-note {
+            font-weight: 500;
+            font-size: 12px;
+            color: #888;
+        }
+
+        .time-hour-header.partial {
+            color: #6d28d9;
+        }
+
+        .time-hour-header.partial .time-hour-badge {
+            background: #ede9fe;
+            border: 1px solid #c4b5fd;
+            color: #6d28d9;
+            border-radius: 6px;
+            padding: 1px 8px;
+            font-size: 11px;
+        }
+
+        .time-hour-header.full {
+            color: #991b1b;
+        }
+
+        .time-subslots {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        @media (max-width: 500px) {
+            .time-subslots {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .time-subslot {
+            font-size: 13px;
+            padding: 8px 4px;
+        }
+
         /* Состояние ошибки для слотов времени */
         .time-slots.invalid .time-slot:not(.selected):not(.unavailable) {
             border-color: #fca5a5;
@@ -1331,6 +1502,42 @@
             color: white;
         }
 
+        .admin-time-slot.partial {
+            background: #ede9fe;
+            border-color: #ddd6fe;
+        }
+
+        .admin-time-slot.partial .admin-time-slot-status {
+            background: #6d28d9;
+            color: white;
+        }
+
+        .admin-time-slot-detail {
+            font-size: 10px;
+            color: #6b7280;
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        .admin-booking-type-badge {
+            display: inline-flex;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 6px;
+        }
+
+        .admin-booking-type-badge.consultation {
+            background: #ede9fe;
+            color: #6d28d9;
+        }
+
+        .admin-booking-type-badge.diagnostic {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
         /* Список бронирований */
         .admin-bookings-list {
             display: flex;
@@ -1597,7 +1804,7 @@
 <body>
     <div class="form-container">
         <div class="form-content">
-            <h1>Запись на диагностику</h1>
+            <h1>Запись на встречу</h1>
 
             <!-- Общий блок ошибок -->
             <div class="form-errors-summary" id="errorsSummary">
@@ -1837,6 +2044,29 @@
 
                 <!-- Выбор даты и времени -->
                 <div class="datetime-group">
+                    <!-- Шаг 1: тип записи -->
+                    <div class="meeting-type-group">
+                        <label>Выберите тип встречи <span class="required">*</span></label>
+                        <div class="meeting-type-options">
+                            <button type="button" class="meeting-type-option" data-type="consultation">
+                                <span class="meeting-type-title">1. Консультация</span>
+                                <span class="meeting-type-sub">15 минут</span>
+                            </button>
+                            <button type="button" class="meeting-type-option" data-type="diagnostic">
+                                <span class="meeting-type-title">2. Диагностика</span>
+                                <span class="meeting-type-sub">1 час</span>
+                            </button>
+                        </div>
+                        <div class="meeting-type-error" id="meetingTypeError">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            <span>Сначала выберите тип записи</span>
+                        </div>
+                    </div>
+
                     <div class="datetime-row">
                         <div class="datetime-field">
                             <label>Желаемая дата <span class="required">*</span></label>
@@ -1901,21 +2131,18 @@
 
                         <div class="datetime-field">
                             <label>Желаемое время <span class="required">*</span></label>
-                            <div class="time-slots" id="timeSlots">
-                                <button type="button" class="time-slot" data-time="10:00">10:00</button>
-                                <button type="button" class="time-slot" data-time="11:00">11:00</button>
-                                <button type="button" class="time-slot" data-time="12:00">12:00</button>
-                                <button type="button" class="time-slot" data-time="13:00">13:00</button>
-                                <button type="button" class="time-slot" data-time="14:00">14:00</button>
-                                <button type="button" class="time-slot" data-time="15:00">15:00</button>
-                                <button type="button" class="time-slot" data-time="16:00">16:00</button>
-                                <button type="button" class="time-slot" data-time="17:00">17:00</button>
+                            <div class="time-slots time-slots-empty" id="timeSlots">
+                                <div class="time-slots-placeholder">Сначала выберите тип записи</div>
                             </div>
                             <input type="hidden" id="timeInput" name="time" required>
                             <div class="time-slots-legend" id="timeSlotsLegend" style="display: none;">
                                 <div class="time-slots-legend-item">
                                     <div class="time-slots-legend-color green"></div>
                                     <span>Свободно</span>
+                                </div>
+                                <div class="time-slots-legend-item" id="legendLilac" style="display: none;">
+                                    <div class="time-slots-legend-color lilac"></div>
+                                    <span>Час частично занят — есть только консультации</span>
                                 </div>
                                 <div class="time-slots-legend-item">
                                     <div class="time-slots-legend-color red"></div>
@@ -1935,8 +2162,8 @@
                     </div>
                 </div>
 
-                <!-- Информационный блок -->
-                <div class="info-block">
+                <!-- Информационный блок (только для диагностики) -->
+                <div class="info-block diagnostic-only" id="diagnosticInfoBlock">
                     <h4>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="12" cy="12" r="10"></circle>
@@ -1954,7 +2181,7 @@
 
                 <h3 style="color: #333; font-size: 16px; margin-bottom: 20px; font-weight: 600;">Введите данные ниже &#8595;</h3>
 
-                <div class="form-group">
+                <div class="form-group diagnostic-only" id="socialLinksGroup">
                     <label for="socialLinks">Ссылки на ваши сайты и соцсети <span class="required">*</span></label>
                     <textarea
                         id="socialLinks"
@@ -1975,7 +2202,7 @@
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group diagnostic-only" id="competitorLinksGroup">
                     <label for="competitorLinks">Ссылки на ваших конкурентов <span class="required">*</span></label>
                     <textarea
                         id="competitorLinks"
@@ -2602,11 +2829,14 @@
         const calendarMonthYear = document.getElementById('calendarMonthYear');
         const prevMonthBtn = document.getElementById('prevMonth');
         const nextMonthBtn = document.getElementById('nextMonth');
-        const timeSlots = document.querySelectorAll('.time-slot');
+        const timeSlotsContainer = document.getElementById('timeSlots');
         const datetimeError = document.getElementById('datetimeError');
         const datetimeErrorText = document.getElementById('datetimeErrorText');
+        const meetingTypeOptions = document.querySelectorAll('.meeting-type-option');
+        const meetingTypeError = document.getElementById('meetingTypeError');
 
         let currentDate = new Date();
+        let selectedType = null;
         let selectedDate = null;
         let selectedTime = null;
         let availabilityData = {};
@@ -2617,8 +2847,52 @@
             'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
         ];
 
+        // ===== Выбор типа записи (шаг 1) =====
+        function selectMeetingType(type) {
+            selectedType = type;
+            meetingTypeOptions.forEach(o => o.classList.toggle('selected', o.dataset.type === type));
+            meetingTypeError.classList.remove('show');
+
+            // Поля только для диагностики (ссылки на соцсети/конкурентов) скрываем при консультации
+            const diagnosticOnly = document.querySelectorAll('.diagnostic-only');
+            const isConsultation = (type === 'consultation');
+            diagnosticOnly.forEach(el => el.classList.toggle('hidden', isConsultation));
+            if (isConsultation) {
+                // Сбрасываем возможные ошибки на скрытых полях, чтобы они не мешали отправке
+                ['socialLinks', 'competitorLinks'].forEach(id => {
+                    const input = document.getElementById(id);
+                    const err = document.getElementById(id + 'Error');
+                    if (input) input.classList.remove('invalid', 'valid');
+                    if (err) err.classList.remove('show');
+                });
+            }
+
+            // Сбрасываем выбранные дату и время — доступность зависит от типа
+            selectedDate = null;
+            selectedTime = null;
+            dateInput.value = '';
+            timeInput.value = '';
+            dateInput.classList.remove('valid', 'invalid');
+            currentDateSlots = [];
+
+            hideErrorsSummary();
+            datetimeError.classList.remove('show');
+
+            renderTimeSlots();
+            loadUserCalendarData();
+        }
+
+        meetingTypeOptions.forEach(o => {
+            o.addEventListener('click', () => selectMeetingType(o.dataset.type));
+        });
+
         // Открыть/закрыть календарь
         dateInput.addEventListener('click', function() {
+            if (!selectedType) {
+                meetingTypeError.classList.add('show');
+                meetingTypeError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
             calendarDropdown.classList.toggle('show');
             if (calendarDropdown.classList.contains('show')) {
                 renderCalendar();
@@ -2649,7 +2923,8 @@
         async function loadUserCalendarData() {
             try {
                 const month = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
-                const response = await fetch(`api/availability.php?month=${month}`);
+                const type = selectedType || 'diagnostic';
+                const response = await fetch(`api/availability.php?month=${month}&type=${type}`);
                 const data = await response.json();
 
                 if (data.success) {
@@ -2742,6 +3017,10 @@
                         const [y, m, d] = dateStr.split('-').map(Number);
                         selectedDate = new Date(y, m - 1, d);
 
+                        // Новая дата — сбрасываем ранее выбранное время
+                        selectedTime = null;
+                        timeInput.value = '';
+
                         // Форматируем дату для отображения
                         const displayDate = `${String(d).padStart(2, '0')}.${String(m).padStart(2, '0')}.${y}`;
                         dateInput.value = displayDate;
@@ -2764,12 +3043,13 @@
         // Загрузка доступных слотов времени для выбранной даты
         async function loadUserTimeSlots(dateStr) {
             try {
-                const response = await fetch(`api/availability.php?date=${dateStr}`);
+                const type = selectedType || 'diagnostic';
+                const response = await fetch(`api/availability.php?date=${dateStr}&type=${type}`);
                 const data = await response.json();
 
                 if (data.success && data.slots) {
                     currentDateSlots = data.slots;
-                    updateUserTimeSlots();
+                    renderTimeSlots();
                 }
             } catch (error) {
                 console.error('Ошибка загрузки слотов:', error);
@@ -2791,50 +3071,89 @@
             return now >= slotTime;
         }
 
-        // Обновление отображения слотов времени
-        function updateUserTimeSlots() {
+        // Рендер слотов времени в зависимости от типа записи
+        function renderTimeSlots() {
             const legend = document.getElementById('timeSlotsLegend');
+            const legendLilac = document.getElementById('legendLilac');
+
+            // Нет типа или даты — показываем заглушку
+            if (!selectedType || !selectedDate) {
+                timeSlotsContainer.className = 'time-slots time-slots-empty';
+                timeSlotsContainer.innerHTML = `<div class="time-slots-placeholder">${selectedType ? 'Выберите дату' : 'Сначала выберите тип записи'}</div>`;
+                legend.style.display = 'none';
+                return;
+            }
+
             legend.style.display = 'flex';
+            let html = '';
 
-            timeSlots.forEach(slotBtn => {
-                const time = slotBtn.dataset.time;
-                const slotData = currentDateSlots.find(s => s.time === time);
-
-                // Сброс классов
-                slotBtn.classList.remove('available', 'unavailable');
-                slotBtn.style.opacity = '';
-                slotBtn.style.cursor = '';
-
-                const past = isSlotPast(time);
-                const unavailable = (slotData && !slotData.available) || past;
-
-                if (unavailable) {
-                    slotBtn.disabled = true;
-                    slotBtn.classList.add('unavailable');
-                    if (slotBtn.classList.contains('selected')) {
-                        slotBtn.classList.remove('selected');
-                        selectedTime = null;
-                        timeInput.value = '';
+            if (selectedType === 'diagnostic') {
+                // Диагностика: один слот = один час
+                legendLilac.style.display = 'none';
+                timeSlotsContainer.className = 'time-slots';
+                currentDateSlots.forEach(slot => {
+                    const past = isSlotPast(slot.time);
+                    const available = slot.available && !past;
+                    const cls = available ? 'available' : 'unavailable';
+                    html += `<button type="button" class="time-slot ${cls}" data-time="${slot.time}" ${available ? '' : 'disabled'}>${slot.time}</button>`;
+                });
+            } else {
+                // Консультация: каждый час с разбивкой на 15-минутные интервалы
+                legendLilac.style.display = 'flex';
+                timeSlotsContainer.className = 'time-slots time-slots--consultation';
+                currentDateSlots.forEach(hour => {
+                    let headerCls = '';
+                    let badge = '';
+                    if (hour.status === 'partial') {
+                        headerCls = 'partial';
+                        badge = '<span class="time-hour-badge">только консультации</span>';
+                    } else if (hour.status === 'free') {
+                        headerCls = 'free';
+                    } else {
+                        headerCls = 'full';
                     }
+
+                    html += `<div class="time-hour-group">`;
+                    html += `<div class="time-hour-header ${headerCls}"><span>${hour.time}</span> ${badge}</div>`;
+                    html += `<div class="time-subslots">`;
+                    (hour.subSlots || []).forEach(sub => {
+                        const past = isSlotPast(sub.time);
+                        const available = sub.available && !past;
+                        // В частично занятом часе свободные интервалы остаются зелёными,
+                        // занятые — красными; пустой свободный час — зелёный.
+                        const cls = available ? 'available' : 'unavailable';
+                        html += `<button type="button" class="time-slot time-subslot ${cls}" data-time="${sub.time}" ${available ? '' : 'disabled'}>${sub.time}</button>`;
+                    });
+                    html += `</div></div>`;
+                });
+            }
+
+            timeSlotsContainer.innerHTML = html;
+
+            // Восстанавливаем подсветку ранее выбранного времени, если оно ещё доступно
+            if (selectedTime) {
+                const sel = timeSlotsContainer.querySelector(`.time-slot[data-time="${selectedTime}"]`);
+                if (sel && !sel.disabled) {
+                    sel.classList.add('selected');
                 } else {
-                    slotBtn.disabled = false;
-                    slotBtn.classList.add('available');
+                    selectedTime = null;
+                    timeInput.value = '';
                 }
-            });
+            }
         }
 
-        // Выбор времени
-        const timeSlotsContainer = document.getElementById('timeSlots');
-        timeSlots.forEach(slot => {
-            slot.addEventListener('click', function() {
-                timeSlots.forEach(s => s.classList.remove('selected'));
-                this.classList.add('selected');
-                selectedTime = this.dataset.time;
-                timeInput.value = selectedTime;
-                hideErrorsSummary();
-                datetimeError.classList.remove('show');
-                timeSlotsContainer.classList.remove('invalid');
-            });
+        // Выбор времени (делегирование — слоты перерисовываются динамически)
+        timeSlotsContainer.addEventListener('click', function(e) {
+            const btn = e.target.closest('.time-slot');
+            if (!btn || btn.disabled || !timeSlotsContainer.contains(btn)) return;
+
+            timeSlotsContainer.querySelectorAll('.time-slot.selected').forEach(s => s.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedTime = btn.dataset.time;
+            timeInput.value = selectedTime;
+            hideErrorsSummary();
+            datetimeError.classList.remove('show');
+            timeSlotsContainer.classList.remove('invalid');
         });
 
         // Инициализация календаря
@@ -3324,6 +3643,15 @@
                 }
             }
 
+            // Проверка типа записи
+            if (!selectedType) {
+                meetingTypeError.classList.add('show');
+                errors.push('Выберите тип записи');
+                isValid = false;
+            } else {
+                meetingTypeError.classList.remove('show');
+            }
+
             // Проверка даты и времени
             if (!selectedDate && !selectedTime) {
                 datetimeErrorText.textContent = 'Выберите дату и время для записи';
@@ -3354,28 +3682,31 @@
                 timeSlotsContainer.classList.remove('invalid');
             }
 
-            // Проверка ссылок на соцсети
-            if (socialLinksInput.value.trim() === '') {
-                socialLinksInput.classList.add('invalid');
-                socialLinksError.classList.add('show');
-                errors.push('Укажите ссылки на ваши сайты и соцсети');
-                isValid = false;
-            } else {
-                socialLinksInput.classList.remove('invalid');
-                socialLinksInput.classList.add('valid');
-                socialLinksError.classList.remove('show');
-            }
+            // Ссылки на соцсети и конкурентов нужны только для диагностики
+            if (selectedType !== 'consultation') {
+                // Проверка ссылок на соцсети
+                if (socialLinksInput.value.trim() === '') {
+                    socialLinksInput.classList.add('invalid');
+                    socialLinksError.classList.add('show');
+                    errors.push('Укажите ссылки на ваши сайты и соцсети');
+                    isValid = false;
+                } else {
+                    socialLinksInput.classList.remove('invalid');
+                    socialLinksInput.classList.add('valid');
+                    socialLinksError.classList.remove('show');
+                }
 
-            // Проверка ссылок на конкурентов
-            if (competitorLinksInput.value.trim() === '') {
-                competitorLinksInput.classList.add('invalid');
-                competitorLinksError.classList.add('show');
-                errors.push('Укажите ссылки на ваших конкурентов');
-                isValid = false;
-            } else {
-                competitorLinksInput.classList.remove('invalid');
-                competitorLinksInput.classList.add('valid');
-                competitorLinksError.classList.remove('show');
+                // Проверка ссылок на конкурентов
+                if (competitorLinksInput.value.trim() === '') {
+                    competitorLinksInput.classList.add('invalid');
+                    competitorLinksError.classList.add('show');
+                    errors.push('Укажите ссылки на ваших конкурентов');
+                    isValid = false;
+                } else {
+                    competitorLinksInput.classList.remove('invalid');
+                    competitorLinksInput.classList.add('valid');
+                    competitorLinksError.classList.remove('show');
+                }
             }
 
             // Проверка описания проблемы
@@ -3431,6 +3762,7 @@
                 vk: vkInput.value,
                 max: maxInput.value,
                 preferredContact: getSelectedPreferredContact(),
+                type: selectedType,
                 date: dateInput.value,
                 time: timeInput.value,
                 socialLinks: socialLinksInput.value,
@@ -3714,9 +4046,9 @@
             adminSelectedDate = dateStr;
             renderAdminCalendar();
 
-            // Загружаем слоты для этой даты
+            // Загружаем слоты для этой даты (admin — полная инфо по часу)
             try {
-                const response = await fetch(`api/availability.php?date=${dateStr}`);
+                const response = await fetch(`api/availability.php?date=${dateStr}&type=admin`);
                 const data = await response.json();
 
                 if (data.success) {
@@ -3752,26 +4084,40 @@
                 blockDayBtn.onclick = () => blockDate(dateStr);
             }
 
-            // Рендерим слоты
+            // Рендерим слоты (по часам). Блокировка работает на весь час.
             let html = '';
             data.slots.forEach(slot => {
                 let statusClass = 'available';
                 let statusText = 'Свободно';
+                let detail = '';
 
-                if (slot.blocked) {
+                if (slot.blocked || slot.status === 'blocked') {
                     statusClass = 'blocked';
                     statusText = 'Блокировка';
-                } else if (slot.booked) {
+                } else if (slot.diagnosticBooked || slot.status === 'diagnostic_booked') {
                     statusClass = 'booked';
-                    statusText = 'Занято';
+                    statusText = 'Диагностика (1 ч)';
+                } else if (slot.status === 'full') {
+                    statusClass = 'booked';
+                    statusText = 'Занято (4/4)';
+                    detail = (slot.consultations || []).join(', ');
+                } else if (slot.status === 'partial') {
+                    statusClass = 'partial';
+                    statusText = `Консультации: ${slot.count}/4`;
+                    detail = (slot.consultations || []).join(', ');
                 }
 
-                const onclick = slot.available ? `blockSlot('${dateStr}', '${slot.time}')` : `unblockSlot('${dateStr}', '${slot.time}')`;
+                // Клик: заблокированный час разблокируем, иначе блокируем весь час
+                const isBlocked = (slot.blocked || slot.status === 'blocked');
+                const onclick = isBlocked
+                    ? `unblockSlot('${dateStr}', '${slot.time}')`
+                    : `blockSlot('${dateStr}', '${slot.time}')`;
 
                 html += `
                     <button type="button" class="admin-time-slot ${statusClass}" onclick="${onclick}">
                         <span class="admin-time-slot-time">${slot.time}</span>
                         <span class="admin-time-slot-status">${statusText}</span>
+                        ${detail ? `<span class="admin-time-slot-detail">${detail}</span>` : ''}
                     </button>
                 `;
             });
@@ -3912,6 +4258,9 @@
                 const [year, month, day] = booking.date.split('-');
                 const displayDate = `${day}.${month}.${year}`;
                 const tgBadge = renderTgBadge(booking);
+                const isConsultation = booking.type === 'consultation';
+                const typeLabel = isConsultation ? 'Консультация (15 мин)' : 'Диагностика (1 час)';
+                const typeBadge = `<span class="admin-booking-type-badge ${isConsultation ? 'consultation' : 'diagnostic'}">${typeLabel}</span>`;
 
                 html += `
                     <div class="admin-booking-card">
@@ -3933,6 +4282,7 @@
                                     </svg>
                                     ${booking.time}
                                 </div>
+                                ${typeBadge}
                                 ${tgBadge}
                             </div>
                             <div class="admin-booking-actions">

@@ -124,6 +124,182 @@ function validateTime($time) {
 }
 
 /**
+ * Валидация времени с учётом типа записи.
+ * Для диагностики — это рабочий час (HH:00).
+ * Для консультации — 15-минутный интервал (HH:MM, MM ∈ 00/15/30/45) внутри рабочего часа.
+ * @param string $time
+ * @param string $type 'diagnostic' | 'consultation'
+ * @return bool
+ */
+function validateTimeForType($time, $type) {
+    if (!preg_match('/^(\d{2}):(\d{2})$/', $time, $m)) {
+        return false;
+    }
+    if ($type === 'consultation') {
+        $hour = $m[1] . ':00';
+        return in_array($hour, WORKING_HOURS, true)
+            && in_array($m[2], CONSULTATION_INTERVALS, true);
+    }
+    return in_array($time, WORKING_HOURS, true);
+}
+
+/**
+ * Нормализация типа записи. Старые записи без поля type — это часовые диагностики.
+ * @param array $booking
+ * @return string 'diagnostic' | 'consultation'
+ */
+function getBookingType($booking) {
+    return (($booking['type'] ?? 'diagnostic') === 'consultation') ? 'consultation' : 'diagnostic';
+}
+
+/**
+ * Час, к которому относится время: "10:15" -> "10:00"
+ * @param string $time
+ * @return string
+ */
+function getHourOf($time) {
+    return substr($time, 0, 2) . ':00';
+}
+
+/**
+ * 15-минутные интервалы внутри часа: "10:00" -> ["10:00","10:15","10:30","10:45"]
+ * @param string $hour
+ * @return array
+ */
+function getHourSubSlots($hour) {
+    $h = substr($hour, 0, 2);
+    $subs = [];
+    foreach (CONSULTATION_INTERVALS as $mm) {
+        $subs[] = $h . ':' . $mm;
+    }
+    return $subs;
+}
+
+/**
+ * Заблокирован ли час целиком (блокировка всего дня или блокировка часа админом).
+ * Блокировки слотов хранятся по часам и закрывают весь час.
+ * @param array $allData
+ * @param string $date
+ * @param string $hour
+ * @return bool
+ */
+function isHourBlocked($allData, $date, $hour) {
+    foreach ($allData['blocked_dates'] as $blocked) {
+        if ($blocked['date'] === $date && !empty($blocked['all_day'])) {
+            return true;
+        }
+    }
+    foreach ($allData['blocked_slots'] as $blocked) {
+        if ($blocked['date'] === $date && getHourOf($blocked['time']) === $hour) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Полная информация о часе: статус, существующие брони и доступность под каждый тип.
+ *
+ * Правила:
+ *  - Диагностика (1 час) возможна, только если час полностью свободен (нет консультаций и нет диагностики).
+ *  - Консультация (15 мин) возможна, если час не занят диагностикой и заняты не все 4 интервала.
+ *
+ * status: blocked | diagnostic_booked | free | partial | full
+ *  - free    — час полностью свободен (зелёный)
+ *  - partial — заняты 1–3 интервала консультациями (сиреневый): диагностику поставить нельзя,
+ *              но свободные 15-мин интервалы ещё можно выбрать
+ *  - full    — заняты все 4 интервала (красный)
+ *
+ * @param array $allData
+ * @param string $date
+ * @param string $hour
+ * @return array
+ */
+function getHourInfo($allData, $date, $hour) {
+    $blocked = isHourBlocked($allData, $date, $hour);
+
+    $diagnosticBooked = false;
+    $consultations = [];
+    foreach ($allData['bookings'] as $booking) {
+        if ($booking['date'] !== $date) {
+            continue;
+        }
+        if (getBookingType($booking) === 'diagnostic') {
+            if ($booking['time'] === $hour) {
+                $diagnosticBooked = true;
+            }
+        } else {
+            if (getHourOf($booking['time']) === $hour) {
+                $consultations[] = $booking['time'];
+            }
+        }
+    }
+
+    $count = count($consultations);
+
+    if ($blocked) {
+        $status = 'blocked';
+    } elseif ($diagnosticBooked) {
+        $status = 'diagnostic_booked';
+    } elseif ($count === 0) {
+        $status = 'free';
+    } elseif ($count >= 4) {
+        $status = 'full';
+    } else {
+        $status = 'partial';
+    }
+
+    $diagnosticAvailable = !$blocked && !$diagnosticBooked && $count === 0;
+    $consultationAvailable = !$blocked && !$diagnosticBooked && $count < 4;
+
+    $subSlots = [];
+    foreach (getHourSubSlots($hour) as $sub) {
+        $booked = in_array($sub, $consultations, true);
+        $subSlots[] = [
+            'time' => $sub,
+            'available' => !$blocked && !$diagnosticBooked && !$booked,
+            'booked' => $booked
+        ];
+    }
+
+    return [
+        'hour' => $hour,
+        'blocked' => $blocked,
+        'diagnosticBooked' => $diagnosticBooked,
+        'consultations' => $consultations,
+        'count' => $count,
+        'status' => $status,
+        'diagnosticAvailable' => $diagnosticAvailable,
+        'consultationAvailable' => $consultationAvailable,
+        'subSlots' => $subSlots
+    ];
+}
+
+/**
+ * Доступен ли конкретный слот под конкретный тип записи.
+ * @param array $allData
+ * @param string $date
+ * @param string $time Для диагностики — час (HH:00), для консультации — интервал (HH:MM)
+ * @param string $type 'diagnostic' | 'consultation'
+ * @return bool
+ */
+function isSlotAvailableForType($allData, $date, $time, $type) {
+    if ($type === 'consultation') {
+        $info = getHourInfo($allData, $date, getHourOf($time));
+        if (!$info['consultationAvailable']) {
+            return false;
+        }
+        foreach ($info['subSlots'] as $s) {
+            if ($s['time'] === $time) {
+                return $s['available'];
+            }
+        }
+        return false;
+    }
+    return getHourInfo($allData, $date, $time)['diagnosticAvailable'];
+}
+
+/**
  * Проверка, является ли дата рабочим днем
  * @param string $date Дата в формате YYYY-MM-DD
  * @return bool
@@ -188,12 +364,15 @@ function isSlotAvailable($allData, $date, $time) {
 }
 
 /**
- * Получение статуса дня (free/partial/full/blocked)
+ * Получение статуса дня (free/partial/full/blocked) с учётом типа записи.
+ * День считается доступным (free/partial), если есть хотя бы один час,
+ * куда можно поставить запись выбранного типа.
  * @param array $allData Все данные
  * @param string $date Дата
+ * @param string $type 'diagnostic' | 'consultation'
  * @return array ['status' => string, 'available_slots' => array, 'total_slots' => int]
  */
-function getDayStatus($allData, $date) {
+function getDayStatus($allData, $date, $type = 'diagnostic') {
     // Проверяем полную блокировку дня
     foreach ($allData['blocked_dates'] as $blocked) {
         if ($blocked['date'] === $date && $blocked['all_day']) {
@@ -209,9 +388,11 @@ function getDayStatus($allData, $date) {
     $availableSlots = [];
     $totalSlots = count(WORKING_HOURS);
 
-    foreach (WORKING_HOURS as $time) {
-        if (isSlotAvailable($allData, $date, $time)) {
-            $availableSlots[] = $time;
+    foreach (WORKING_HOURS as $hour) {
+        $info = getHourInfo($allData, $date, $hour);
+        $ok = ($type === 'consultation') ? $info['consultationAvailable'] : $info['diagnosticAvailable'];
+        if ($ok) {
+            $availableSlots[] = $hour;
         }
     }
 
@@ -331,8 +512,15 @@ function sendTelegramNotification($message) {
  * @return string
  */
 function buildTelegramMessageForBooking($booking, $isRetry = false) {
-    $title = $isRetry ? "🔁 <b>Доставка после сбоя — запись на диагностику</b>" : "🆕 <b>Новая запись на диагностику</b>";
+    $isConsultation = (getBookingType($booking) === 'consultation');
+    $typeLabel = $isConsultation ? 'Консультация (15 мин)' : 'Диагностика (1 час)';
+    if ($isRetry) {
+        $title = "🔁 <b>Доставка после сбоя — новая запись</b>";
+    } else {
+        $title = "🆕 <b>Новая запись: " . $typeLabel . "</b>";
+    }
     $msg  = $title . "\n\n";
+    $msg .= "🧩 <b>Тип:</b> " . $typeLabel . "\n";
     $msg .= "📅 <b>Дата:</b> " . date('d.m.Y', strtotime($booking['date'])) . "\n";
     $msg .= "🕐 <b>Время:</b> " . htmlspecialchars($booking['time']) . "\n\n";
     $msg .= "👤 <b>Имя:</b> " . htmlspecialchars($booking['name']) . "\n";

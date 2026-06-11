@@ -30,6 +30,7 @@ $max = trim($postData['max'] ?? '');
 $preferredContactRaw = $postData['preferredContact'] ?? [];
 $dateRaw = trim($postData['date'] ?? '');
 $time = trim($postData['time'] ?? '');
+$type = (($postData['type'] ?? 'diagnostic') === 'consultation') ? 'consultation' : 'diagnostic';
 $socialLinks = trim($postData['socialLinks'] ?? '');
 $competitorLinks = trim($postData['competitorLinks'] ?? '');
 $problem = trim($postData['problem'] ?? '');
@@ -113,24 +114,27 @@ if (empty($dateRaw)) {
     }
 }
 
-// Проверка времени
+// Проверка времени (с учётом типа записи)
 if (empty($time)) {
     $errors[] = 'Время не выбрано';
-} elseif (!validateTime($time)) {
+} elseif (!validateTimeForType($time, $type)) {
     $errors[] = 'Некорректное время';
 }
 
-// Проверка ссылок на соцсети
-if (empty($socialLinks)) {
-    $errors[] = 'Ссылки на соцсети не заполнены';
+// Ссылки на соцсети и конкурентов нужны только для диагностики
+if ($type !== 'consultation') {
+    // Проверка ссылок на соцсети
+    if (empty($socialLinks)) {
+        $errors[] = 'Ссылки на соцсети не заполнены';
+    }
+
+    // Проверка ссылок на конкурентов
+    if (empty($competitorLinks)) {
+        $errors[] = 'Ссылки на конкурентов не заполнены';
+    }
 }
 
-// Проверка ссылок на конкурентов
-if (empty($competitorLinks)) {
-    $errors[] = 'Ссылки на конкурентов не заполнены';
-}
-
-// Проверка описания проблемы
+// Проверка описания проблемы (нужна для обоих типов)
 if (empty($problem)) {
     $errors[] = 'Проблема не описана';
 }
@@ -179,7 +183,7 @@ if (!isWorkingDay($date)) {
 // Проверяем доступность слота
 $allData = readJsonData(DATA_FILE);
 
-if (!isSlotAvailable($allData, $date, $time)) {
+if (!isSlotAvailableForType($allData, $date, $time, $type)) {
     sendJsonResponse([
         'success' => false,
         'error' => 'Выбранное время уже занято или заблокировано. Пожалуйста, выберите другое время.'
@@ -188,7 +192,12 @@ if (!isSlotAvailable($allData, $date, $time)) {
 
 // Создаем запись (telegram_sent=false по умолчанию — контролёр потом досылает)
 $newBookingId = null;
-$success = atomicJsonUpdate(DATA_FILE, function($data) use ($name, $phone, $email, $telegram, $vk, $max, $preferredContact, $date, $time, $socialLinks, $competitorLinks, $problem, &$newBookingId) {
+$success = atomicJsonUpdate(DATA_FILE, function($data) use ($name, $phone, $email, $telegram, $vk, $max, $preferredContact, $date, $time, $type, $socialLinks, $competitorLinks, $problem, &$newBookingId) {
+    // Повторная проверка доступности под блокировкой файла — защита от гонки
+    if (!isSlotAvailableForType($data, $date, $time, $type)) {
+        return $data; // не добавляем; $newBookingId останется null
+    }
+
     $id = generateId($data['bookings']);
     $newBookingId = $id;
 
@@ -196,6 +205,7 @@ $success = atomicJsonUpdate(DATA_FILE, function($data) use ($name, $phone, $emai
         'id' => $id,
         'date' => $date,
         'time' => $time,
+        'type' => $type,
         'name' => $name,
         'phone' => $phone,
         'email' => $email,
@@ -224,6 +234,14 @@ if (!$success) {
         'success' => false,
         'error' => 'Ошибка при сохранении записи. Попробуйте еще раз.'
     ], 500);
+}
+
+// Запись не добавлена из-за гонки (слот успели занять между проверкой и блокировкой)
+if ($newBookingId === null) {
+    sendJsonResponse([
+        'success' => false,
+        'error' => 'Выбранное время только что заняли. Пожалуйста, выберите другое время.'
+    ], 409);
 }
 
 // Сразу отвечаем клиенту — НЕ ЗАСТАВЛЯЕМ ЕГО ЖДАТЬ сетевых попыток ТГ
