@@ -1,2 +1,6 @@
 .playwright-mcp/
 .DS_Store
+
+# Боевые записи — хранятся только на сервере, деплой их не трогает
+data/bookings.json
+data/telegram.log
