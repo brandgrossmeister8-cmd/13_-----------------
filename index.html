@@ -1505,15 +1505,100 @@
 
         .admin-time-slots {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 12px;
         }
 
         @media (max-width: 768px) {
             .admin-time-slots {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: 1fr;
             }
         }
+
+        /* Час в админке: заголовок + 20-мин слоты */
+        .admin-hour-block {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 10px 12px;
+            background: #fff;
+        }
+
+        .admin-hour-head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+
+        .admin-hour-time {
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .admin-hour-tag {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 6px;
+        }
+
+        .admin-hour-tag.blocked { background: #e5e7eb; color: #374151; }
+        .admin-hour-tag.booked { background: #fee2e2; color: #991b1b; }
+
+        .admin-hour-toggle {
+            margin-left: auto;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 5px 12px;
+            border-radius: 8px;
+            border: 1.5px solid #fca5a5;
+            background: #fff5f5;
+            color: #b91c1c;
+            cursor: pointer;
+        }
+
+        .admin-hour-toggle:hover { background: #fee2e2; }
+
+        .admin-hour-toggle.open {
+            border-color: #86efac;
+            background: #f0fdf4;
+            color: #166534;
+        }
+
+        .admin-hour-subs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+        }
+
+        .admin-subslot {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            padding: 6px 2px;
+            border-radius: 8px;
+            border: 1.5px solid #e5e7eb;
+            background: #fff;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .admin-subslot[disabled] { cursor: default; opacity: 0.85; }
+        .admin-subslot-time { font-weight: 600; color: #333; }
+        .admin-subslot-act { font-size: 10px; }
+
+        .admin-subslot.free { border-color: #86efac; background: #f0fdf4; }
+        .admin-subslot.free .admin-subslot-act { color: #166534; }
+        .admin-subslot.free:hover { background: #dcfce7; }
+
+        .admin-subslot.blocked { border-color: #d1d5db; background: #f3f4f6; }
+        .admin-subslot.blocked .admin-subslot-act { color: #374151; }
+
+        .admin-subslot.booked { border-color: #fca5a5; background: #fef2f2; }
+        .admin-subslot.booked .admin-subslot-act { color: #991b1b; }
 
         .admin-time-slot {
             padding: 12px;
@@ -4235,52 +4320,60 @@
                 blockDayBtn.onclick = () => blockDate(dateStr);
             }
 
-            // Рендерим слоты (по часам). Блокировка работает на весь час.
+            // Рендерим часы: для каждого — кнопка «Закрыть/Открыть час» и 3 слота по 20 мин
             let html = '';
             data.slots.forEach(slot => {
-                let statusClass = 'available';
-                let statusText = 'Свободно';
-                let detail = '';
+                const hour = slot.time;
+                const hourBlocked = slot.blocked || slot.status === 'blocked';
+                const diagBooked = slot.diagnosticBooked || slot.status === 'diagnostic_booked';
 
-                if (slot.blocked || slot.status === 'blocked') {
-                    statusClass = 'blocked';
-                    statusText = 'Блокировка';
-                } else if (slot.diagnosticBooked || slot.status === 'diagnostic_booked') {
-                    statusClass = 'booked';
-                    statusText = 'Диагностика (1 ч)';
-                } else if (slot.status === 'full') {
-                    const total = (slot.subSlots || []).length;
-                    statusClass = 'booked';
-                    statusText = `Занято (${total}/${total})`;
-                    detail = (slot.consultations || []).join(', ');
-                } else if (slot.status === 'partial') {
-                    const total = (slot.subSlots || []).length;
-                    statusClass = 'partial';
-                    statusText = `Консультации: ${slot.count}/${total}`;
-                    detail = (slot.consultations || []).join(', ');
-                }
+                // Кнопка управления всем часом
+                const hourBtn = hourBlocked
+                    ? `<button type="button" class="admin-hour-toggle open" onclick="unblockSlot('${dateStr}','${hour}','hour')">Открыть час</button>`
+                    : `<button type="button" class="admin-hour-toggle" onclick="blockSlot('${dateStr}','${hour}','hour')">Закрыть час</button>`;
 
-                // Клик: заблокированный час разблокируем, иначе блокируем весь час
-                const isBlocked = (slot.blocked || slot.status === 'blocked');
-                const onclick = isBlocked
-                    ? `unblockSlot('${dateStr}', '${slot.time}')`
-                    : `blockSlot('${dateStr}', '${slot.time}')`;
+                let hourTag = '';
+                if (hourBlocked) hourTag = '<span class="admin-hour-tag blocked">час закрыт</span>';
+                else if (diagBooked) hourTag = '<span class="admin-hour-tag booked">диагностика 1 ч</span>';
+
+                // 20-минутные слоты
+                let subsHtml = '';
+                (slot.subSlots || []).forEach(s => {
+                    let cls, act = '', action = '', disabled = 'disabled';
+                    if (hourBlocked) {
+                        cls = 'blocked'; act = 'час закрыт';
+                    } else if (diagBooked) {
+                        cls = 'booked'; act = 'диагностика';
+                    } else if (s.booked) {
+                        cls = 'booked'; act = 'занято';
+                    } else if (s.blocked) {
+                        cls = 'blocked'; act = 'открыть'; action = `onclick="unblockSlot('${dateStr}','${s.time}','slot')"`; disabled = '';
+                    } else {
+                        cls = 'free'; act = 'закрыть'; action = `onclick="blockSlot('${dateStr}','${s.time}','slot')"`; disabled = '';
+                    }
+                    subsHtml += `<button type="button" class="admin-subslot ${cls}" ${action} ${disabled}>
+                        <span class="admin-subslot-time">${s.time}</span>
+                        <span class="admin-subslot-act">${act}</span>
+                    </button>`;
+                });
 
                 html += `
-                    <button type="button" class="admin-time-slot ${statusClass}" onclick="${onclick}">
-                        <span class="admin-time-slot-time">${slot.time}</span>
-                        <span class="admin-time-slot-status">${statusText}</span>
-                        ${detail ? `<span class="admin-time-slot-detail">${detail}</span>` : ''}
-                    </button>
-                `;
+                    <div class="admin-hour-block">
+                        <div class="admin-hour-head">
+                            <span class="admin-hour-time">${hour}</span>
+                            ${hourTag}
+                            ${hourBtn}
+                        </div>
+                        <div class="admin-hour-subs">${subsHtml}</div>
+                    </div>`;
             });
 
             slotsContainer.innerHTML = html;
             panel.style.display = 'block';
         }
 
-        // Блокировка слота
-        async function blockSlot(date, time) {
+        // Блокировка слота (scope: 'hour' — весь час, 'slot' — один 20-мин интервал)
+        async function blockSlot(date, time, scope = 'hour') {
             try {
                 const response = await fetch('api/bookings.php?action=block_slot', {
                     method: 'POST',
@@ -4288,7 +4381,7 @@
                         'Content-Type': 'application/json'
                     },
                     credentials: 'include',
-                    body: JSON.stringify({ date, time, reason: 'Заблокировано' })
+                    body: JSON.stringify({ date, time, scope, reason: 'Заблокировано' })
                 });
 
                 const data = await response.json();
@@ -4305,10 +4398,8 @@
             }
         }
 
-        // Разблокировка слота
-        async function unblockSlot(date, time) {
-            if (!confirm(`Разблокировать слот ${time}?`)) return;
-
+        // Разблокировка слота (scope: 'hour' — весь час, 'slot' — один 20-мин интервал)
+        async function unblockSlot(date, time, scope = 'hour') {
             try {
                 const response = await fetch('api/bookings.php?action=unblock_slot', {
                     method: 'POST',
@@ -4316,7 +4407,7 @@
                         'Content-Type': 'application/json'
                     },
                     credentials: 'include',
-                    body: JSON.stringify({ date, time })
+                    body: JSON.stringify({ date, time, scope })
                 });
 
                 const data = await response.json();

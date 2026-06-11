@@ -176,8 +176,18 @@ function getHourSubSlots($hour) {
 }
 
 /**
- * Заблокирован ли час целиком (блокировка всего дня или блокировка часа админом).
- * Блокировки слотов хранятся по часам и закрывают весь час.
+ * Область блокировки слота: 'hour' (весь час) или 'slot' (один 20-мин интервал).
+ * Старые записи без поля scope считаются блокировкой часа (обратная совместимость).
+ * @param array $blocked
+ * @return string 'hour' | 'slot'
+ */
+function getBlockScope($blocked) {
+    return (($blocked['scope'] ?? 'hour') === 'slot') ? 'slot' : 'hour';
+}
+
+/**
+ * Заблокирован ли час целиком (блокировка всего дня или блокировка всего часа админом).
+ * Поблочные (20-мин) блокировки сюда НЕ входят — они проверяются отдельно.
  * @param array $allData
  * @param string $date
  * @param string $hour
@@ -190,7 +200,27 @@ function isHourBlocked($allData, $date, $hour) {
         }
     }
     foreach ($allData['blocked_slots'] as $blocked) {
-        if ($blocked['date'] === $date && getHourOf($blocked['time']) === $hour) {
+        if ($blocked['date'] === $date
+            && getBlockScope($blocked) === 'hour'
+            && getHourOf($blocked['time']) === $hour) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Заблокирован ли конкретный 20-мин интервал (точечная блокировка scope=slot).
+ * @param array $allData
+ * @param string $date
+ * @param string $subTime  Время интервала, напр. "10:20"
+ * @return bool
+ */
+function isSubSlotBlocked($allData, $date, $subTime) {
+    foreach ($allData['blocked_slots'] as $blocked) {
+        if ($blocked['date'] === $date
+            && getBlockScope($blocked) === 'slot'
+            && $blocked['time'] === $subTime) {
             return true;
         }
     }
@@ -237,30 +267,46 @@ function getHourInfo($allData, $date, $hour) {
 
     $count = count($consultations);
 
+    // Собираем интервалы с учётом броней и точечных блокировок
+    $subSlots = [];
+    $freeSubs = 0;
+    $anySubBlocked = false;
+    foreach (getHourSubSlots($hour) as $sub) {
+        $subBooked = in_array($sub, $consultations, true);
+        $subBlocked = isSubSlotBlocked($allData, $date, $sub);
+        if ($subBlocked) {
+            $anySubBlocked = true;
+        }
+        $available = !$blocked && !$diagnosticBooked && !$subBooked && !$subBlocked;
+        if ($available) {
+            $freeSubs++;
+        }
+        $subSlots[] = [
+            'time' => $sub,
+            'available' => $available,
+            'booked' => $subBooked,
+            'blocked' => $subBlocked
+        ];
+    }
+
+    $totalSubs = count(getHourSubSlots($hour));
+
     if ($blocked) {
         $status = 'blocked';
     } elseif ($diagnosticBooked) {
         $status = 'diagnostic_booked';
-    } elseif ($count === 0) {
+    } elseif ($freeSubs === $totalSubs) {
         $status = 'free';
-    } elseif ($count >= count(CONSULTATION_INTERVALS)) {
+    } elseif ($freeSubs === 0) {
         $status = 'full';
     } else {
         $status = 'partial';
     }
 
-    $diagnosticAvailable = !$blocked && !$diagnosticBooked && $count === 0;
-    $consultationAvailable = !$blocked && !$diagnosticBooked && $count < count(CONSULTATION_INTERVALS);
-
-    $subSlots = [];
-    foreach (getHourSubSlots($hour) as $sub) {
-        $booked = in_array($sub, $consultations, true);
-        $subSlots[] = [
-            'time' => $sub,
-            'available' => !$blocked && !$diagnosticBooked && !$booked,
-            'booked' => $booked
-        ];
-    }
+    // Диагностика — только если весь час полностью свободен (нет броней и нет точечных блокировок)
+    $diagnosticAvailable = !$blocked && !$diagnosticBooked && $count === 0 && !$anySubBlocked;
+    // Консультация — если есть хотя бы один свободный интервал
+    $consultationAvailable = !$blocked && !$diagnosticBooked && $freeSubs > 0;
 
     return [
         'hour' => $hour,

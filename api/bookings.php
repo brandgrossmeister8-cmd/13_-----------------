@@ -209,27 +209,31 @@ function handleBlockSlot() {
 
     $date = $postData['date'] ?? '';
     $time = $postData['time'] ?? '';
+    $scope = (($postData['scope'] ?? 'hour') === 'slot') ? 'slot' : 'hour';
     $reason = $postData['reason'] ?? 'Заблокировано администратором';
 
     if (!validateDate($date)) {
         sendJsonResponse(['success' => false, 'error' => 'Неверный формат даты'], 400);
     }
 
-    if (!validateTime($time)) {
+    // Час — HH:00 из рабочих часов; слот — 20-мин интервал (HH:00/HH:20/HH:40)
+    $timeOk = ($scope === 'slot') ? validateTimeForType($time, 'consultation') : validateTime($time);
+    if (!$timeOk) {
         sendJsonResponse(['success' => false, 'error' => 'Неверное время'], 400);
     }
 
     try {
-        $success = atomicJsonUpdate(DATA_FILE, function($data) use ($date, $time, $reason) {
+        $success = atomicJsonUpdate(DATA_FILE, function($data) use ($date, $time, $scope, $reason) {
             foreach ($data['blocked_slots'] as $blocked) {
-                if ($blocked['date'] === $date && $blocked['time'] === $time) {
-                    throw new Exception('Слот уже заблокирован');
+                if ($blocked['date'] === $date && $blocked['time'] === $time && getBlockScope($blocked) === $scope) {
+                    throw new Exception('Уже заблокировано');
                 }
             }
 
             $data['blocked_slots'][] = [
                 'date' => $date,
                 'time' => $time,
+                'scope' => $scope,
                 'reason' => $reason,
                 'created_at' => date('c')
             ];
@@ -241,34 +245,36 @@ function handleBlockSlot() {
     }
 
     if ($success) {
-        sendJsonResponse(['success' => true, 'message' => 'Слот заблокирован']);
+        sendJsonResponse(['success' => true, 'message' => 'Заблокировано']);
     } else {
         sendJsonResponse(['success' => false, 'error' => 'Ошибка при блокировке (lock/доступ к файлу)'], 500);
     }
 }
 
 /**
- * Разблокировать слот времени
+ * Разблокировать слот времени (час целиком или один 20-мин интервал)
  */
 function handleUnblockSlot() {
     $postData = getPostData();
 
     $date = $postData['date'] ?? '';
     $time = $postData['time'] ?? '';
+    $scope = (($postData['scope'] ?? 'hour') === 'slot') ? 'slot' : 'hour';
 
     if (!validateDate($date)) {
         sendJsonResponse(['success' => false, 'error' => 'Неверный формат даты'], 400);
     }
 
-    if (!validateTime($time)) {
+    $timeOk = ($scope === 'slot') ? validateTimeForType($time, 'consultation') : validateTime($time);
+    if (!$timeOk) {
         sendJsonResponse(['success' => false, 'error' => 'Неверное время'], 400);
     }
 
     try {
-        $success = atomicJsonUpdate(DATA_FILE, function($data) use ($date, $time) {
+        $success = atomicJsonUpdate(DATA_FILE, function($data) use ($date, $time, $scope) {
             $found = false;
-            $data['blocked_slots'] = array_filter($data['blocked_slots'], function($blocked) use ($date, $time, &$found) {
-                if ($blocked['date'] === $date && $blocked['time'] === $time) {
+            $data['blocked_slots'] = array_filter($data['blocked_slots'], function($blocked) use ($date, $time, $scope, &$found) {
+                if ($blocked['date'] === $date && $blocked['time'] === $time && getBlockScope($blocked) === $scope) {
                     $found = true;
                     return false;
                 }
@@ -288,7 +294,7 @@ function handleUnblockSlot() {
     }
 
     if ($success) {
-        sendJsonResponse(['success' => true, 'message' => 'Слот разблокирован']);
+        sendJsonResponse(['success' => true, 'message' => 'Разблокировано']);
     } else {
         sendJsonResponse(['success' => false, 'error' => 'Ошибка при разблокировке (lock/доступ к файлу)'], 500);
     }
