@@ -42,7 +42,7 @@ $utm = [];
 if (is_array($utmRaw)) {
     foreach ($allowedUtmKeys as $k) {
         if (!empty($utmRaw[$k]) && is_string($utmRaw[$k])) {
-            $val = mb_substr(trim($utmRaw[$k]), 0, 200);
+            $val = substr(trim($utmRaw[$k]), 0, 200);
             if ($val !== '') {
                 $utm[$k] = $val;
             }
