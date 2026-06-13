@@ -35,6 +35,21 @@ $socialLinks = trim($postData['socialLinks'] ?? '');
 $competitorLinks = trim($postData['competitorLinks'] ?? '');
 $problem = trim($postData['problem'] ?? '');
 
+// UTM-метки (источник перехода) — необязательны, только для аналитики
+$allowedUtmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+$utmRaw = $postData['utm'] ?? [];
+$utm = [];
+if (is_array($utmRaw)) {
+    foreach ($allowedUtmKeys as $k) {
+        if (!empty($utmRaw[$k]) && is_string($utmRaw[$k])) {
+            $val = mb_substr(trim($utmRaw[$k]), 0, 200);
+            if ($val !== '') {
+                $utm[$k] = $val;
+            }
+        }
+    }
+}
+
 // Нормализуем preferredContact в массив допустимых значений
 $allowedPreferred = ['telegram', 'email', 'vk', 'max'];
 $preferredContact = [];
@@ -192,7 +207,7 @@ if (!isSlotAvailableForType($allData, $date, $time, $type)) {
 
 // Создаем запись (telegram_sent=false по умолчанию — контролёр потом досылает)
 $newBookingId = null;
-$success = atomicJsonUpdate(DATA_FILE, function($data) use ($name, $phone, $email, $telegram, $vk, $max, $preferredContact, $date, $time, $type, $socialLinks, $competitorLinks, $problem, &$newBookingId) {
+$success = atomicJsonUpdate(DATA_FILE, function($data) use ($name, $phone, $email, $telegram, $vk, $max, $preferredContact, $date, $time, $type, $socialLinks, $competitorLinks, $problem, $utm, &$newBookingId) {
     // Повторная проверка доступности под блокировкой файла — защита от гонки
     if (!isSlotAvailableForType($data, $date, $time, $type)) {
         return $data; // не добавляем; $newBookingId останется null
@@ -216,6 +231,7 @@ $success = atomicJsonUpdate(DATA_FILE, function($data) use ($name, $phone, $emai
         'socialLinks' => $socialLinks,
         'competitorLinks' => $competitorLinks,
         'problem' => $problem,
+        'utm' => $utm,
         'created_at' => date('c'),
         'status' => 'confirmed',
         'telegram_sent' => false,

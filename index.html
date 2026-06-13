@@ -1154,6 +1154,12 @@
             padding-left: 2px;
         }
 
+        /* После выбора типа невыбранная карточка сворачивается до кнопки,
+           чтобы пользователь сразу перешёл к заполнению анкеты */
+        .meeting-type-option.collapsed .meeting-type-desc {
+            display: none;
+        }
+
         .meeting-type-error {
             display: none;
             align-items: center;
@@ -3185,10 +3191,39 @@
             'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
         ];
 
+        // ===== UTM-метки: захват из URL и сохранение на время сессии =====
+        const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+        (function captureUtm() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const found = {};
+                UTM_KEYS.forEach(k => {
+                    const v = params.get(k);
+                    if (v) found[k] = v.slice(0, 200);
+                });
+                // Сохраняем только если в URL действительно были метки —
+                // иначе не затираем ранее пойманные.
+                if (Object.keys(found).length) {
+                    sessionStorage.setItem('utmData', JSON.stringify(found));
+                }
+            } catch (e) { /* sessionStorage может быть недоступен */ }
+        })();
+
+        function getUtmData() {
+            try {
+                return JSON.parse(sessionStorage.getItem('utmData') || '{}');
+            } catch (e) { return {}; }
+        }
+
         // ===== Выбор типа записи (шаг 1) =====
         function selectMeetingType(type) {
             selectedType = type;
-            meetingTypeOptions.forEach(o => o.classList.toggle('selected', o.dataset.type === type));
+            // Выбранную карточку подсвечиваем, невыбранную сворачиваем до кнопки
+            meetingTypeOptions.forEach(o => {
+                const isSel = o.dataset.type === type;
+                o.classList.toggle('selected', isSel);
+                o.classList.toggle('collapsed', !isSel);
+            });
             meetingTypeError.classList.remove('show');
 
             // Поля только для диагностики (ссылки на соцсети/конкурентов) скрываем при консультации
@@ -4151,7 +4186,8 @@
                 problem: problemInput.value,
                 consentPD: consentPDInput.checked,
                 consentPolicy: consentPolicyInput.checked,
-                consentDate: new Date().toISOString()
+                consentDate: new Date().toISOString(),
+                utm: getUtmData()
             };
 
             // Блокируем кнопку на время отправки

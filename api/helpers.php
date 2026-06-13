@@ -630,6 +630,25 @@ function buildTelegramMessageForBooking($booking, $isRetry = false) {
     if (!empty($booking['problem'])) {
         $msg .= "\n📝 <b>Проблема:</b>\n" . htmlspecialchars($booking['problem']) . "\n";
     }
+    if (!empty($booking['utm']) && is_array($booking['utm'])) {
+        $utm = $booking['utm'];
+        $utmLabels = [
+            'utm_source'   => 'источник',
+            'utm_medium'   => 'канал',
+            'utm_campaign' => 'кампания',
+            'utm_content'  => 'место',
+            'utm_term'     => 'ключ'
+        ];
+        $parts = [];
+        foreach ($utmLabels as $k => $label) {
+            if (!empty($utm[$k])) {
+                $parts[] = $label . ': ' . $utm[$k];
+            }
+        }
+        if (!empty($parts)) {
+            $msg .= "\n📈 <b>Источник (UTM):</b> " . htmlspecialchars(implode(', ', $parts)) . "\n";
+        }
+    }
     $created = !empty($booking['created_at']) ? date('d.m.Y H:i', strtotime($booking['created_at'])) : '—';
     $msg .= "\n⏰ <b>Создано:</b> $created";
     if ($isRetry && !empty($booking['telegram_attempts'])) {
