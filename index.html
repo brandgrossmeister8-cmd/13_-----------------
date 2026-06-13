@@ -1052,22 +1052,17 @@
         }
 
         .meeting-type-options {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            display: flex;
+            flex-direction: column;
             gap: 12px;
-        }
-
-        @media (max-width: 500px) {
-            .meeting-type-options {
-                grid-template-columns: 1fr;
-            }
         }
 
         .meeting-type-option {
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
-            gap: 4px;
+            align-items: stretch;
+            gap: 8px;
+            width: 100%;
             padding: 16px 18px;
             border: 1.5px solid var(--line);
             border-radius: var(--radius);
@@ -1084,7 +1079,16 @@
 
         .meeting-type-option.selected {
             border-color: var(--primary);
-            background: var(--primary);
+            background: var(--primary-soft);
+            box-shadow: inset 0 0 0 1px var(--primary);
+        }
+
+        .meeting-type-head {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 10px 16px;
+            flex-wrap: wrap;
         }
 
         .meeting-type-title {
@@ -1093,14 +1097,61 @@
             color: var(--text);
         }
 
-        .meeting-type-sub {
-            font-size: 13px;
-            color: var(--muted);
+        .meeting-type-option.selected .meeting-type-title {
+            color: var(--primary);
         }
 
-        .meeting-type-option.selected .meeting-type-title,
-        .meeting-type-option.selected .meeting-type-sub {
-            color: white;
+        .meeting-type-sub {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--primary);
+            white-space: nowrap;
+        }
+
+        .meeting-type-desc {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 4px;
+            padding-top: 12px;
+            border-top: 1px solid var(--line);
+            font-size: 13px;
+            line-height: 1.55;
+        }
+
+        .meeting-type-option.selected .meeting-type-desc {
+            border-top-color: rgba(35, 95, 115, 0.25);
+        }
+
+        .mt-block {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .mt-block-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--primary);
+        }
+
+        .mt-block-text {
+            color: var(--text);
+        }
+
+        .mt-list {
+            margin: 2px 0 0;
+            padding-left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            color: var(--text);
+        }
+
+        .mt-list li {
+            padding-left: 2px;
         }
 
         .meeting-type-error {
@@ -2058,16 +2109,66 @@
                 <div class="meeting-type-group">
                     <label>Выберите тип встречи <span class="required">*</span></label>
                     <div class="meeting-type-options">
-                        <button type="button" class="meeting-type-option" data-type="consultation">
-                            <span class="meeting-type-title">1. Экспресс-консультация</span>
-                            <span class="meeting-type-sub">Бесплатно · 20 минут</span>
-                            <span class="meeting-type-desc">Отвечаю на ваши вопросы по маркетингу и даю чёткий ответ на поставленный вопрос. Чтобы консультация была результативной, заранее сформулируйте конкретный вопрос — что именно хотите узнать, получить или какую задачу решить.</span>
-                        </button>
-                        <button type="button" class="meeting-type-option" data-type="diagnostic">
-                            <span class="meeting-type-title">2. Диагностика</span>
-                            <span class="meeting-type-sub">15 000 ₽ (предоплата) · 90 минут</span>
-                            <span class="meeting-type-desc">За 90 минут определю ваши точки роста: чего не хватает, чтобы вырасти в продажах и трафике, что мешает росту, какие точки подтянуть и над чем поработать, каково ваше положение относительно конкурентов, что сделать в первую очередь, что — далее, и без чего рост трафика, а значит и продаж, невозможен. Стоимость — 15 000 ₽, оплата вносится предоплатой. Для работы необходимо предоставить ссылки на все ваши ресурсы (сайт, соцсети), ссылки на ваших конкурентов и чётко описать задачу или проблему. По поводу оплаты я свяжусь с вами после того, как вы оформите всю необходимую информацию: я изучу все материалы и, если действительно смогу вам помочь и у вас есть вся нужная информация, свяжусь с вами для оплаты.</span>
-                        </button>
+                        <div class="meeting-type-option" role="button" tabindex="0" data-type="consultation">
+                            <span class="meeting-type-head">
+                                <span class="meeting-type-title">1. Экспресс-консультация</span>
+                                <span class="meeting-type-sub">Бесплатно · 20 минут</span>
+                            </span>
+                            <span class="meeting-type-desc">
+                                <span class="mt-block">
+                                    <span class="mt-block-label">Длительность</span>
+                                    <span class="mt-block-text">20 минут</span>
+                                </span>
+                                <span class="mt-block">
+                                    <span class="mt-block-label">Стоимость</span>
+                                    <span class="mt-block-text">Бесплатно</span>
+                                </span>
+                                <span class="mt-block">
+                                    <span class="mt-block-label">Что получите</span>
+                                    <span class="mt-block-text">Отвечу на ваши вопросы по маркетингу и дам чёткий ответ на поставленный вопрос.</span>
+                                </span>
+                                <span class="mt-block">
+                                    <span class="mt-block-label">Что подготовить</span>
+                                    <span class="mt-block-text">Заранее сформулируйте конкретный вопрос — что именно хотите узнать, получить или какую задачу решить.</span>
+                                </span>
+                            </span>
+                        </div>
+                        <div class="meeting-type-option" role="button" tabindex="0" data-type="diagnostic">
+                            <span class="meeting-type-head">
+                                <span class="meeting-type-title">2. Диагностика</span>
+                                <span class="meeting-type-sub">15 000 ₽ (предоплата) · 90 минут</span>
+                            </span>
+                            <span class="meeting-type-desc">
+                                <span class="mt-block">
+                                    <span class="mt-block-label">Длительность</span>
+                                    <span class="mt-block-text">90 минут</span>
+                                </span>
+                                <span class="mt-block">
+                                    <span class="mt-block-label">Стоимость</span>
+                                    <span class="mt-block-text">15 000 ₽, предоплата. По оплате свяжусь после проверки материалов — если действительно смогу помочь и у вас есть вся нужная информация.</span>
+                                </span>
+                                <span class="mt-block">
+                                    <span class="mt-block-label">Что получите</span>
+                                    <span class="mt-block-text">За 90 минут определю ваши точки роста:</span>
+                                    <ol class="mt-list">
+                                        <li>чего не хватает, чтобы вырасти в продажах и трафике;</li>
+                                        <li>что мешает росту;</li>
+                                        <li>какие точки подтянуть и над чем поработать;</li>
+                                        <li>каково ваше положение относительно конкурентов;</li>
+                                        <li>что сделать в первую очередь, а что — далее;</li>
+                                        <li>без чего рост трафика, а значит и продаж, невозможен.</li>
+                                    </ol>
+                                </span>
+                                <span class="mt-block">
+                                    <span class="mt-block-label">Что нужно предоставить</span>
+                                    <ol class="mt-list">
+                                        <li>ссылки на все ваши ресурсы (сайт, соцсети);</li>
+                                        <li>ссылки на ваших конкурентов;</li>
+                                        <li>чётко описанную задачу или проблему.</li>
+                                    </ol>
+                                </span>
+                            </span>
+                        </div>
                     </div>
                     <div class="meeting-type-error" id="meetingTypeError">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -3131,6 +3232,12 @@
 
         meetingTypeOptions.forEach(o => {
             o.addEventListener('click', () => selectMeetingType(o.dataset.type));
+            o.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+                    e.preventDefault();
+                    selectMeetingType(o.dataset.type);
+                }
+            });
         });
 
         // Открыть/закрыть календарь
