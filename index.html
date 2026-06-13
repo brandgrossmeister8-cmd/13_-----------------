@@ -4361,6 +4361,11 @@
             document.querySelector(`.admin-tab[data-tab="${tabName}"]`).classList.add('active');
             document.getElementById(`adminTab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`).classList.add('active');
 
+            // Сбрасываем прокрутку наверх: иначе при возврате с длинного списка
+            // «Записей» вкладка «Календарь» остаётся прокрученной вниз и кажется пустой
+            const tabContent = document.querySelector('.admin-tab-content');
+            if (tabContent) tabContent.scrollTop = 0;
+
             if (tabName === 'bookings') {
                 renderAdminBookings();
             }
