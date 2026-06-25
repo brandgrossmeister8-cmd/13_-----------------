@@ -31,6 +31,7 @@ $preferredContactRaw = $postData['preferredContact'] ?? [];
 $dateRaw = trim($postData['date'] ?? '');
 $time = trim($postData['time'] ?? '');
 $type = (($postData['type'] ?? 'diagnostic') === 'consultation') ? 'consultation' : 'diagnostic';
+$activity = trim($postData['activity'] ?? '');
 $socialLinks = trim($postData['socialLinks'] ?? '');
 $competitorLinks = trim($postData['competitorLinks'] ?? '');
 $problem = trim($postData['problem'] ?? '');
@@ -136,6 +137,11 @@ if (empty($time)) {
     $errors[] = 'Некорректное время';
 }
 
+// Описание рода деятельности нужно только для консультации
+if ($type === 'consultation' && empty($activity)) {
+    $errors[] = 'Не описан род деятельности';
+}
+
 // Ссылки на соцсети и конкурентов нужны только для диагностики
 if ($type !== 'consultation') {
     // Проверка ссылок на соцсети
@@ -207,7 +213,7 @@ if (!isSlotAvailableForType($allData, $date, $time, $type)) {
 
 // Создаем запись (telegram_sent=false по умолчанию — контролёр потом досылает)
 $newBookingId = null;
-$success = atomicJsonUpdate(DATA_FILE, function($data) use ($name, $phone, $email, $telegram, $vk, $max, $preferredContact, $date, $time, $type, $socialLinks, $competitorLinks, $problem, $utm, &$newBookingId) {
+$success = atomicJsonUpdate(DATA_FILE, function($data) use ($name, $phone, $email, $telegram, $vk, $max, $preferredContact, $date, $time, $type, $activity, $socialLinks, $competitorLinks, $problem, $utm, &$newBookingId) {
     // Повторная проверка доступности под блокировкой файла — защита от гонки
     if (!isSlotAvailableForType($data, $date, $time, $type)) {
         return $data; // не добавляем; $newBookingId останется null
@@ -228,6 +234,7 @@ $success = atomicJsonUpdate(DATA_FILE, function($data) use ($name, $phone, $emai
         'vk' => $vk,
         'max' => $max,
         'preferredContact' => $preferredContact,
+        'activity' => $activity,
         'socialLinks' => $socialLinks,
         'competitorLinks' => $competitorLinks,
         'problem' => $problem,

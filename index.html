@@ -426,6 +426,11 @@
             display: none;
         }
 
+        /* Поля только для консультации — скрыты по умолчанию и при диагностике */
+        .consultation-only.hidden {
+            display: none;
+        }
+
         .conditional-field {
             background: #fff7f3;
             border: 1.5px solid #efc3b5;
@@ -2095,7 +2100,7 @@
     <div class="form-container">
         <div class="form-content">
             <h1>Запись на встречу</h1>
-            <p class="form-lead">Экспресс-консультация на 20 минут или диагностика на 90 минут. После записи я отправлю ссылку на Zoom в выбранный канал связи.</p>
+            <p class="form-lead">Экспресс-консультация на 15 минут или диагностика на 90 минут. После записи я отправлю ссылку на Zoom в выбранный канал связи.</p>
 
             <!-- Общий блок ошибок -->
             <div class="form-errors-summary" id="errorsSummary">
@@ -2118,12 +2123,12 @@
                         <div class="meeting-type-option" role="button" tabindex="0" data-type="consultation">
                             <span class="meeting-type-head">
                                 <span class="meeting-type-title">1. Экспресс-консультация</span>
-                                <span class="meeting-type-sub">Бесплатно · 20 минут</span>
+                                <span class="meeting-type-sub">Бесплатно · 15 минут</span>
                             </span>
                             <span class="meeting-type-desc">
                                 <span class="mt-block">
                                     <span class="mt-block-label">Длительность</span>
-                                    <span class="mt-block-text">20 минут</span>
+                                    <span class="mt-block-text">15 минут</span>
                                 </span>
                                 <span class="mt-block">
                                     <span class="mt-block-label">Стоимость</span>
@@ -2525,6 +2530,26 @@
                 </div>
 
                 <h3 class="section-title">Детали запроса</h3>
+
+                <div class="form-group consultation-only hidden" id="activityGroup">
+                    <label for="activity">Чем вы занимаетесь? <span class="required">*</span></label>
+                    <textarea
+                        id="activity"
+                        name="activity"
+                        placeholder="Опишите кратко род вашей деятельности — о чём ваш бизнес..."
+                    ></textarea>
+                    <div class="error-message" id="activityError">
+                        <div class="error-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            Поле не заполнено
+                        </div>
+                        <div class="error-description">Опишите кратко род вашей деятельности — о чём ваш бизнес.</div>
+                    </div>
+                </div>
 
                 <div class="form-group diagnostic-only" id="socialLinksGroup">
                     <label for="socialLinks">Ссылки на ваши сайты и соцсети <span class="required">*</span></label>
@@ -2972,6 +2997,7 @@
             preferredContactError.classList.remove('show');
         }
 
+        const activityInput = document.getElementById('activity');
         const socialLinksInput = document.getElementById('socialLinks');
         const competitorLinksInput = document.getElementById('competitorLinks');
         const problemInput = document.getElementById('problem');
@@ -2986,6 +3012,7 @@
         const maxError = document.getElementById('maxError');
         const maxIconValid = document.getElementById('maxIconValid');
         const maxIconInvalid = document.getElementById('maxIconInvalid');
+        const activityError = document.getElementById('activityError');
         const socialLinksError = document.getElementById('socialLinksError');
         const competitorLinksError = document.getElementById('competitorLinksError');
         const problemError = document.getElementById('problemError');
@@ -3231,6 +3258,10 @@
             const isConsultation = (type === 'consultation');
             diagnosticOnly.forEach(el => el.classList.toggle('hidden', isConsultation));
 
+            // Поле «Чем вы занимаетесь?» показываем только для консультации
+            const consultationOnly = document.querySelectorAll('.consultation-only');
+            consultationOnly.forEach(el => el.classList.toggle('hidden', !isConsultation));
+
             // Заметки под выбором типа: бесплатная экспресс-консультация / платная диагностика
             const diagnosticNote = document.getElementById('diagnosticNote');
             const consultationNote = document.getElementById('consultationNote');
@@ -3240,15 +3271,16 @@
             // Показываем остальные поля формы только после выбора типа
             const bookingDetails = document.getElementById('bookingDetails');
             if (bookingDetails) bookingDetails.style.display = '';
-            if (isConsultation) {
-                // Сбрасываем возможные ошибки на скрытых полях, чтобы они не мешали отправке
-                ['socialLinks', 'competitorLinks'].forEach(id => {
-                    const input = document.getElementById(id);
-                    const err = document.getElementById(id + 'Error');
-                    if (input) input.classList.remove('invalid', 'valid');
-                    if (err) err.classList.remove('show');
-                });
-            }
+            // Сбрасываем ошибки на скрытых для текущего типа полях, чтобы они не мешали отправке
+            const hiddenFieldIds = isConsultation
+                ? ['socialLinks', 'competitorLinks']
+                : ['activity'];
+            hiddenFieldIds.forEach(id => {
+                const input = document.getElementById(id);
+                const err = document.getElementById(id + 'Error');
+                if (input) input.classList.remove('invalid', 'valid');
+                if (err) err.classList.remove('show');
+            });
 
             // Сбрасываем выбранные дату и время — доступность зависит от типа
             selectedDate = null;
@@ -4098,6 +4130,20 @@
                 timeSlotsContainer.classList.remove('invalid');
             }
 
+            // Описание рода деятельности нужно только для консультации
+            if (selectedType === 'consultation') {
+                if (activityInput.value.trim() === '') {
+                    activityInput.classList.add('invalid');
+                    activityError.classList.add('show');
+                    errors.push('Опишите, чем вы занимаетесь');
+                    isValid = false;
+                } else {
+                    activityInput.classList.remove('invalid');
+                    activityInput.classList.add('valid');
+                    activityError.classList.remove('show');
+                }
+            }
+
             // Ссылки на соцсети и конкурентов нужны только для диагностики
             if (selectedType !== 'consultation') {
                 // Проверка ссылок на соцсети
@@ -4181,6 +4227,7 @@
                 type: selectedType,
                 date: dateInput.value,
                 time: timeInput.value,
+                activity: activityInput.value,
                 socialLinks: socialLinksInput.value,
                 competitorLinks: competitorLinksInput.value,
                 problem: problemInput.value,
@@ -4691,7 +4738,7 @@
                 const displayDate = `${day}.${month}.${year}`;
                 const tgBadge = renderTgBadge(booking);
                 const isConsultation = booking.type === 'consultation';
-                const typeLabel = isConsultation ? 'Экспресс-консультация (20 мин)' : 'Диагностика (1 час)';
+                const typeLabel = isConsultation ? 'Экспресс-консультация (15 мин)' : 'Диагностика (1 час)';
                 const typeBadge = `<span class="admin-booking-type-badge ${isConsultation ? 'consultation' : 'diagnostic'}">${typeLabel}</span>`;
 
                 html += `
@@ -4767,6 +4814,12 @@
                                 <span class="admin-booking-detail-label">Создано</span>
                                 <span class="admin-booking-detail-value">${new Date(booking.created_at).toLocaleString('ru-RU')}</span>
                             </div>
+                            ${booking.activity ? `
+                                <div class="admin-booking-detail admin-booking-wide">
+                                    <span class="admin-booking-detail-label">Род деятельности</span>
+                                    <span class="admin-booking-detail-value admin-booking-multiline">${escapeHtml(booking.activity)}</span>
+                                </div>
+                            ` : ''}
                             ${booking.socialLinks ? `
                                 <div class="admin-booking-detail admin-booking-wide">
                                     <span class="admin-booking-detail-label">Соцсети / сайт</span>

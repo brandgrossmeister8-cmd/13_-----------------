@@ -161,7 +161,7 @@ function handleResendTelegram() {
         sendJsonResponse(['success' => false, 'error' => 'Запись не найдена'], 404);
     }
 
-    $typeLabel = (getBookingType($booking) === 'consultation') ? 'Экспресс-консультация (20 мин)' : 'Диагностика (1 час)';
+    $typeLabel = (getBookingType($booking) === 'consultation') ? 'Экспресс-консультация (15 мин)' : 'Диагностика (1 час)';
     $message = "🔁 <b>Повторная отправка — запись</b>\n\n";
     $message .= "🧩 <b>Тип:</b> " . $typeLabel . "\n";
     $message .= "📅 <b>Дата:</b> " . date('d.m.Y', strtotime($booking['date'])) . "\n";
@@ -173,6 +173,9 @@ function handleResendTelegram() {
     }
     if (!empty($booking['email'])) {
         $message .= "📧 <b>Email:</b> " . htmlspecialchars($booking['email']) . "\n";
+    }
+    if (!empty($booking['activity'])) {
+        $message .= "\n💼 <b>Род деятельности:</b>\n" . htmlspecialchars($booking['activity']) . "\n";
     }
     if (!empty($booking['socialLinks'])) {
         $message .= "\n🔗 <b>Ссылки на соцсети/сайт:</b>\n" . htmlspecialchars($booking['socialLinks']) . "\n";

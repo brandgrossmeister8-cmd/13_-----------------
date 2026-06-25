@@ -581,7 +581,7 @@ function sendTelegramNotification($message) {
  */
 function buildTelegramMessageForBooking($booking, $isRetry = false) {
     $isConsultation = (getBookingType($booking) === 'consultation');
-    $typeLabel = $isConsultation ? 'Экспресс-консультация (20 мин)' : 'Диагностика (1 час)';
+    $typeLabel = $isConsultation ? 'Экспресс-консультация (15 мин)' : 'Диагностика (1 час)';
     if ($isRetry) {
         $title = "🔁 <b>Доставка после сбоя — новая запись</b>";
     } else {
@@ -620,6 +620,9 @@ function buildTelegramMessageForBooking($booking, $isRetry = false) {
         if (!empty($labels)) {
             $msg .= "⭐ <b>Связь для ссылки Zoom:</b> " . htmlspecialchars(implode(', ', $labels)) . "\n";
         }
+    }
+    if (!empty($booking['activity'])) {
+        $msg .= "\n💼 <b>Род деятельности:</b>\n" . htmlspecialchars($booking['activity']) . "\n";
     }
     if (!empty($booking['socialLinks'])) {
         $msg .= "\n🔗 <b>Ссылки на соцсети/сайт:</b>\n" . htmlspecialchars($booking['socialLinks']) . "\n";
