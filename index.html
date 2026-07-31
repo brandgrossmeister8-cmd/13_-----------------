@@ -2502,9 +2502,7 @@
                         </div>
 
                         <div class="datetime-field">
-                            <div class="time-slots time-slots-empty" id="timeSlots">
-                                <div class="time-slots-placeholder">Сначала выберите тип записи</div>
-                            </div>
+                            <div class="time-slots time-slots-empty" id="timeSlots"></div>
                             <input type="hidden" id="timeInput" name="time" required>
                             <div class="time-slots-legend" id="timeSlotsLegend" style="display: none;">
                                 <div class="time-slots-legend-item">
@@ -3674,10 +3672,10 @@
             const legend = document.getElementById('timeSlotsLegend');
             const legendLilac = document.getElementById('legendLilac');
 
-            // Нет типа или даты — показываем заглушку
+            // Нет типа или даты — блок времени оставляем пустым, без заглушки
             if (!selectedType || !selectedDate) {
                 timeSlotsContainer.className = 'time-slots time-slots-empty';
-                timeSlotsContainer.innerHTML = `<div class="time-slots-placeholder">${selectedType ? 'Выберите время' : 'Сначала выберите тип записи'}</div>`;
+                timeSlotsContainer.innerHTML = '';
                 legend.style.display = 'none';
                 return;
             }
