@@ -738,6 +738,21 @@
             font-size: 14px;
         }
 
+        .datetime-group > label {
+            display: block;
+            margin-bottom: 6px;
+            color: #31424d;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .datetime-msk-note {
+            margin-bottom: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
         .date-input-wrapper {
             position: relative;
         }
@@ -2423,9 +2438,10 @@
 
                 <!-- Выбор даты и времени -->
                 <div class="datetime-group">
+                    <label>Желаемая дата и время <span class="required">*</span></label>
+                    <div class="datetime-msk-note">Время указано по московскому времени (МСК). Будьте внимательны!</div>
                     <div class="datetime-row">
                         <div class="datetime-field">
-                            <label>Желаемая дата <span class="required">*</span></label>
                             <div class="date-input-wrapper">
                                 <input
                                     type="text"
@@ -2486,7 +2502,6 @@
                         </div>
 
                         <div class="datetime-field">
-                            <label>Желаемое время (МСК) <span class="required">*</span></label>
                             <div class="time-slots time-slots-empty" id="timeSlots">
                                 <div class="time-slots-placeholder">Сначала выберите тип записи</div>
                             </div>
@@ -2505,7 +2520,6 @@
                                     <span>Занято / недоступно</span>
                                 </div>
                             </div>
-                            <div class="timezone-note">Всё время указано по московскому времени (МСК, UTC+3).</div>
                         </div>
 
                         <div class="datetime-error" id="datetimeError">
@@ -2538,7 +2552,7 @@
 
                 <h3 class="section-title">Детали запроса</h3>
 
-                <div class="form-group">
+                <div class="form-group consultation-only hidden" id="websiteGroup">
                     <label for="website">Ссылка на ваш сайт <span class="required">*</span></label>
                     <div class="input-wrapper">
                         <input
@@ -2564,6 +2578,7 @@
 
                 <div class="form-group">
                     <label for="businessRole">Ваша основная роль в бизнесе <span class="required">*</span></label>
+                    <div class="conditional-hint">Диагностика и консультация проводятся только с собственником бизнеса. Если вы не владелец — встреча невозможна.</div>
                     <div class="input-wrapper">
                         <select id="businessRole" name="businessRole" required>
                             <option value="">Выберите роль…</option>
@@ -2581,6 +2596,17 @@
                             Роль не выбрана
                         </div>
                         <div class="error-description">Укажите, вы собственник бизнеса или наёмный сотрудник.</div>
+                    </div>
+                    <div class="error-message" id="businessRoleWarning">
+                        <div class="error-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            Встреча возможна только с собственником
+                        </div>
+                        <div class="error-description">Диагностика и консультация проводятся только с владельцем бизнеса. Если вы наёмный сотрудник, встреча невозможна.</div>
                     </div>
                 </div>
 
@@ -2610,17 +2636,17 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="location">Страна и город <span class="required">*</span></label>
+                    <label for="country">Страна <span class="required">*</span></label>
                     <div class="input-wrapper">
                         <input
                             type="text"
-                            id="location"
-                            name="location"
-                            placeholder="Например: Россия, Москва"
+                            id="country"
+                            name="country"
+                            placeholder="Например: Россия"
                             required
                         >
                     </div>
-                    <div class="error-message" id="locationError">
+                    <div class="error-message" id="countryError">
                         <div class="error-title">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <circle cx="12" cy="12" r="10"></circle>
@@ -2629,7 +2655,31 @@
                             </svg>
                             Поле не заполнено
                         </div>
-                        <div class="error-description">Укажите страну и город, где вы находитесь.</div>
+                        <div class="error-description">Укажите страну, в которой вы находитесь.</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="city">Город <span class="required">*</span></label>
+                    <div class="input-wrapper">
+                        <input
+                            type="text"
+                            id="city"
+                            name="city"
+                            placeholder="Например: Москва"
+                            required
+                        >
+                    </div>
+                    <div class="error-message" id="cityError">
+                        <div class="error-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            Поле не заполнено
+                        </div>
+                        <div class="error-description">Укажите город, в котором вы находитесь.</div>
                     </div>
                 </div>
 
@@ -3106,7 +3156,8 @@
         const websiteInput = document.getElementById('website');
         const businessRoleSelect = document.getElementById('businessRole');
         const businessAgeSelect = document.getElementById('businessAge');
-        const locationInput = document.getElementById('location');
+        const countryInput = document.getElementById('country');
+        const cityInput = document.getElementById('city');
         const activityInput = document.getElementById('activity');
         const socialLinksInput = document.getElementById('socialLinks');
         const competitorLinksInput = document.getElementById('competitorLinks');
@@ -3126,8 +3177,10 @@
         const websiteErrorTitle = document.getElementById('websiteErrorTitle');
         const websiteErrorDesc = document.getElementById('websiteErrorDesc');
         const businessRoleError = document.getElementById('businessRoleError');
+        const businessRoleWarning = document.getElementById('businessRoleWarning');
         const businessAgeError = document.getElementById('businessAgeError');
-        const locationError = document.getElementById('locationError');
+        const countryError = document.getElementById('countryError');
+        const cityError = document.getElementById('cityError');
         const activityError = document.getElementById('activityError');
         const socialLinksError = document.getElementById('socialLinksError');
         const competitorLinksError = document.getElementById('competitorLinksError');
@@ -3374,7 +3427,7 @@
             const isConsultation = (type === 'consultation');
             diagnosticOnly.forEach(el => el.classList.toggle('hidden', isConsultation));
 
-            // Поля только для консультации (сейчас таких нет — вопрос «Какой у вас бизнес?» общий для обоих типов)
+            // Поля только для консультации (ссылка на сайт — в диагностике её указывают вместе с соцсетями)
             const consultationOnly = document.querySelectorAll('.consultation-only');
             consultationOnly.forEach(el => el.classList.toggle('hidden', !isConsultation));
 
@@ -3390,7 +3443,7 @@
             // Сбрасываем ошибки на скрытых для текущего типа полях, чтобы они не мешали отправке
             const hiddenFieldIds = isConsultation
                 ? ['socialLinks', 'competitorLinks']
-                : [];
+                : ['website'];
             hiddenFieldIds.forEach(id => {
                 const input = document.getElementById(id);
                 const err = document.getElementById(id + 'Error');
@@ -4074,6 +4127,8 @@
                 this.classList.add('valid');
                 businessRoleError.classList.remove('show');
             }
+            // Наёмному сотруднику показываем предупреждение: встреча только с собственником
+            businessRoleWarning.classList.toggle('show', this.value === 'employee');
         });
 
         businessAgeSelect.addEventListener('change', function() {
@@ -4085,16 +4140,17 @@
             }
         });
 
-        locationInput.addEventListener('blur', function() {
-            hideErrorsSummary();
-            if (this.value.trim() === '') {
-                this.classList.remove('valid', 'invalid');
-                locationError.classList.remove('show');
-            } else {
-                this.classList.remove('invalid');
-                this.classList.add('valid');
-                locationError.classList.remove('show');
-            }
+        [[countryInput, countryError], [cityInput, cityError]].forEach(([input, err]) => {
+            input.addEventListener('blur', function() {
+                hideErrorsSummary();
+                if (this.value.trim() === '') {
+                    this.classList.remove('valid', 'invalid');
+                } else {
+                    this.classList.remove('invalid');
+                    this.classList.add('valid');
+                }
+                err.classList.remove('show');
+            });
         });
 
         vkInput.addEventListener('blur', function() {
@@ -4304,26 +4360,28 @@
                 timeSlotsContainer.classList.remove('invalid');
             }
 
-            // Ссылка на сайт — обязательна для обоих типов записи
-            const websiteValue = websiteInput.value.trim();
-            if (websiteValue === '') {
-                websiteInput.classList.add('invalid');
-                websiteErrorTitle.textContent = 'Поле не заполнено';
-                websiteErrorDesc.textContent = 'Укажите ссылку на ваш сайт.';
-                websiteError.classList.add('show');
-                errors.push('Укажите ссылку на ваш сайт');
-                isValid = false;
-            } else if (!isValidWebsite(websiteValue)) {
-                websiteInput.classList.add('invalid');
-                websiteErrorTitle.textContent = 'Некорректная ссылка';
-                websiteErrorDesc.textContent = 'Укажите адрес сайта целиком, например example.ru или https://example.ru';
-                websiteError.classList.add('show');
-                errors.push('Некорректная ссылка на сайт');
-                isValid = false;
-            } else {
-                websiteInput.classList.remove('invalid');
-                websiteInput.classList.add('valid');
-                websiteError.classList.remove('show');
+            // Ссылка на сайт — только для консультации (в диагностике сайт указывают вместе с соцсетями)
+            if (selectedType === 'consultation') {
+                const websiteValue = websiteInput.value.trim();
+                if (websiteValue === '') {
+                    websiteInput.classList.add('invalid');
+                    websiteErrorTitle.textContent = 'Поле не заполнено';
+                    websiteErrorDesc.textContent = 'Укажите ссылку на ваш сайт.';
+                    websiteError.classList.add('show');
+                    errors.push('Укажите ссылку на ваш сайт');
+                    isValid = false;
+                } else if (!isValidWebsite(websiteValue)) {
+                    websiteInput.classList.add('invalid');
+                    websiteErrorTitle.textContent = 'Некорректная ссылка';
+                    websiteErrorDesc.textContent = 'Укажите адрес сайта целиком, например example.ru или https://example.ru';
+                    websiteError.classList.add('show');
+                    errors.push('Некорректная ссылка на сайт');
+                    isValid = false;
+                } else {
+                    websiteInput.classList.remove('invalid');
+                    websiteInput.classList.add('valid');
+                    websiteError.classList.remove('show');
+                }
             }
 
             // Основная роль в бизнесе — обязательна для обоих типов записи
@@ -4351,15 +4409,26 @@
             }
 
             // Страна и город — обязательны для обоих типов записи
-            if (locationInput.value.trim() === '') {
-                locationInput.classList.add('invalid');
-                locationError.classList.add('show');
-                errors.push('Укажите страну и город');
+            if (countryInput.value.trim() === '') {
+                countryInput.classList.add('invalid');
+                countryError.classList.add('show');
+                errors.push('Укажите страну');
                 isValid = false;
             } else {
-                locationInput.classList.remove('invalid');
-                locationInput.classList.add('valid');
-                locationError.classList.remove('show');
+                countryInput.classList.remove('invalid');
+                countryInput.classList.add('valid');
+                countryError.classList.remove('show');
+            }
+
+            if (cityInput.value.trim() === '') {
+                cityInput.classList.add('invalid');
+                cityError.classList.add('show');
+                errors.push('Укажите город');
+                isValid = false;
+            } else {
+                cityInput.classList.remove('invalid');
+                cityInput.classList.add('valid');
+                cityError.classList.remove('show');
             }
 
             // Описание бизнеса — обязательно для обоих типов записи
@@ -4460,7 +4529,8 @@
                 website: websiteInput.value,
                 businessRole: businessRoleSelect.value,
                 businessAge: businessAgeSelect.value,
-                location: locationInput.value,
+                country: countryInput.value,
+                city: cityInput.value,
                 activity: activityInput.value,
                 socialLinks: socialLinksInput.value,
                 competitorLinks: competitorLinksInput.value,
@@ -5057,8 +5127,12 @@
                                 <span class="admin-booking-detail-value">${escapeHtml(formatBusinessAge(booking.businessAge))}</span>
                             </div>
                             <div class="admin-booking-detail">
-                                <span class="admin-booking-detail-label">Страна и город</span>
-                                <span class="admin-booking-detail-value">${escapeHtml(booking.location || '—')}</span>
+                                <span class="admin-booking-detail-label">Страна</span>
+                                <span class="admin-booking-detail-value">${escapeHtml(booking.country || booking.location || '—')}</span>
+                            </div>
+                            <div class="admin-booking-detail">
+                                <span class="admin-booking-detail-label">Город</span>
+                                <span class="admin-booking-detail-value">${escapeHtml(booking.city || '—')}</span>
                             </div>
                             <div class="admin-booking-detail">
                                 <span class="admin-booking-detail-label">Создано</span>

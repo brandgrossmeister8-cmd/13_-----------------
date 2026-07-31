@@ -183,9 +183,7 @@ function handleResendTelegram() {
     if (!empty($booking['businessAge'])) {
         $message .= "📈 <b>Возраст бизнеса:</b> " . htmlspecialchars(businessAgeLabel($booking['businessAge'])) . "\n";
     }
-    if (!empty($booking['location'])) {
-        $message .= "📍 <b>Страна и город:</b> " . htmlspecialchars($booking['location']) . "\n";
-    }
+    $message .= buildLocationLines($booking);
     if (!empty($booking['activity'])) {
         $message .= "\n💼 <b>Какой бизнес:</b>\n" . htmlspecialchars($booking['activity']) . "\n";
     }

@@ -34,7 +34,8 @@ $type = (($postData['type'] ?? 'diagnostic') === 'consultation') ? 'consultation
 $website = trim($postData['website'] ?? '');
 $businessRole = trim($postData['businessRole'] ?? '');
 $businessAge = trim($postData['businessAge'] ?? '');
-$location = trim($postData['location'] ?? '');
+$country = trim($postData['country'] ?? '');
+$city = trim($postData['city'] ?? '');
 $activity = trim($postData['activity'] ?? '');
 $socialLinks = trim($postData['socialLinks'] ?? '');
 $competitorLinks = trim($postData['competitorLinks'] ?? '');
@@ -141,11 +142,13 @@ if (empty($time)) {
     $errors[] = 'Некорректное время';
 }
 
-// Ссылка на сайт — обязательна для обоих типов записи
-if (empty($website)) {
-    $errors[] = 'Не указана ссылка на сайт';
-} elseif (!preg_match('~^(https?://)?([^\s/?#.]+\.)+[^\s/?#.\d]{2,}(/\S*)?$~u', $website)) {
-    $errors[] = 'Некорректная ссылка на сайт';
+// Ссылка на сайт — только для консультации (в диагностике сайт указывают вместе с соцсетями)
+if ($type === 'consultation') {
+    if (empty($website)) {
+        $errors[] = 'Не указана ссылка на сайт';
+    } elseif (!preg_match('~^(https?://)?([^\s/?#.]+\.)+[^\s/?#.\d]{2,}(/\S*)?$~u', $website)) {
+        $errors[] = 'Некорректная ссылка на сайт';
+    }
 }
 
 // Основная роль в бизнесе — обязательна для обоих типов записи
@@ -165,8 +168,11 @@ if (empty($businessAge)) {
 }
 
 // Страна и город — обязательны для обоих типов записи
-if (empty($location)) {
-    $errors[] = 'Не указаны страна и город';
+if (empty($country)) {
+    $errors[] = 'Не указана страна';
+}
+if (empty($city)) {
+    $errors[] = 'Не указан город';
 }
 
 // Описание бизнеса нужно для обоих типов записи
@@ -245,7 +251,7 @@ if (!isSlotAvailableForType($allData, $date, $time, $type)) {
 
 // Создаем запись (telegram_sent=false по умолчанию — контролёр потом досылает)
 $newBookingId = null;
-$success = atomicJsonUpdate(DATA_FILE, function($data) use ($name, $phone, $email, $telegram, $vk, $max, $preferredContact, $date, $time, $type, $website, $businessRole, $businessAge, $location, $activity, $socialLinks, $competitorLinks, $problem, $utm, &$newBookingId) {
+$success = atomicJsonUpdate(DATA_FILE, function($data) use ($name, $phone, $email, $telegram, $vk, $max, $preferredContact, $date, $time, $type, $website, $businessRole, $businessAge, $country, $city, $activity, $socialLinks, $competitorLinks, $problem, $utm, &$newBookingId) {
     // Повторная проверка доступности под блокировкой файла — защита от гонки
     if (!isSlotAvailableForType($data, $date, $time, $type)) {
         return $data; // не добавляем; $newBookingId останется null
@@ -269,7 +275,8 @@ $success = atomicJsonUpdate(DATA_FILE, function($data) use ($name, $phone, $emai
         'website' => $website,
         'businessRole' => $businessRole,
         'businessAge' => $businessAge,
-        'location' => $location,
+        'country' => $country,
+        'city' => $city,
         'activity' => $activity,
         'socialLinks' => $socialLinks,
         'competitorLinks' => $competitorLinks,

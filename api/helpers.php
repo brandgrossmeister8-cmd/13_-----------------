@@ -603,6 +603,31 @@ function businessAgeLabel($value) {
 }
 
 /**
+ * Строки со страной и городом для сообщения в Telegram.
+ * Поддерживает старые записи, где страна и город лежали в одном поле location.
+ * @param array $booking
+ * @return string
+ */
+function buildLocationLines($booking) {
+    $country = trim($booking['country'] ?? '');
+    $city = trim($booking['city'] ?? '');
+
+    if ($country === '' && $city === '' && !empty($booking['location'])) {
+        return "📍 <b>Страна и город:</b> " . htmlspecialchars($booking['location']) . "\n";
+    }
+
+    $lines = '';
+    if ($country !== '') {
+        $lines .= "🌍 <b>Страна:</b> " . htmlspecialchars($country) . "\n";
+    }
+    if ($city !== '') {
+        $lines .= "📍 <b>Город:</b> " . htmlspecialchars($city) . "\n";
+    }
+
+    return $lines;
+}
+
+/**
  * Собрать сообщение для Telegram по записи (используется и при первой отправке, и при ретраях)
  * @param array $booking
  * @param bool $isRetry Признак повторной отправки
@@ -659,9 +684,7 @@ function buildTelegramMessageForBooking($booking, $isRetry = false) {
     if (!empty($booking['businessAge'])) {
         $msg .= "📈 <b>Возраст бизнеса:</b> " . htmlspecialchars(businessAgeLabel($booking['businessAge'])) . "\n";
     }
-    if (!empty($booking['location'])) {
-        $msg .= "📍 <b>Страна и город:</b> " . htmlspecialchars($booking['location']) . "\n";
-    }
+    $msg .= buildLocationLines($booking);
     if (!empty($booking['activity'])) {
         $msg .= "\n💼 <b>Какой бизнес:</b>\n" . htmlspecialchars($booking['activity']) . "\n";
     }
