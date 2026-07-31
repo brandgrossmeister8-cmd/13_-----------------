@@ -95,9 +95,15 @@ if (empty($preferredContact)) {
 } else {
     $labels = ['telegram' => 'Telegram', 'email' => 'Email', 'vk' => 'ВКонтакте', 'max' => 'MAX'];
     $missing = [];
+    $telegramNeedsUsername = false;
     foreach ($preferredContact as $m) {
-        if ($m === 'telegram' && empty($telegram)) {
-            $missing[] = $labels[$m];
+        if ($m === 'telegram') {
+            // Нужен именно аккаунт @username — номер телефона не подходит
+            if (empty($telegram)) {
+                $missing[] = $labels[$m];
+            } elseif (!preg_match('/^@[a-zA-Z][a-zA-Z0-9_]{4,31}$/', $telegram)) {
+                $telegramNeedsUsername = true;
+            }
         } elseif ($m === 'email') {
             if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $missing[] = $labels[$m];
@@ -113,6 +119,9 @@ if (empty($preferredContact)) {
     }
     if (!empty($missing)) {
         $errors[] = 'Заполните данные по выбранному виду связи: ' . implode(', ', $missing);
+    }
+    if ($telegramNeedsUsername) {
+        $errors[] = 'Укажите аккаунт Telegram в формате @username, а не номер телефона';
     }
 }
 

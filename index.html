@@ -2305,13 +2305,13 @@
 
                 <div class="form-group conditional-field hidden" data-method="telegram" id="telegramGroup">
                     <label for="telegram">Аккаунт в телеграм <span class="required">*</span></label>
-                    <div class="conditional-hint">На этот канал вам придёт ссылка на Zoom-встречу</div>
+                    <div class="conditional-hint">На этот канал вам придёт ссылка на Zoom-встречу. Укажите именно аккаунт (@username), а не номер телефона.</div>
                     <div class="input-wrapper">
                         <input
                             type="text"
                             id="telegram"
                             name="telegram"
-                            placeholder="@username или +7 (999) 123-45-67"
+                            placeholder="@username"
                         >
                         <svg class="status-icon valid" id="telegramIconValid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                             <polyline points="20 6 9 17 4 12"></polyline>
@@ -2330,7 +2330,7 @@
                             </svg>
                             <span id="telegramErrorTitle">Telegram не заполнен</span>
                         </div>
-                        <div class="error-description" id="telegramErrorDesc">Введите ваш аккаунт Telegram (@username) или номер телефона, привязанный к Telegram.</div>
+                        <div class="error-description" id="telegramErrorDesc">Введите ваш аккаунт Telegram в формате @username. Номер телефона не подойдёт.</div>
                     </div>
                 </div>
 
@@ -3165,6 +3165,8 @@
 
         // Элементы ошибок для новых полей
         const telegramError = document.getElementById('telegramError');
+        const telegramErrorTitle = document.getElementById('telegramErrorTitle');
+        const telegramErrorDesc = document.getElementById('telegramErrorDesc');
         const telegramIconValid = document.getElementById('telegramIconValid');
         const telegramIconInvalid = document.getElementById('telegramIconInvalid');
         const vkError = document.getElementById('vkError');
@@ -3881,17 +3883,18 @@
             };
         }
 
-        // Валидация Telegram
+        // Валидация Telegram — принимаем только аккаунт @username, номер телефона не годится
         function isValidTelegram(telegram) {
             const value = telegram.trim();
-            // Проверка username (@username)
             const usernameRegex = /^@[a-zA-Z][a-zA-Z0-9_]{4,31}$/;
-            // Проверка номера телефона (с + или без, 10-15 цифр)
-            const phoneRegex = /^\+?[0-9]{10,15}$/;
-            // Проверка номера в формате +7 (XXX) XXX-XX-XX
-            const formattedPhoneRegex = /^\+7\s?\(?\d{3}\)?\s?\d{3}[-\s]?\d{2}[-\s]?\d{2}$/;
+            return usernameRegex.test(value);
+        }
 
-            return usernameRegex.test(value) || phoneRegex.test(value.replace(/[\s\(\)\-]/g, '')) || formattedPhoneRegex.test(value);
+        // Похоже ли введённое на номер телефона (чтобы подсказать точнее)
+        function looksLikePhone(value) {
+            const v = value.trim();
+            const digits = v.replace(/\D/g, '');
+            return digits.length >= 7 && /^[\d\s+()\-]+$/.test(v);
         }
 
         // Получить детальную ошибку Telegram
@@ -3901,7 +3904,15 @@
             if (value === '') {
                 return {
                     title: 'Telegram не заполнен',
-                    desc: 'Введите ваш аккаунт Telegram (@username) или номер телефона, привязанный к Telegram.'
+                    desc: 'Введите ваш аккаунт Telegram в формате @username. Номер телефона не подойдёт.'
+                };
+            }
+
+            // Номер телефона вместо аккаунта — самая частая ошибка, подсказываем прямо
+            if (looksLikePhone(value)) {
+                return {
+                    title: 'Нужен аккаунт, а не номер телефона',
+                    desc: 'Укажите ваш ник в Telegram в формате @username — найти его можно в настройках приложения, пункт «Имя пользователя».'
                 };
             }
 
@@ -3937,24 +3948,9 @@
                 };
             }
 
-            // Проверяем как номер телефона
-            const digits = value.replace(/\D/g, '');
-            if (digits.length > 0 && digits.length < 10) {
-                return {
-                    title: 'Номер телефона слишком короткий',
-                    desc: 'Введите полный номер телефона (минимум 10 цифр) или username в формате @username'
-                };
-            }
-            if (digits.length > 15) {
-                return {
-                    title: 'Номер телефона слишком длинный',
-                    desc: 'Номер телефона не должен содержать более 15 цифр.'
-                };
-            }
-
             return {
-                title: 'Некорректный формат',
-                desc: 'Введите username (@username) или номер телефона. Примеры: @myusername или +79001234567'
+                title: 'Аккаунт должен начинаться с @',
+                desc: 'Введите ваш ник в Telegram в формате @username. Пример: @myusername'
             };
         }
 
@@ -4282,6 +4278,10 @@
                     if (telegramInput.value.trim() === '' || !isValidTelegram(telegramInput.value)) {
                         missingLabel = preferredContactLabels.telegram;
                         telegramInput.classList.add('invalid');
+                        // Подставляем точную причину: пусто / номер вместо аккаунта / неверный формат
+                        const tgErr = getTelegramError(telegramInput.value);
+                        if (telegramErrorTitle) telegramErrorTitle.textContent = tgErr.title;
+                        if (telegramErrorDesc) telegramErrorDesc.textContent = tgErr.desc;
                         telegramError.classList.add('show');
                         if (telegramIconInvalid) telegramIconInvalid.classList.add('show');
                     }
