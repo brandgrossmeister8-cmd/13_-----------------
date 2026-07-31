@@ -152,11 +152,14 @@ if ($type === 'consultation') {
 }
 
 // Основная роль в бизнесе — обязательна для обоих типов записи
+// Запись возможна только для собственника бизнеса
 $allowedBusinessRoles = ['owner', 'employee'];
 if (empty($businessRole)) {
     $errors[] = 'Не указана роль в бизнесе';
 } elseif (!in_array($businessRole, $allowedBusinessRoles, true)) {
     $errors[] = 'Некорректная роль в бизнесе';
+} elseif ($businessRole !== 'owner') {
+    $errors[] = 'Встреча проводится только с собственником бизнеса';
 }
 
 // Возраст бизнеса — обязателен для обоих типов записи

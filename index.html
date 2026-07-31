@@ -4122,13 +4122,12 @@
 
         businessRoleSelect.addEventListener('change', function() {
             hideErrorsSummary();
-            if (this.value !== '') {
-                this.classList.remove('invalid');
-                this.classList.add('valid');
-                businessRoleError.classList.remove('show');
-            }
-            // Наёмному сотруднику показываем предупреждение: встреча только с собственником
-            businessRoleWarning.classList.toggle('show', this.value === 'employee');
+            businessRoleError.classList.remove('show');
+            // Запись возможна только для собственника — остальным сразу показываем блокирующее предупреждение
+            const isOwner = (this.value === 'owner');
+            businessRoleWarning.classList.toggle('show', this.value !== '' && !isOwner);
+            this.classList.toggle('valid', isOwner);
+            this.classList.toggle('invalid', this.value !== '' && !isOwner);
         });
 
         businessAgeSelect.addEventListener('change', function() {
@@ -4384,16 +4383,25 @@
                 }
             }
 
-            // Основная роль в бизнесе — обязательна для обоих типов записи
+            // Основная роль в бизнесе — обязательна; запись возможна только для собственника
             if (businessRoleSelect.value === '') {
                 businessRoleSelect.classList.add('invalid');
                 businessRoleError.classList.add('show');
+                businessRoleWarning.classList.remove('show');
                 errors.push('Укажите вашу роль в бизнесе');
+                isValid = false;
+            } else if (businessRoleSelect.value !== 'owner') {
+                businessRoleSelect.classList.remove('valid');
+                businessRoleSelect.classList.add('invalid');
+                businessRoleError.classList.remove('show');
+                businessRoleWarning.classList.add('show');
+                errors.push('Встреча проводится только с собственником бизнеса');
                 isValid = false;
             } else {
                 businessRoleSelect.classList.remove('invalid');
                 businessRoleSelect.classList.add('valid');
                 businessRoleError.classList.remove('show');
+                businessRoleWarning.classList.remove('show');
             }
 
             // Возраст бизнеса — обязателен для обоих типов записи
