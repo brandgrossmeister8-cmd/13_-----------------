@@ -165,7 +165,7 @@ function handleResendTelegram() {
     $message = "🔁 <b>Повторная отправка — запись</b>\n\n";
     $message .= "🧩 <b>Тип:</b> " . $typeLabel . "\n";
     $message .= "📅 <b>Дата:</b> " . date('d.m.Y', strtotime($booking['date'])) . "\n";
-    $message .= "🕐 <b>Время:</b> " . htmlspecialchars($booking['time']) . "\n\n";
+    $message .= "🕐 <b>Время:</b> " . htmlspecialchars($booking['time']) . " (МСК)\n\n";
     $message .= "👤 <b>Имя:</b> " . htmlspecialchars($booking['name']) . "\n";
     $message .= "💬 <b>Telegram:</b> " . htmlspecialchars($booking['telegram'] ?? '—') . "\n";
     if (!empty($booking['phone'])) {
@@ -174,8 +174,20 @@ function handleResendTelegram() {
     if (!empty($booking['email'])) {
         $message .= "📧 <b>Email:</b> " . htmlspecialchars($booking['email']) . "\n";
     }
+    if (!empty($booking['website'])) {
+        $message .= "\n🌐 <b>Сайт:</b> " . htmlspecialchars($booking['website']) . "\n";
+    }
+    if (!empty($booking['businessRole'])) {
+        $message .= "🧑‍💼 <b>Роль в бизнесе:</b> " . htmlspecialchars(businessRoleLabel($booking['businessRole'])) . "\n";
+    }
+    if (!empty($booking['businessAge'])) {
+        $message .= "📈 <b>Возраст бизнеса:</b> " . htmlspecialchars(businessAgeLabel($booking['businessAge'])) . "\n";
+    }
+    if (!empty($booking['location'])) {
+        $message .= "📍 <b>Страна и город:</b> " . htmlspecialchars($booking['location']) . "\n";
+    }
     if (!empty($booking['activity'])) {
-        $message .= "\n💼 <b>Род деятельности:</b>\n" . htmlspecialchars($booking['activity']) . "\n";
+        $message .= "\n💼 <b>Какой бизнес:</b>\n" . htmlspecialchars($booking['activity']) . "\n";
     }
     if (!empty($booking['socialLinks'])) {
         $message .= "\n🔗 <b>Ссылки на соцсети/сайт:</b>\n" . htmlspecialchars($booking['socialLinks']) . "\n";

@@ -1020,6 +1020,12 @@
             gap: 6px;
         }
 
+        .timezone-note {
+            margin-top: 8px;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
         .time-slots-legend-color {
             width: 14px;
             height: 14px;
@@ -2480,7 +2486,7 @@
                         </div>
 
                         <div class="datetime-field">
-                            <label>Желаемое время <span class="required">*</span></label>
+                            <label>Желаемое время (МСК) <span class="required">*</span></label>
                             <div class="time-slots time-slots-empty" id="timeSlots">
                                 <div class="time-slots-placeholder">Сначала выберите тип записи</div>
                             </div>
@@ -2499,6 +2505,7 @@
                                     <span>Занято / недоступно</span>
                                 </div>
                             </div>
+                            <div class="timezone-note">Всё время указано по московскому времени (МСК, UTC+3).</div>
                         </div>
 
                         <div class="datetime-error" id="datetimeError">
@@ -2531,12 +2538,108 @@
 
                 <h3 class="section-title">Детали запроса</h3>
 
-                <div class="form-group consultation-only hidden" id="activityGroup">
-                    <label for="activity">Чем вы занимаетесь? <span class="required">*</span></label>
+                <div class="form-group">
+                    <label for="website">Ссылка на ваш сайт <span class="required">*</span></label>
+                    <div class="input-wrapper">
+                        <input
+                            type="text"
+                            id="website"
+                            name="website"
+                            placeholder="example.ru или https://example.ru"
+                            required
+                        >
+                    </div>
+                    <div class="error-message" id="websiteError">
+                        <div class="error-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            <span id="websiteErrorTitle">Поле не заполнено</span>
+                        </div>
+                        <div class="error-description" id="websiteErrorDesc">Укажите ссылку на ваш сайт.</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="businessRole">Ваша основная роль в бизнесе <span class="required">*</span></label>
+                    <div class="input-wrapper">
+                        <select id="businessRole" name="businessRole" required>
+                            <option value="">Выберите роль…</option>
+                            <option value="owner">Собственник</option>
+                            <option value="employee">Наёмный сотрудник</option>
+                        </select>
+                    </div>
+                    <div class="error-message" id="businessRoleError">
+                        <div class="error-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            Роль не выбрана
+                        </div>
+                        <div class="error-description">Укажите, вы собственник бизнеса или наёмный сотрудник.</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="businessAge">Сколько лет бизнесу <span class="required">*</span></label>
+                    <div class="input-wrapper">
+                        <select id="businessAge" name="businessAge" required>
+                            <option value="">Выберите вариант…</option>
+                            <option value="less_1">Менее года</option>
+                            <option value="1_3">1–3 года</option>
+                            <option value="3_5">3–5 лет</option>
+                            <option value="5_10">5–10 лет</option>
+                            <option value="more_10">Более 10 лет</option>
+                        </select>
+                    </div>
+                    <div class="error-message" id="businessAgeError">
+                        <div class="error-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            Поле не заполнено
+                        </div>
+                        <div class="error-description">Укажите, сколько лет существует ваш бизнес.</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="location">Страна и город <span class="required">*</span></label>
+                    <div class="input-wrapper">
+                        <input
+                            type="text"
+                            id="location"
+                            name="location"
+                            placeholder="Например: Россия, Москва"
+                            required
+                        >
+                    </div>
+                    <div class="error-message" id="locationError">
+                        <div class="error-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            Поле не заполнено
+                        </div>
+                        <div class="error-description">Укажите страну и город, где вы находитесь.</div>
+                    </div>
+                </div>
+
+                <div class="form-group" id="activityGroup">
+                    <label for="activity">Какой у вас бизнес? <span class="required">*</span></label>
                     <textarea
                         id="activity"
                         name="activity"
-                        placeholder="Опишите кратко род вашей деятельности — о чём ваш бизнес..."
+                        placeholder="Опишите кратко, о чём ваш бизнес..."
+                        required
                     ></textarea>
                     <div class="error-message" id="activityError">
                         <div class="error-title">
@@ -2547,7 +2650,7 @@
                             </svg>
                             Поле не заполнено
                         </div>
-                        <div class="error-description">Опишите кратко род вашей деятельности — о чём ваш бизнес.</div>
+                        <div class="error-description">Опишите кратко, какой у вас бизнес — о чём он.</div>
                     </div>
                 </div>
 
@@ -2679,6 +2782,7 @@
                 Заявка отправлена!
             </h2>
             <p>Спасибо за обращение. Я направлю вам ссылку на Zoom-встречу на указанный канал. Проверяйте, пожалуйста!</p>
+            <p>Обратите внимание: время встречи указано по московскому времени (МСК, UTC+3).</p>
         </div>
     </div>
 
@@ -2953,12 +3057,14 @@
                                     Заблокировать весь день
                                 </button>
                             </div>
+                            <div class="timezone-note">Всё время указано по московскому времени (МСК, UTC+3).</div>
                             <div class="admin-time-slots" id="adminTimeSlots"></div>
                         </div>
                     </div>
 
                     <!-- Вкладка "Записи" -->
                     <div id="adminTabBookings" class="admin-tab-panel">
+                        <div class="timezone-note">Всё время указано по московскому времени (МСК, UTC+3).</div>
                         <div class="admin-bookings-list" id="adminBookingsList">
                             <!-- Будет заполнено через JS -->
                         </div>
@@ -2997,6 +3103,10 @@
             preferredContactError.classList.remove('show');
         }
 
+        const websiteInput = document.getElementById('website');
+        const businessRoleSelect = document.getElementById('businessRole');
+        const businessAgeSelect = document.getElementById('businessAge');
+        const locationInput = document.getElementById('location');
         const activityInput = document.getElementById('activity');
         const socialLinksInput = document.getElementById('socialLinks');
         const competitorLinksInput = document.getElementById('competitorLinks');
@@ -3012,6 +3122,12 @@
         const maxError = document.getElementById('maxError');
         const maxIconValid = document.getElementById('maxIconValid');
         const maxIconInvalid = document.getElementById('maxIconInvalid');
+        const websiteError = document.getElementById('websiteError');
+        const websiteErrorTitle = document.getElementById('websiteErrorTitle');
+        const websiteErrorDesc = document.getElementById('websiteErrorDesc');
+        const businessRoleError = document.getElementById('businessRoleError');
+        const businessAgeError = document.getElementById('businessAgeError');
+        const locationError = document.getElementById('locationError');
         const activityError = document.getElementById('activityError');
         const socialLinksError = document.getElementById('socialLinksError');
         const competitorLinksError = document.getElementById('competitorLinksError');
@@ -3258,7 +3374,7 @@
             const isConsultation = (type === 'consultation');
             diagnosticOnly.forEach(el => el.classList.toggle('hidden', isConsultation));
 
-            // Поле «Чем вы занимаетесь?» показываем только для консультации
+            // Поля только для консультации (сейчас таких нет — вопрос «Какой у вас бизнес?» общий для обоих типов)
             const consultationOnly = document.querySelectorAll('.consultation-only');
             consultationOnly.forEach(el => el.classList.toggle('hidden', !isConsultation));
 
@@ -3274,7 +3390,7 @@
             // Сбрасываем ошибки на скрытых для текущего типа полях, чтобы они не мешали отправке
             const hiddenFieldIds = isConsultation
                 ? ['socialLinks', 'competitorLinks']
-                : ['activity'];
+                : [];
             hiddenFieldIds.forEach(id => {
                 const input = document.getElementById(id);
                 const err = document.getElementById(id + 'Error');
@@ -3923,6 +4039,64 @@
             return urlRe.test(v) || idRe.test(v) || usernameRe.test(v);
         }
 
+        function isValidWebsite(value) {
+            const v = value.trim();
+            if (v === '') return false;
+            // домен с зоной (латиница или кириллица), необязательный протокол и путь
+            const re = /^(https?:\/\/)?([^\s/?#.]+\.)+[^\s/?#.\d]{2,}(\/\S*)?$/u;
+            return re.test(v);
+        }
+
+        // Живая валидация новых полей
+        websiteInput.addEventListener('blur', function() {
+            hideErrorsSummary();
+            const v = this.value.trim();
+            if (v === '') {
+                this.classList.remove('valid', 'invalid');
+                websiteError.classList.remove('show');
+            } else if (!isValidWebsite(v)) {
+                this.classList.remove('valid');
+                this.classList.add('invalid');
+                websiteErrorTitle.textContent = 'Некорректная ссылка';
+                websiteErrorDesc.textContent = 'Укажите адрес сайта целиком, например example.ru или https://example.ru';
+                websiteError.classList.add('show');
+            } else {
+                this.classList.remove('invalid');
+                this.classList.add('valid');
+                websiteError.classList.remove('show');
+            }
+        });
+
+        businessRoleSelect.addEventListener('change', function() {
+            hideErrorsSummary();
+            if (this.value !== '') {
+                this.classList.remove('invalid');
+                this.classList.add('valid');
+                businessRoleError.classList.remove('show');
+            }
+        });
+
+        businessAgeSelect.addEventListener('change', function() {
+            hideErrorsSummary();
+            if (this.value !== '') {
+                this.classList.remove('invalid');
+                this.classList.add('valid');
+                businessAgeError.classList.remove('show');
+            }
+        });
+
+        locationInput.addEventListener('blur', function() {
+            hideErrorsSummary();
+            if (this.value.trim() === '') {
+                this.classList.remove('valid', 'invalid');
+                locationError.classList.remove('show');
+            } else {
+                this.classList.remove('invalid');
+                this.classList.add('valid');
+                locationError.classList.remove('show');
+            }
+        });
+
         vkInput.addEventListener('blur', function() {
             hideErrorsSummary();
             if (this.value.trim() === '') {
@@ -4130,18 +4304,74 @@
                 timeSlotsContainer.classList.remove('invalid');
             }
 
-            // Описание рода деятельности нужно только для консультации
-            if (selectedType === 'consultation') {
-                if (activityInput.value.trim() === '') {
-                    activityInput.classList.add('invalid');
-                    activityError.classList.add('show');
-                    errors.push('Опишите, чем вы занимаетесь');
-                    isValid = false;
-                } else {
-                    activityInput.classList.remove('invalid');
-                    activityInput.classList.add('valid');
-                    activityError.classList.remove('show');
-                }
+            // Ссылка на сайт — обязательна для обоих типов записи
+            const websiteValue = websiteInput.value.trim();
+            if (websiteValue === '') {
+                websiteInput.classList.add('invalid');
+                websiteErrorTitle.textContent = 'Поле не заполнено';
+                websiteErrorDesc.textContent = 'Укажите ссылку на ваш сайт.';
+                websiteError.classList.add('show');
+                errors.push('Укажите ссылку на ваш сайт');
+                isValid = false;
+            } else if (!isValidWebsite(websiteValue)) {
+                websiteInput.classList.add('invalid');
+                websiteErrorTitle.textContent = 'Некорректная ссылка';
+                websiteErrorDesc.textContent = 'Укажите адрес сайта целиком, например example.ru или https://example.ru';
+                websiteError.classList.add('show');
+                errors.push('Некорректная ссылка на сайт');
+                isValid = false;
+            } else {
+                websiteInput.classList.remove('invalid');
+                websiteInput.classList.add('valid');
+                websiteError.classList.remove('show');
+            }
+
+            // Основная роль в бизнесе — обязательна для обоих типов записи
+            if (businessRoleSelect.value === '') {
+                businessRoleSelect.classList.add('invalid');
+                businessRoleError.classList.add('show');
+                errors.push('Укажите вашу роль в бизнесе');
+                isValid = false;
+            } else {
+                businessRoleSelect.classList.remove('invalid');
+                businessRoleSelect.classList.add('valid');
+                businessRoleError.classList.remove('show');
+            }
+
+            // Возраст бизнеса — обязателен для обоих типов записи
+            if (businessAgeSelect.value === '') {
+                businessAgeSelect.classList.add('invalid');
+                businessAgeError.classList.add('show');
+                errors.push('Укажите, сколько лет бизнесу');
+                isValid = false;
+            } else {
+                businessAgeSelect.classList.remove('invalid');
+                businessAgeSelect.classList.add('valid');
+                businessAgeError.classList.remove('show');
+            }
+
+            // Страна и город — обязательны для обоих типов записи
+            if (locationInput.value.trim() === '') {
+                locationInput.classList.add('invalid');
+                locationError.classList.add('show');
+                errors.push('Укажите страну и город');
+                isValid = false;
+            } else {
+                locationInput.classList.remove('invalid');
+                locationInput.classList.add('valid');
+                locationError.classList.remove('show');
+            }
+
+            // Описание бизнеса — обязательно для обоих типов записи
+            if (activityInput.value.trim() === '') {
+                activityInput.classList.add('invalid');
+                activityError.classList.add('show');
+                errors.push('Опишите, какой у вас бизнес');
+                isValid = false;
+            } else {
+                activityInput.classList.remove('invalid');
+                activityInput.classList.add('valid');
+                activityError.classList.remove('show');
             }
 
             // Ссылки на соцсети и конкурентов нужны только для диагностики
@@ -4227,6 +4457,10 @@
                 type: selectedType,
                 date: dateInput.value,
                 time: timeInput.value,
+                website: websiteInput.value,
+                businessRole: businessRoleSelect.value,
+                businessAge: businessAgeSelect.value,
+                location: locationInput.value,
                 activity: activityInput.value,
                 socialLinks: socialLinksInput.value,
                 competitorLinks: competitorLinksInput.value,
@@ -4759,7 +4993,7 @@
                                         <circle cx="12" cy="12" r="10"></circle>
                                         <polyline points="12 6 12 12 16 14"></polyline>
                                     </svg>
-                                    ${booking.time}
+                                    ${booking.time} (МСК)
                                 </div>
                                 ${typeBadge}
                                 ${tgBadge}
@@ -4811,12 +5045,28 @@
                                 <span class="admin-booking-detail-value">${escapeHtml(formatPreferredContact(booking.preferredContact))}</span>
                             </div>
                             <div class="admin-booking-detail">
+                                <span class="admin-booking-detail-label">Сайт</span>
+                                <span class="admin-booking-detail-value">${renderWebsiteLink(booking.website)}</span>
+                            </div>
+                            <div class="admin-booking-detail">
+                                <span class="admin-booking-detail-label">Роль в бизнесе</span>
+                                <span class="admin-booking-detail-value">${escapeHtml(formatBusinessRole(booking.businessRole))}</span>
+                            </div>
+                            <div class="admin-booking-detail">
+                                <span class="admin-booking-detail-label">Возраст бизнеса</span>
+                                <span class="admin-booking-detail-value">${escapeHtml(formatBusinessAge(booking.businessAge))}</span>
+                            </div>
+                            <div class="admin-booking-detail">
+                                <span class="admin-booking-detail-label">Страна и город</span>
+                                <span class="admin-booking-detail-value">${escapeHtml(booking.location || '—')}</span>
+                            </div>
+                            <div class="admin-booking-detail">
                                 <span class="admin-booking-detail-label">Создано</span>
                                 <span class="admin-booking-detail-value">${new Date(booking.created_at).toLocaleString('ru-RU')}</span>
                             </div>
                             ${booking.activity ? `
                                 <div class="admin-booking-detail admin-booking-wide">
-                                    <span class="admin-booking-detail-label">Род деятельности</span>
+                                    <span class="admin-booking-detail-label">Какой бизнес</span>
                                     <span class="admin-booking-detail-value admin-booking-multiline">${escapeHtml(booking.activity)}</span>
                                 </div>
                             ` : ''}
@@ -4907,6 +5157,34 @@
             const items = Array.isArray(value) ? value : [value];
             const labels = items.map(v => map[v] || v).filter(Boolean);
             return labels.length ? labels.join(', ') : 'Не указано';
+        }
+
+        function renderWebsiteLink(value) {
+            const v = (value || '').trim();
+            if (!v) return '—';
+            const href = /^https?:\/\//i.test(v) ? v : 'https://' + v;
+            return `<a href="${escapeHtml(href)}" target="_blank" rel="noopener">${escapeHtml(v)}</a>`;
+        }
+
+        function formatBusinessRole(value) {
+            const map = {
+                owner: 'Собственник',
+                employee: 'Наёмный сотрудник'
+            };
+            if (!value) return '—';
+            return map[value] || value;
+        }
+
+        function formatBusinessAge(value) {
+            const map = {
+                less_1: 'Менее года',
+                '1_3': '1–3 года',
+                '3_5': '3–5 лет',
+                '5_10': '5–10 лет',
+                more_10: 'Более 10 лет'
+            };
+            if (!value) return '—';
+            return map[value] || value;
         }
 
         // Бейдж со статусом доставки в Telegram

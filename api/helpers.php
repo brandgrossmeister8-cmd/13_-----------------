@@ -574,6 +574,35 @@ function sendTelegramNotification($message) {
 }
 
 /**
+ * Человекочитаемая роль заказчика в бизнесе
+ * @param string $value
+ * @return string
+ */
+function businessRoleLabel($value) {
+    $map = [
+        'owner'    => 'Собственник',
+        'employee' => 'Наёмный сотрудник'
+    ];
+    return $map[$value] ?? $value;
+}
+
+/**
+ * Человекочитаемый срок работы бизнеса
+ * @param string $value
+ * @return string
+ */
+function businessAgeLabel($value) {
+    $map = [
+        'less_1'  => 'Менее года',
+        '1_3'     => '1–3 года',
+        '3_5'     => '3–5 лет',
+        '5_10'    => '5–10 лет',
+        'more_10' => 'Более 10 лет'
+    ];
+    return $map[$value] ?? $value;
+}
+
+/**
  * Собрать сообщение для Telegram по записи (используется и при первой отправке, и при ретраях)
  * @param array $booking
  * @param bool $isRetry Признак повторной отправки
@@ -590,7 +619,7 @@ function buildTelegramMessageForBooking($booking, $isRetry = false) {
     $msg  = $title . "\n\n";
     $msg .= "🧩 <b>Тип:</b> " . $typeLabel . "\n";
     $msg .= "📅 <b>Дата:</b> " . date('d.m.Y', strtotime($booking['date'])) . "\n";
-    $msg .= "🕐 <b>Время:</b> " . htmlspecialchars($booking['time']) . "\n\n";
+    $msg .= "🕐 <b>Время:</b> " . htmlspecialchars($booking['time']) . " (МСК)\n\n";
     $msg .= "👤 <b>Имя:</b> " . htmlspecialchars($booking['name']) . "\n";
     $msg .= "💬 <b>Telegram:</b> " . htmlspecialchars($booking['telegram'] ?? '—') . "\n";
     if (!empty($booking['phone'])) {
@@ -621,8 +650,20 @@ function buildTelegramMessageForBooking($booking, $isRetry = false) {
             $msg .= "⭐ <b>Связь для ссылки Zoom:</b> " . htmlspecialchars(implode(', ', $labels)) . "\n";
         }
     }
+    if (!empty($booking['website'])) {
+        $msg .= "\n🌐 <b>Сайт:</b> " . htmlspecialchars($booking['website']) . "\n";
+    }
+    if (!empty($booking['businessRole'])) {
+        $msg .= "🧑‍💼 <b>Роль в бизнесе:</b> " . htmlspecialchars(businessRoleLabel($booking['businessRole'])) . "\n";
+    }
+    if (!empty($booking['businessAge'])) {
+        $msg .= "📈 <b>Возраст бизнеса:</b> " . htmlspecialchars(businessAgeLabel($booking['businessAge'])) . "\n";
+    }
+    if (!empty($booking['location'])) {
+        $msg .= "📍 <b>Страна и город:</b> " . htmlspecialchars($booking['location']) . "\n";
+    }
     if (!empty($booking['activity'])) {
-        $msg .= "\n💼 <b>Род деятельности:</b>\n" . htmlspecialchars($booking['activity']) . "\n";
+        $msg .= "\n💼 <b>Какой бизнес:</b>\n" . htmlspecialchars($booking['activity']) . "\n";
     }
     if (!empty($booking['socialLinks'])) {
         $msg .= "\n🔗 <b>Ссылки на соцсети/сайт:</b>\n" . htmlspecialchars($booking['socialLinks']) . "\n";

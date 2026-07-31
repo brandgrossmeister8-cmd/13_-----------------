@@ -31,6 +31,10 @@ $preferredContactRaw = $postData['preferredContact'] ?? [];
 $dateRaw = trim($postData['date'] ?? '');
 $time = trim($postData['time'] ?? '');
 $type = (($postData['type'] ?? 'diagnostic') === 'consultation') ? 'consultation' : 'diagnostic';
+$website = trim($postData['website'] ?? '');
+$businessRole = trim($postData['businessRole'] ?? '');
+$businessAge = trim($postData['businessAge'] ?? '');
+$location = trim($postData['location'] ?? '');
 $activity = trim($postData['activity'] ?? '');
 $socialLinks = trim($postData['socialLinks'] ?? '');
 $competitorLinks = trim($postData['competitorLinks'] ?? '');
@@ -137,9 +141,37 @@ if (empty($time)) {
     $errors[] = 'Некорректное время';
 }
 
-// Описание рода деятельности нужно только для консультации
-if ($type === 'consultation' && empty($activity)) {
-    $errors[] = 'Не описан род деятельности';
+// Ссылка на сайт — обязательна для обоих типов записи
+if (empty($website)) {
+    $errors[] = 'Не указана ссылка на сайт';
+} elseif (!preg_match('~^(https?://)?([^\s/?#.]+\.)+[^\s/?#.\d]{2,}(/\S*)?$~u', $website)) {
+    $errors[] = 'Некорректная ссылка на сайт';
+}
+
+// Основная роль в бизнесе — обязательна для обоих типов записи
+$allowedBusinessRoles = ['owner', 'employee'];
+if (empty($businessRole)) {
+    $errors[] = 'Не указана роль в бизнесе';
+} elseif (!in_array($businessRole, $allowedBusinessRoles, true)) {
+    $errors[] = 'Некорректная роль в бизнесе';
+}
+
+// Возраст бизнеса — обязателен для обоих типов записи
+$allowedBusinessAges = ['less_1', '1_3', '3_5', '5_10', 'more_10'];
+if (empty($businessAge)) {
+    $errors[] = 'Не указано, сколько лет бизнесу';
+} elseif (!in_array($businessAge, $allowedBusinessAges, true)) {
+    $errors[] = 'Некорректное значение срока работы бизнеса';
+}
+
+// Страна и город — обязательны для обоих типов записи
+if (empty($location)) {
+    $errors[] = 'Не указаны страна и город';
+}
+
+// Описание бизнеса нужно для обоих типов записи
+if (empty($activity)) {
+    $errors[] = 'Не описано, какой у вас бизнес';
 }
 
 // Ссылки на соцсети и конкурентов нужны только для диагностики
@@ -213,7 +245,7 @@ if (!isSlotAvailableForType($allData, $date, $time, $type)) {
 
 // Создаем запись (telegram_sent=false по умолчанию — контролёр потом досылает)
 $newBookingId = null;
-$success = atomicJsonUpdate(DATA_FILE, function($data) use ($name, $phone, $email, $telegram, $vk, $max, $preferredContact, $date, $time, $type, $activity, $socialLinks, $competitorLinks, $problem, $utm, &$newBookingId) {
+$success = atomicJsonUpdate(DATA_FILE, function($data) use ($name, $phone, $email, $telegram, $vk, $max, $preferredContact, $date, $time, $type, $website, $businessRole, $businessAge, $location, $activity, $socialLinks, $competitorLinks, $problem, $utm, &$newBookingId) {
     // Повторная проверка доступности под блокировкой файла — защита от гонки
     if (!isSlotAvailableForType($data, $date, $time, $type)) {
         return $data; // не добавляем; $newBookingId останется null
@@ -234,6 +266,10 @@ $success = atomicJsonUpdate(DATA_FILE, function($data) use ($name, $phone, $emai
         'vk' => $vk,
         'max' => $max,
         'preferredContact' => $preferredContact,
+        'website' => $website,
+        'businessRole' => $businessRole,
+        'businessAge' => $businessAge,
+        'location' => $location,
         'activity' => $activity,
         'socialLinks' => $socialLinks,
         'competitorLinks' => $competitorLinks,
