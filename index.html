@@ -1039,16 +1039,23 @@
         .time-selected-summary {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 12px;
+            gap: 10px;
             margin-top: 10px;
             padding: 12px 14px;
-            border: 1.5px solid var(--primary);
-            border-radius: 10px;
+            border-radius: 12px;
             background: var(--success-soft, #eef7f1);
         }
 
+        .time-selected-summary::before {
+            content: '';
+            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+            background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232f9e6f' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><polyline points='16 9 11 15 8 12'/></svg>") center / contain no-repeat;
+        }
+
         .time-selected-text {
+            flex: 1;
             font-size: 14px;
             font-weight: 600;
             color: #2b3b44;
@@ -1056,7 +1063,24 @@
 
         .time-change-btn {
             flex-shrink: 0;
-            padding: 8px 14px;
+            padding: 4px 2px;
+            border: none;
+            background: none;
+            color: var(--primary);
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            cursor: pointer;
+        }
+
+        .time-change-btn:hover {
+            opacity: 0.75;
+        }
+
+        .time-retry-btn {
+            margin-left: 8px;
+            padding: 6px 14px;
             border: 1px solid var(--primary);
             border-radius: 8px;
             background: white;
@@ -1066,7 +1090,7 @@
             cursor: pointer;
         }
 
-        .time-change-btn:hover {
+        .time-retry-btn:hover {
             background: var(--primary);
             color: white;
         }
@@ -2173,7 +2197,7 @@
     <div class="form-container">
         <div class="form-content">
             <h1>Запись на встречу</h1>
-            <p class="form-lead">Экспресс-консультация на 15 минут или диагностика на 90 минут. После записи я отправлю ссылку на Zoom в выбранный канал связи.</p>
+            <p class="form-lead">Экспресс-консультация на 15 минут или диагностика на 60 минут. После записи я отправлю ссылку на Zoom в выбранный канал связи.</p>
 
             <!-- Общий блок ошибок -->
             <div class="form-errors-summary" id="errorsSummary">
@@ -2220,12 +2244,12 @@
                         <div class="meeting-type-option" role="button" tabindex="0" data-type="diagnostic">
                             <span class="meeting-type-head">
                                 <span class="meeting-type-title">2. Диагностика</span>
-                                <span class="meeting-type-sub">15 000 ₽ (предоплата) · 90 минут</span>
+                                <span class="meeting-type-sub">15 000 ₽ (предоплата) · 60 минут</span>
                             </span>
                             <span class="meeting-type-desc">
                                 <span class="mt-block">
                                     <span class="mt-block-label">Длительность</span>
-                                    <span class="mt-block-text">90 минут</span>
+                                    <span class="mt-block-text">60 минут</span>
                                 </span>
                                 <span class="mt-block">
                                     <span class="mt-block-label">Стоимость</span>
@@ -2233,7 +2257,7 @@
                                 </span>
                                 <span class="mt-block">
                                     <span class="mt-block-label">Что получите</span>
-                                    <span class="mt-block-text">За 90 минут определю ваши точки роста:</span>
+                                    <span class="mt-block-text">За 60 минут определю ваши точки роста:</span>
                                     <ol class="mt-list">
                                         <li>чего не хватает, чтобы вырасти в трафике, а далее в продажах;</li>
                                         <li>что мешает росту;</li>
@@ -3571,7 +3595,7 @@
             try {
                 const month = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
                 const type = selectedType || 'diagnostic';
-                const response = await fetch(`api/availability.php?month=${month}&type=${type}`, { cache: 'no-store' });
+                const response = await fetch(`api/availability.php?month=${month}&type=${type}&_ts=${Date.now()}`);
                 const data = await response.json();
 
                 if (data.success) {
@@ -3714,9 +3738,17 @@
         // Загрузка доступных слотов времени для выбранной даты
         async function loadUserTimeSlots(dateStr) {
             showTimeSlotsMessage('Загружаю свободное время...', true);
+            const type = selectedType || 'diagnostic';
+            // Таймаут: во встроенных браузерах запрос иногда «повисает» —
+            // не даём сообщению «Загружаю…» висеть вечно
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 12000);
             try {
-                const type = selectedType || 'diagnostic';
-                const response = await fetch(`api/availability.php?date=${dateStr}&type=${type}`, { cache: 'no-store' });
+                // _ts вместо cache:'no-store' — надёжнее обходит кеш в WebView мессенджеров
+                const response = await fetch(`api/availability.php?date=${dateStr}&type=${type}&_ts=${Date.now()}`, {
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
                 const data = await response.json();
 
                 if (data.success && data.slots) {
@@ -3724,13 +3756,29 @@
                     renderTimeSlots();
                 } else {
                     currentDateSlots = [];
-                    showTimeSlotsMessage('Не удалось получить свободное время. Попробуйте выбрать дату ещё раз.');
+                    showTimeSlotsRetry(dateStr, 'Не удалось получить свободное время.');
                 }
             } catch (error) {
+                clearTimeout(timeoutId);
                 console.error('Ошибка загрузки слотов:', error);
                 currentDateSlots = [];
-                showTimeSlotsMessage('Не удалось загрузить свободное время. Проверьте соединение и попробуйте ещё раз.');
+                showTimeSlotsRetry(dateStr, 'Не удалось загрузить время. Проверьте связь.');
             }
+        }
+
+        // Сообщение об ошибке загрузки времени с кнопкой «Повторить»
+        function showTimeSlotsRetry(dateStr, message) {
+            const legend = document.getElementById('timeSlotsLegend');
+            timeSlotsContainer.style.display = '';
+            const summaryEl = document.getElementById('timeSelectedSummary');
+            if (summaryEl) summaryEl.style.display = 'none';
+            timeSlotsContainer.className = 'time-slots time-slots-empty';
+            timeSlotsContainer.innerHTML =
+                `<div class="time-slots-placeholder">${message} ` +
+                `<button type="button" class="time-retry-btn">Повторить</button></div>`;
+            if (legend) legend.style.display = 'none';
+            const retryBtn = timeSlotsContainer.querySelector('.time-retry-btn');
+            if (retryBtn) retryBtn.addEventListener('click', () => loadUserTimeSlots(dateStr));
         }
 
         // Проверка, прошло ли время слота (для сегодняшней даты)
