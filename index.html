@@ -16,7 +16,7 @@
      * ВАЖНО: при каждом деплое держать BUILD в синхроне с файлом version.txt.
      */
     (function () {
-        var BUILD = '2026-08-19.3';
+        var BUILD = '2026-08-19.4';
         try {
             // Защита от цикла: не более одной авто-перезагрузки за сессию
             var alreadyReloaded = false;
@@ -970,6 +970,16 @@
             background: #d4efdf;
         }
 
+        .calendar-day.status-partial:not(.disabled):not(.selected) {
+            background: var(--warning-soft);
+            color: var(--warning-text);
+            font-weight: 600;
+        }
+
+        .calendar-day.status-partial:not(.disabled):not(.selected):hover {
+            background: #fdf0cf;
+        }
+
         .calendar-day.status-full {
             background: var(--danger-soft);
             color: #8f2b26;
@@ -1002,6 +1012,11 @@
         .calendar-legend-color.green {
             background: var(--success-soft);
             border: 1px solid #9fd8bb;
+        }
+
+        .calendar-legend-color.yellow {
+            background: var(--warning-soft);
+            border: 1px solid #ecd28a;
         }
 
         .calendar-legend-color.red {
@@ -2596,7 +2611,11 @@
                                     <div class="calendar-legend">
                                         <div class="calendar-legend-item">
                                             <div class="calendar-legend-color green"></div>
-                                            <span>Есть свободные места</span>
+                                            <span>Свободно</span>
+                                        </div>
+                                        <div class="calendar-legend-item">
+                                            <div class="calendar-legend-color yellow"></div>
+                                            <span>Частично занято</span>
                                         </div>
                                         <div class="calendar-legend-item">
                                             <div class="calendar-legend-color red"></div>
@@ -3717,10 +3736,13 @@
                     availableCount++;
                 }
 
-                // Цветовая индикация доступности
+                // Цветовая индикация доступности (единая схема:
+                // свободно — зелёный, частично — жёлтый, всё занято — красный)
                 if (dayAvailability && !isPast && !isWeekend && !isBlockedByMonthRule) {
-                    if (dayAvailability.status === 'free' || dayAvailability.status === 'partial') {
+                    if (dayAvailability.status === 'free') {
                         classes += ' status-free';
+                    } else if (dayAvailability.status === 'partial') {
+                        classes += ' status-partial';
                     } else if (dayAvailability.status === 'full') {
                         classes += ' status-full';
                     }
