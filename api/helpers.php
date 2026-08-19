@@ -431,30 +431,56 @@ function getDayStatus($allData, $date, $type = 'diagnostic') {
         }
     }
 
-    $availableSlots = [];
-    $totalSlots = count(WORKING_HOURS);
-
-    // Для сегодняшней даты часы, которые уже полностью прошли, не считаем свободными:
-    // иначе день красится зелёным, хотя записаться в него уже нельзя.
+    // Цвет дня считаем по ЯЧЕЙКАМ (20-мин слотам), а НЕ по «полностью свободным часам».
+    // Блокировки администратора (его график) на цвет НЕ влияют — влияют только брони клиентов:
+    //   свободных ячеек нет            -> full  (серый: всё занято / день закрыт)
+    //   есть свободные, броней нет      -> free  (зелёный: открыто и запланировано, никто не записан)
+    //   есть свободные и есть брони      -> partial (жёлтый: частично занято клиентами)
+    // getDayStatus используется только для окраски календаря (бронирование считается отдельно).
     $isToday = ($date === date('Y-m-d'));
     $nowTs = time();
 
+    $freeCells = 0;      // свободные ячейки (доступны для записи)
+    $bookedCells = 0;    // ячейки, занятые бронями клиентов
+    $availableHours = []; // часы, где есть хотя бы одна свободная ячейка (для совместимости)
+
     foreach (WORKING_HOURS as $hour) {
+        // Сегодня: полностью прошедшие часы не учитываем
         if ($isToday && $nowTs >= (strtotime($date . ' ' . $hour) + 3600)) {
             continue;
         }
         $info = getHourInfo($allData, $date, $hour);
-        $ok = ($type === 'consultation') ? $info['consultationAvailable'] : $info['diagnosticAvailable'];
-        if ($ok) {
-            $availableSlots[] = $hour;
+
+        // Час закрыт администратором (блокировка часа/дня) — это график, не бронь, цвет не меняет
+        if ($info['blocked']) {
+            continue;
+        }
+        // Весь час занят диагностикой клиента — это бронь
+        if ($info['diagnosticBooked']) {
+            $bookedCells += count($info['subSlots']);
+            continue;
+        }
+
+        $hourHasFree = false;
+        foreach ($info['subSlots'] as $s) {
+            if (!empty($s['blocked'])) {
+                continue; // точечная блокировка администратора — не влияет на цвет
+            }
+            if (!empty($s['available'])) {
+                $freeCells++;
+                $hourHasFree = true;
+            } elseif (!empty($s['booked'])) {
+                $bookedCells++;
+            }
+        }
+        if ($hourHasFree) {
+            $availableHours[] = $hour;
         }
     }
 
-    $availableCount = count($availableSlots);
-
-    if ($availableCount === 0) {
+    if ($freeCells === 0) {
         $status = 'full';
-    } elseif ($availableCount === $totalSlots) {
+    } elseif ($bookedCells === 0) {
         $status = 'free';
     } else {
         $status = 'partial';
@@ -462,8 +488,8 @@ function getDayStatus($allData, $date, $type = 'diagnostic') {
 
     return [
         'status' => $status,
-        'available_slots' => $availableSlots,
-        'total_slots' => $totalSlots
+        'available_slots' => $availableHours,
+        'total_slots' => count(WORKING_HOURS)
     ];
 }
 
