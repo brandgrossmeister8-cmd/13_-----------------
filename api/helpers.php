@@ -434,7 +434,15 @@ function getDayStatus($allData, $date, $type = 'diagnostic') {
     $availableSlots = [];
     $totalSlots = count(WORKING_HOURS);
 
+    // Для сегодняшней даты часы, которые уже полностью прошли, не считаем свободными:
+    // иначе день красится зелёным, хотя записаться в него уже нельзя.
+    $isToday = ($date === date('Y-m-d'));
+    $nowTs = time();
+
     foreach (WORKING_HOURS as $hour) {
+        if ($isToday && $nowTs >= (strtotime($date . ' ' . $hour) + 3600)) {
+            continue;
+        }
         $info = getHourInfo($allData, $date, $hour);
         $ok = ($type === 'consultation') ? $info['consultationAvailable'] : $info['diagnosticAvailable'];
         if ($ok) {

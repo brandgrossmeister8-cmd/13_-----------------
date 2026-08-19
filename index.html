@@ -869,6 +869,18 @@
             gap: 4px;
         }
 
+        .calendar-empty-note {
+            margin-top: 12px;
+            padding: 12px 14px;
+            background: var(--surface-soft, #f4f6f8);
+            border: 1px solid var(--line, #e2e8ee);
+            border-radius: 10px;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #43535d;
+            text-align: center;
+        }
+
         .calendar-day {
             aspect-ratio: 1;
             display: flex;
@@ -2497,6 +2509,7 @@
                                         </div>
                                     </div>
                                     <div class="calendar-days" id="calendarDays"></div>
+                                    <div class="calendar-empty-note" id="calendarEmptyNote" style="display: none;"></div>
                                 </div>
                             </div>
                         </div>
@@ -3543,6 +3556,13 @@
             today.setHours(0, 0, 0, 0);
 
             let html = '';
+            let availableCount = 0; // сколько дней в этом месяце реально доступно для записи
+
+            // Открывается ли показанный месяц только с 20-го числа (правило следующего месяца)
+            const monthBlockedByRule =
+                (year > today.getFullYear() ||
+                    (year === today.getFullYear() && month > today.getMonth())) &&
+                today.getDate() < 20;
 
             // Дни предыдущего месяца
             const prevMonthLastDay = new Date(year, month, 0).getDate();
@@ -3576,7 +3596,11 @@
                 let classes = 'calendar-day';
                 if (isToday) classes += ' today';
                 if (isSelected) classes += ' selected';
-                if (isPast || isWeekend || !isAvailable || isBlockedByMonthRule) classes += ' disabled';
+                if (isPast || isWeekend || !isAvailable || isBlockedByMonthRule) {
+                    classes += ' disabled';
+                } else {
+                    availableCount++;
+                }
 
                 // Цветовая индикация доступности
                 if (dayAvailability && !isPast && !isWeekend && !isBlockedByMonthRule) {
@@ -3597,6 +3621,19 @@
             }
 
             calendarDays.innerHTML = html;
+
+            // Надпись про пустой месяц: чтобы календарь без свободных дат не выглядел «сломанным»
+            const emptyNote = document.getElementById('calendarEmptyNote');
+            if (emptyNote) {
+                if (availableCount === 0) {
+                    emptyNote.textContent = monthBlockedByRule
+                        ? 'На этот месяц свободных дат пока нет — запись открывается с 20-го числа. Загляните позже или выберите текущий месяц.'
+                        : 'В этом месяце свободных дат нет. Попробуйте следующий месяц кнопкой «Вперёд».';
+                    emptyNote.style.display = 'block';
+                } else {
+                    emptyNote.style.display = 'none';
+                }
+            }
 
             // Обработчики кликов на дни
             calendarDays.querySelectorAll('.calendar-day:not(.disabled)').forEach(dayBtn => {
@@ -4915,6 +4952,12 @@
 
             slotsContainer.innerHTML = html;
             panel.style.display = 'block';
+
+            // Панель слотов рендерится ниже календаря в прокручиваемой области —
+            // проматываем к ней, иначе кажется, что «день выделен, а кнопки не открылись»
+            requestAnimationFrame(() => {
+                panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
         }
 
         // Блокировка слота (scope: 'hour' — весь час, 'slot' — один 20-мин интервал)
