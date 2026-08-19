@@ -1035,6 +1035,42 @@
             color: white;
         }
 
+        /* Компактная строка выбранного времени (после выбора слот-панель сворачивается) */
+        .time-selected-summary {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 10px;
+            padding: 12px 14px;
+            border: 1.5px solid var(--primary);
+            border-radius: 10px;
+            background: var(--success-soft, #eef7f1);
+        }
+
+        .time-selected-text {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2b3b44;
+        }
+
+        .time-change-btn {
+            flex-shrink: 0;
+            padding: 8px 14px;
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            background: white;
+            color: var(--primary);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .time-change-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
         /* Легенда цветов */
         .time-slots-legend {
             display: flex;
@@ -2535,6 +2571,10 @@
                                     <span>Занято / недоступно</span>
                                 </div>
                             </div>
+                            <div class="time-selected-summary" id="timeSelectedSummary" style="display: none;">
+                                <span class="time-selected-text" id="timeSelectedText"></span>
+                                <button type="button" class="time-change-btn" id="timeChangeBtn">Изменить</button>
+                            </div>
                         </div>
 
                         <div class="datetime-error" id="datetimeError">
@@ -3713,6 +3753,11 @@
             const legend = document.getElementById('timeSlotsLegend');
             const legendLilac = document.getElementById('legendLilac');
 
+            // Сбрасываем свёрнутое состояние — при новой дате/типе показываем выбор времени заново
+            timeSlotsContainer.style.display = '';
+            const summaryEl = document.getElementById('timeSelectedSummary');
+            if (summaryEl) summaryEl.style.display = 'none';
+
             // Нет типа или даты — блок времени оставляем пустым, без заглушки
             if (!selectedType || !selectedDate) {
                 timeSlotsContainer.className = 'time-slots time-slots-empty';
@@ -3796,10 +3841,48 @@
             hideErrorsSummary();
             datetimeError.classList.remove('show');
             timeSlotsContainer.classList.remove('invalid');
+
+            // Время выбрано — сворачиваем панель слотов в компактную строку,
+            // чтобы человек видел выбор и продолжил заполнять форму
+            collapseTimeSelection();
         });
+
+        const timeSelectedSummary = document.getElementById('timeSelectedSummary');
+        const timeSelectedText = document.getElementById('timeSelectedText');
+        const timeChangeBtn = document.getElementById('timeChangeBtn');
+
+        function formatSelectedDateTime() {
+            let out = '';
+            if (selectedDate) {
+                const d = selectedDate;
+                out += `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`;
+            }
+            if (selectedTime) out += (out ? ', ' : '') + selectedTime;
+            return out;
+        }
+
+        function collapseTimeSelection() {
+            const legend = document.getElementById('timeSlotsLegend');
+            timeSlotsContainer.style.display = 'none';
+            if (legend) legend.style.display = 'none';
+            timeSelectedText.textContent = 'Выбрано: ' + formatSelectedDateTime();
+            timeSelectedSummary.style.display = 'flex';
+        }
+
+        function expandTimeSelection() {
+            timeSelectedSummary.style.display = 'none';
+            timeSlotsContainer.style.display = '';
+            renderTimeSlots();
+            timeSlotsContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        timeChangeBtn.addEventListener('click', expandTimeSelection);
 
         function showTimeSlotsMessage(message, loading = false) {
             const legend = document.getElementById('timeSlotsLegend');
+            timeSlotsContainer.style.display = '';
+            const summaryEl = document.getElementById('timeSelectedSummary');
+            if (summaryEl) summaryEl.style.display = 'none';
             timeSlotsContainer.className = 'time-slots time-slots-empty';
             timeSlotsContainer.innerHTML = `<div class="time-slots-placeholder${loading ? ' loading' : ''}">${message}</div>`;
             if (legend) legend.style.display = 'none';
