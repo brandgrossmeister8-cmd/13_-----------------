@@ -16,7 +16,7 @@
      * ВАЖНО: при каждом деплое держать BUILD в синхроне с файлом version.txt.
      */
     (function () {
-        var BUILD = '2026-08-19.4';
+        var BUILD = '2026-08-19.5';
         try {
             // Защита от цикла: не более одной авто-перезагрузки за сессию
             var alreadyReloaded = false;
@@ -981,9 +981,8 @@
         }
 
         .calendar-day.status-full {
-            background: var(--danger-soft);
-            color: #8f2b26;
-            font-weight: 600;
+            background: var(--surface-soft);
+            color: #999;
         }
 
         .calendar-legend {
@@ -1675,11 +1674,7 @@
             color: var(--warning-text);
         }
 
-        .admin-calendar-day.status-full {
-            background: var(--danger-soft);
-            color: #8f2b26;
-        }
-
+        .admin-calendar-day.status-full,
         .admin-calendar-day.status-blocked {
             background: #e8eff3;
             color: #43535d;
@@ -2618,12 +2613,8 @@
                                             <span>Частично занято</span>
                                         </div>
                                         <div class="calendar-legend-item">
-                                            <div class="calendar-legend-color red"></div>
-                                            <span>Всё занято</span>
-                                        </div>
-                                        <div class="calendar-legend-item">
                                             <div class="calendar-legend-color gray"></div>
-                                            <span>Недоступно</span>
+                                            <span>Занято / недоступно</span>
                                         </div>
                                     </div>
                                     <div class="calendar-days" id="calendarDays"></div>
