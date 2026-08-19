@@ -3,43 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Защита от кеша: встроенные браузеры мессенджеров любят показывать старую версию страницы -->
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
+    <!-- Мягкая ревалидация кеша (без no-store, чтобы страница стабильно грузилась на слабой связи) -->
+    <meta http-equiv="Cache-Control" content="no-cache">
     <script>
     /*
-     * Авто-обновление версии. Встроенные браузеры мессенджеров и обычные
-     * браузеры иногда показывают устаревшую копию страницы из кеша. Тут мы
-     * сверяем версию загруженной страницы с version.txt на сервере и, если
-     * открыта старая копия, один раз перезагружаемся на свежую.
+     * Проверка версии БЕЗ авто-перезагрузки. Если на сервере есть более свежая
+     * версия страницы, показываем ненавязчивую плашку «Обновить» — пользователь
+     * обновляет сам. Никаких window.location.replace: страница не может уйти в
+     * цикл перезагрузки (это и ломало мобильные браузеры).
      * ВАЖНО: при каждом деплое держать BUILD в синхроне с файлом version.txt.
      */
     (function () {
-        var BUILD = '2026-08-19.5';
+        var BUILD = '2026-08-19.6';
         try {
-            // Защита от цикла: не более одной авто-перезагрузки за сессию
-            var alreadyReloaded = false;
-            try { alreadyReloaded = sessionStorage.getItem('vReloaded') === '1'; } catch (e) {}
-            if (alreadyReloaded) return;
-
-            var url = new URL(window.location.href);
-            var currentV = url.searchParams.get('v');
             fetch('version.txt?_ts=' + Date.now())
                 .then(function (r) { return r.ok ? r.text() : null; })
-                .then(function (serverBuild) {
-                    if (!serverBuild) return;
-                    serverBuild = serverBuild.trim();
-                    // Свежая версия есть на сервере, а у нас старая копия из кеша —
-                    // и мы ещё не перезагружались под эту версию (двойная защита от цикла)
-                    if (serverBuild && serverBuild !== BUILD && serverBuild !== currentV) {
-                        try { sessionStorage.setItem('vReloaded', '1'); } catch (e) {}
-                        url.searchParams.set('v', serverBuild);
-                        window.location.replace(url.toString());
+                .then(function (sv) {
+                    if (!sv) return;
+                    sv = sv.trim();
+                    if (!sv || sv === BUILD) return;
+                    function showBanner() {
+                        if (document.getElementById('__updateBanner') || !document.body) return;
+                        var b = document.createElement('div');
+                        b.id = '__updateBanner';
+                        b.setAttribute('style', 'position:fixed;top:0;left:0;right:0;z-index:100000;background:#235f73;color:#fff;padding:10px 14px;font:600 14px/1.3 -apple-system,sans-serif;display:flex;align-items:center;justify-content:center;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,.2);');
+                        var span = document.createElement('span');
+                        span.textContent = 'Доступна новая версия формы';
+                        var btn = document.createElement('button');
+                        btn.textContent = 'Обновить';
+                        btn.setAttribute('style', 'background:#fff;color:#235f73;border:none;border-radius:8px;padding:6px 14px;font:600 14px -apple-system,sans-serif;cursor:pointer;');
+                        btn.onclick = function () {
+                            try {
+                                var u = new URL(window.location.href);
+                                u.searchParams.set('v', sv);
+                                window.location.replace(u.toString());
+                            } catch (e) { window.location.reload(); }
+                        };
+                        b.appendChild(span);
+                        b.appendChild(btn);
+                        document.body.appendChild(b);
                     }
+                    if (document.body) showBanner();
+                    else document.addEventListener('DOMContentLoaded', showBanner);
                 })
                 .catch(function () { /* нет связи — просто остаёмся как есть */ });
-        } catch (e) { /* старый браузер без URL/fetch — тихо пропускаем */ }
+        } catch (e) { /* старый браузер — тихо пропускаем */ }
     })();
     </script>
     <title>Запись на встречу</title>
