@@ -16,8 +16,13 @@
      * ВАЖНО: при каждом деплое держать BUILD в синхроне с файлом version.txt.
      */
     (function () {
-        var BUILD = '2026-08-19.2';
+        var BUILD = '2026-08-19.3';
         try {
+            // Защита от цикла: не более одной авто-перезагрузки за сессию
+            var alreadyReloaded = false;
+            try { alreadyReloaded = sessionStorage.getItem('vReloaded') === '1'; } catch (e) {}
+            if (alreadyReloaded) return;
+
             var url = new URL(window.location.href);
             var currentV = url.searchParams.get('v');
             fetch('version.txt?_ts=' + Date.now())
@@ -26,8 +31,9 @@
                     if (!serverBuild) return;
                     serverBuild = serverBuild.trim();
                     // Свежая версия есть на сервере, а у нас старая копия из кеша —
-                    // и мы ещё не перезагружались под эту версию (защита от цикла)
+                    // и мы ещё не перезагружались под эту версию (двойная защита от цикла)
                     if (serverBuild && serverBuild !== BUILD && serverBuild !== currentV) {
+                        try { sessionStorage.setItem('vReloaded', '1'); } catch (e) {}
                         url.searchParams.set('v', serverBuild);
                         window.location.replace(url.toString());
                     }
@@ -4969,8 +4975,8 @@
                 const month = `${adminCurrentDate.getFullYear()}-${String(adminCurrentDate.getMonth() + 1).padStart(2, '0')}`;
 
                 const [availabilityRes, bookingsRes] = await Promise.all([
-                    fetch(`api/availability.php?month=${month}`, { credentials: 'include', cache: 'no-store' }),
-                    fetch('api/bookings.php', { credentials: 'include', cache: 'no-store' })
+                    fetch(`api/availability.php?month=${month}&type=admin&_ts=${Date.now()}`, { credentials: 'include' }),
+                    fetch(`api/bookings.php?_ts=${Date.now()}`, { credentials: 'include' })
                 ]);
 
                 const availability = await availabilityRes.json();

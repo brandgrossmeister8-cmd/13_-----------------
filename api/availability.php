@@ -72,8 +72,12 @@ function handleMonthAvailability($month, $type = 'diagnostic') {
         $currentYear = (int)$today->format('Y');
         $currentDay = (int)$today->format('d');
 
-        // Если дата в следующем месяце (или позже) и сегодня ещё не 20-е - пропускаем
-        if (($year > $currentYear || ($year === $currentYear && $monthNum > $currentMonth)) && $currentDay < 20) {
+        // Правило открытия месяца действует только для клиентов (запись на
+        // следующий месяц доступна с 20-го). Админка ($type === 'admin') видит
+        // будущие месяцы всегда — чтобы можно было планировать расписание заранее.
+        if ($type !== 'admin'
+            && ($year > $currentYear || ($year === $currentYear && $monthNum > $currentMonth))
+            && $currentDay < 20) {
             continue;
         }
 
