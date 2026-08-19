@@ -7,6 +7,35 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
+    <script>
+    /*
+     * Авто-обновление версии. Встроенные браузеры мессенджеров и обычные
+     * браузеры иногда показывают устаревшую копию страницы из кеша. Тут мы
+     * сверяем версию загруженной страницы с version.txt на сервере и, если
+     * открыта старая копия, один раз перезагружаемся на свежую.
+     * ВАЖНО: при каждом деплое держать BUILD в синхроне с файлом version.txt.
+     */
+    (function () {
+        var BUILD = '2026-08-19.1';
+        try {
+            var url = new URL(window.location.href);
+            var currentV = url.searchParams.get('v');
+            fetch('version.txt?_ts=' + Date.now())
+                .then(function (r) { return r.ok ? r.text() : null; })
+                .then(function (serverBuild) {
+                    if (!serverBuild) return;
+                    serverBuild = serverBuild.trim();
+                    // Свежая версия есть на сервере, а у нас старая копия из кеша —
+                    // и мы ещё не перезагружались под эту версию (защита от цикла)
+                    if (serverBuild && serverBuild !== BUILD && serverBuild !== currentV) {
+                        url.searchParams.set('v', serverBuild);
+                        window.location.replace(url.toString());
+                    }
+                })
+                .catch(function () { /* нет связи — просто остаёмся как есть */ });
+        } catch (e) { /* старый браузер без URL/fetch — тихо пропускаем */ }
+    })();
+    </script>
     <title>Запись на встречу</title>
     <style>
         * {
