@@ -16,7 +16,7 @@
      * ВАЖНО: при каждом деплое держать BUILD в синхроне с файлом version.txt.
      */
     (function () {
-        var BUILD = '2026-08-19.1';
+        var BUILD = '2026-08-19.2';
         try {
             var url = new URL(window.location.href);
             var currentV = url.searchParams.get('v');
@@ -4881,6 +4881,16 @@
                 return;
             }
 
+            // Мгновенная реакция на нажатие + защита от «повисшего» запроса во
+            // встроенных браузерах мессенджеров (иначе кнопка кажется нерабочей)
+            const btn = document.querySelector('.admin-login-btn');
+            const origText = btn ? btn.textContent : '';
+            if (btn) { btn.disabled = true; btn.textContent = 'Проверяю…'; }
+            adminLoginError.classList.remove('show');
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 12000);
+
             try {
                 const response = await fetch('api/auth.php?action=login', {
                     method: 'POST',
@@ -4888,8 +4898,10 @@
                         'Content-Type': 'application/json'
                     },
                     credentials: 'include',
+                    signal: controller.signal,
                     body: JSON.stringify({ password })
                 });
+                clearTimeout(timeoutId);
 
                 const data = await response.json();
 
@@ -4900,9 +4912,12 @@
                     adminLoginError.classList.add('show');
                 }
             } catch (error) {
+                clearTimeout(timeoutId);
                 console.error('Ошибка авторизации:', error);
-                adminLoginError.textContent = 'Ошибка соединения с сервером';
+                adminLoginError.textContent = 'Не удалось связаться с сервером. Проверьте связь и попробуйте ещё раз.';
                 adminLoginError.classList.add('show');
+            } finally {
+                if (btn) { btn.disabled = false; btn.textContent = origText || 'Войти'; }
             }
         }
 
