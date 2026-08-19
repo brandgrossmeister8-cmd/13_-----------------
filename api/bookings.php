@@ -18,11 +18,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 $method = $_SERVER['REQUEST_METHOD'];
 $action = $_GET['action'] ?? '';
 
-// GET запросы не требуют авторизации (для получения списка)
-// Все остальные - требуют
-if ($method !== 'GET' || $action) {
-    requireAuth();
-}
+// Все запросы требуют авторизации: bookings.php отдаёт персональные данные
+// клиентов (имена, телефоны, Telegram) и меняет расписание — доступ только админу.
+requireAuth();
 
 switch ($method) {
     case 'GET':
