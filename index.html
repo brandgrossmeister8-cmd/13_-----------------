@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Мягкая ревалидация кеша (без no-store, чтобы страница стабильно грузилась на слабой связи) -->
-    <meta http-equiv="Cache-Control" content="no-cache">
+    <!-- Страница кешируется обычным образом (быстрая и надёжная загрузка даже на слабой связи).
+         Свежесть обеспечивает проверка версии ниже: при новой версии показываем плашку «Обновить». -->
     <script>
     /*
      * Проверка версии БЕЗ авто-перезагрузки. Если на сервере есть более свежая
@@ -14,7 +14,7 @@
      * ВАЖНО: при каждом деплое держать BUILD в синхроне с файлом version.txt.
      */
     (function () {
-        var BUILD = '2026-08-20.5';
+        var BUILD = '2026-08-20.6';
         try {
             fetch('version.txt?_ts=' + Date.now())
                 .then(function (r) { return r.ok ? r.text() : null; })
