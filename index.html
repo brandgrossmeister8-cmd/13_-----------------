@@ -14,7 +14,7 @@
      * ВАЖНО: при каждом деплое держать BUILD в синхроне с файлом version.txt.
      */
     (function () {
-        var BUILD = '2026-08-20.2';
+        var BUILD = '2026-08-20.3';
         try {
             fetch('version.txt?_ts=' + Date.now())
                 .then(function (r) { return r.ok ? r.text() : null; })
@@ -2338,12 +2338,16 @@
                         <div class="meeting-type-option collapsed" role="button" tabindex="0" data-type="general">
                             <span class="meeting-type-head">
                                 <span class="meeting-type-title">3. Консультация</span>
-                                <span class="meeting-type-sub">60 минут</span>
+                                <span class="meeting-type-sub">15 000 ₽ · 60 минут</span>
                             </span>
                             <span class="meeting-type-desc">
                                 <span class="mt-block">
                                     <span class="mt-block-label">Длительность</span>
                                     <span class="mt-block-text">60 минут</span>
+                                </span>
+                                <span class="mt-block">
+                                    <span class="mt-block-label">Стоимость</span>
+                                    <span class="mt-block-text">15 000 ₽</span>
                                 </span>
                                 <span class="mt-block">
                                     <span class="mt-block-label">О чём</span>
