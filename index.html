@@ -14,7 +14,7 @@
      * ВАЖНО: при каждом деплое держать BUILD в синхроне с файлом version.txt.
      */
     (function () {
-        var BUILD = '2026-08-19.7';
+        var BUILD = '2026-08-20.1';
         try {
             fetch('version.txt?_ts=' + Date.now())
                 .then(function (r) { return r.ok ? r.text() : null; })
@@ -465,6 +465,11 @@
         }
 
         .conditional-field.hidden {
+            display: none;
+        }
+
+        /* Поля, зависящие от типа встречи (показываются по data-for) */
+        .type-field.hidden {
             display: none;
         }
 
@@ -2250,7 +2255,7 @@
     <div class="form-container">
         <div class="form-content">
             <h1>Запись на встречу</h1>
-            <p class="form-lead">Экспресс-консультация на 15 минут или диагностика на 60 минут. После записи я отправлю ссылку на Zoom в выбранный канал связи.</p>
+            <p class="form-lead">Экспресс-консультация на 15 минут, диагностика на 60 минут или консультация по любым вопросам на 60 минут. После записи я отправлю ссылку на Zoom в выбранный канал связи.</p>
 
             <!-- Общий блок ошибок -->
             <div class="form-errors-summary" id="errorsSummary">
@@ -2327,6 +2332,26 @@
                                         <li>ссылки на ваших конкурентов;</li>
                                         <li>чётко описанную задачу или проблему.</li>
                                     </ol>
+                                </span>
+                            </span>
+                        </div>
+                        <div class="meeting-type-option" role="button" tabindex="0" data-type="general">
+                            <span class="meeting-type-head">
+                                <span class="meeting-type-title">3. Консультация</span>
+                                <span class="meeting-type-sub">60 минут</span>
+                            </span>
+                            <span class="meeting-type-desc">
+                                <span class="mt-block">
+                                    <span class="mt-block-label">Длительность</span>
+                                    <span class="mt-block-text">60 минут</span>
+                                </span>
+                                <span class="mt-block">
+                                    <span class="mt-block-label">О чём</span>
+                                    <span class="mt-block-text">Любые вопросы по маркетингу, продвижению и использованию ИИ в продвижении.</span>
+                                </span>
+                                <span class="mt-block">
+                                    <span class="mt-block-label">Что подготовить</span>
+                                    <span class="mt-block-text">Ссылки на ваши сайты и соцсети и чётко сформулированный вопрос или задачу.</span>
                                 </span>
                             </span>
                         </div>
@@ -2666,7 +2691,7 @@
                 </div>
 
                 <!-- Информационный блок (только для диагностики) -->
-                <div class="info-block diagnostic-only" id="diagnosticInfoBlock">
+                <div class="info-block type-field" data-for="diagnostic" id="diagnosticInfoBlock">
                     <h4>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="12" cy="12" r="10"></circle>
@@ -2684,7 +2709,7 @@
 
                 <h3 class="section-title">Детали запроса</h3>
 
-                <div class="form-group consultation-only hidden" id="websiteGroup">
+                <div class="form-group type-field hidden" data-for="consultation" id="websiteGroup">
                     <label for="website">Ссылка на ваш сайт <span class="required">*</span></label>
                     <div class="input-wrapper">
                         <input
@@ -2836,7 +2861,7 @@
                     </div>
                 </div>
 
-                <div class="form-group diagnostic-only" id="socialLinksGroup">
+                <div class="form-group type-field" data-for="diagnostic general" id="socialLinksGroup">
                     <label for="socialLinks">Ссылки на ваши сайты и соцсети <span class="required">*</span></label>
                     <textarea
                         id="socialLinks"
@@ -2857,7 +2882,7 @@
                     </div>
                 </div>
 
-                <div class="form-group diagnostic-only" id="competitorLinksGroup">
+                <div class="form-group type-field" data-for="diagnostic" id="competitorLinksGroup">
                     <label for="competitorLinks">Ссылки на ваших конкурентов <span class="required">*</span></label>
                     <textarea
                         id="competitorLinks"
@@ -3556,14 +3581,13 @@
             });
             meetingTypeError.classList.remove('show');
 
-            // Поля только для диагностики (ссылки на соцсети/конкурентов) скрываем при консультации
-            const diagnosticOnly = document.querySelectorAll('.diagnostic-only');
             const isConsultation = (type === 'consultation');
-            diagnosticOnly.forEach(el => el.classList.toggle('hidden', isConsultation));
 
-            // Поля только для консультации (ссылка на сайт — в диагностике её указывают вместе с соцсетями)
-            const consultationOnly = document.querySelectorAll('.consultation-only');
-            consultationOnly.forEach(el => el.classList.toggle('hidden', !isConsultation));
+            // Показ/скрытие полей, зависящих от типа встречи (по атрибуту data-for)
+            document.querySelectorAll('.type-field[data-for]').forEach(el => {
+                const forTypes = el.getAttribute('data-for').split(/\s+/);
+                el.classList.toggle('hidden', !forTypes.includes(type));
+            });
 
             // Заметки под выбором типа: бесплатная экспресс-консультация / платная диагностика
             const diagnosticNote = document.getElementById('diagnosticNote');
@@ -3574,11 +3598,16 @@
             // Показываем остальные поля формы только после выбора типа
             const bookingDetails = document.getElementById('bookingDetails');
             if (bookingDetails) bookingDetails.style.display = '';
-            // Сбрасываем ошибки на скрытых для текущего типа полях, чтобы они не мешали отправке
-            const hiddenFieldIds = isConsultation
-                ? ['socialLinks', 'competitorLinks']
-                : ['website'];
-            hiddenFieldIds.forEach(id => {
+
+            // Сбрасываем ошибки на полях, СКРЫТЫХ для текущего типа, чтобы они не мешали отправке
+            const visibleByType = {
+                consultation: ['website'],
+                diagnostic: ['socialLinks', 'competitorLinks'],
+                general: ['socialLinks']
+            };
+            const shownNow = visibleByType[type] || [];
+            ['website', 'socialLinks', 'competitorLinks'].forEach(id => {
+                if (shownNow.includes(id)) return;
                 const input = document.getElementById(id);
                 const err = document.getElementById(id + 'Error');
                 if (input) input.classList.remove('invalid', 'valid');
@@ -3650,7 +3679,7 @@
             const timeoutId = setTimeout(() => controller.abort(), 12000);
             try {
                 const month = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
-                const type = selectedType || 'diagnostic';
+                const type = (selectedType === 'consultation') ? 'consultation' : 'diagnostic'; // general использует ту же логику слотов, что и диагностика (60 мин)
                 const response = await fetch(`api/availability.php?month=${month}&type=${type}&_ts=${Date.now()}`, {
                     signal: controller.signal
                 });
@@ -3813,7 +3842,7 @@
         // Загрузка доступных слотов времени для выбранной даты
         async function loadUserTimeSlots(dateStr) {
             showTimeSlotsMessage('Загружаю свободное время...', true);
-            const type = selectedType || 'diagnostic';
+            const type = (selectedType === 'consultation') ? 'consultation' : 'diagnostic'; // general использует ту же логику слотов, что и диагностика (60 мин)
             // Таймаут: во встроенных браузерах запрос иногда «повисает» —
             // не даём сообщению «Загружаю…» висеть вечно
             const controller = new AbortController();
@@ -3897,7 +3926,7 @@
             legend.style.display = 'flex';
             let html = '';
 
-            if (selectedType === 'diagnostic') {
+            if (selectedType !== 'consultation') {
                 // Диагностика: один слот = один час
                 legendLilac.style.display = 'none';
                 timeSlotsContainer.className = 'time-slots';
@@ -4696,9 +4725,8 @@
                 activityError.classList.remove('show');
             }
 
-            // Ссылки на соцсети и конкурентов нужны только для диагностики
+            // Ссылки на соцсети нужны для диагностики и обычной консультации (не для экспресс)
             if (selectedType !== 'consultation') {
-                // Проверка ссылок на соцсети
                 if (socialLinksInput.value.trim() === '') {
                     socialLinksInput.classList.add('invalid');
                     socialLinksError.classList.add('show');
@@ -4709,8 +4737,10 @@
                     socialLinksInput.classList.add('valid');
                     socialLinksError.classList.remove('show');
                 }
+            }
 
-                // Проверка ссылок на конкурентов
+            // Ссылки на конкурентов нужны только для диагностики
+            if (selectedType === 'diagnostic') {
                 if (competitorLinksInput.value.trim() === '') {
                     competitorLinksInput.classList.add('invalid');
                     competitorLinksError.classList.add('show');
@@ -5315,8 +5345,11 @@
                 const [year, month, day] = booking.date.split('-');
                 const displayDate = `${day}.${month}.${year}`;
                 const tgBadge = renderTgBadge(booking);
-                const isConsultation = booking.type === 'consultation';
-                const typeLabel = isConsultation ? 'Экспресс-консультация (15 мин)' : 'Диагностика (1 час)';
+                const bType = booking.type || 'diagnostic';
+                const isConsultation = bType === 'consultation';
+                const typeLabel = isConsultation
+                    ? 'Экспресс-консультация (15 мин)'
+                    : (bType === 'general' ? 'Консультация (60 мин)' : 'Диагностика (60 мин)');
                 const typeBadge = `<span class="admin-booking-type-badge ${isConsultation ? 'consultation' : 'diagnostic'}">${typeLabel}</span>`;
 
                 html += `

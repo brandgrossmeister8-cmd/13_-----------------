@@ -153,6 +153,22 @@ function getBookingType($booking) {
 }
 
 /**
+ * Человекочитаемая подпись типа встречи (для Telegram и админки).
+ * @param array $booking
+ * @return string
+ */
+function bookingTypeLabel($booking) {
+    $raw = $booking['type'] ?? 'diagnostic';
+    if ($raw === 'consultation') {
+        return 'Экспресс-консультация (15 мин)';
+    }
+    if ($raw === 'general') {
+        return 'Консультация (60 мин)';
+    }
+    return 'Диагностика (60 мин)';
+}
+
+/**
  * Час, к которому относится время: "10:15" -> "10:00"
  * @param string $time
  * @return string
@@ -668,8 +684,7 @@ function buildLocationLines($booking) {
  * @return string
  */
 function buildTelegramMessageForBooking($booking, $isRetry = false) {
-    $isConsultation = (getBookingType($booking) === 'consultation');
-    $typeLabel = $isConsultation ? 'Экспресс-консультация (15 мин)' : 'Диагностика (1 час)';
+    $typeLabel = bookingTypeLabel($booking);
     if ($isRetry) {
         $title = "🔁 <b>Доставка после сбоя — новая запись</b>";
     } else {

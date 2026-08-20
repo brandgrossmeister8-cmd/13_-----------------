@@ -30,7 +30,8 @@ $max = trim($postData['max'] ?? '');
 $preferredContactRaw = $postData['preferredContact'] ?? [];
 $dateRaw = trim($postData['date'] ?? '');
 $time = trim($postData['time'] ?? '');
-$type = (($postData['type'] ?? 'diagnostic') === 'consultation') ? 'consultation' : 'diagnostic';
+$typeInput = $postData['type'] ?? 'diagnostic';
+$type = in_array($typeInput, ['consultation', 'diagnostic', 'general'], true) ? $typeInput : 'diagnostic';
 $website = trim($postData['website'] ?? '');
 $businessRole = trim($postData['businessRole'] ?? '');
 $businessAge = trim($postData['businessAge'] ?? '');
@@ -192,17 +193,14 @@ if (empty($activity)) {
     $errors[] = 'Не описано, какой у вас бизнес';
 }
 
-// Ссылки на соцсети и конкурентов нужны только для диагностики
-if ($type !== 'consultation') {
-    // Проверка ссылок на соцсети
-    if (empty($socialLinks)) {
-        $errors[] = 'Ссылки на соцсети не заполнены';
-    }
+// Ссылки на соцсети нужны для диагностики и обычной консультации (не для экспресс)
+if ($type !== 'consultation' && empty($socialLinks)) {
+    $errors[] = 'Ссылки на соцсети не заполнены';
+}
 
-    // Проверка ссылок на конкурентов
-    if (empty($competitorLinks)) {
-        $errors[] = 'Ссылки на конкурентов не заполнены';
-    }
+// Ссылки на конкурентов нужны только для диагностики
+if ($type === 'diagnostic' && empty($competitorLinks)) {
+    $errors[] = 'Ссылки на конкурентов не заполнены';
 }
 
 // Проверка описания проблемы (нужна для обоих типов)
