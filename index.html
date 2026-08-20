@@ -14,7 +14,7 @@
      * ВАЖНО: при каждом деплое держать BUILD в синхроне с файлом version.txt.
      */
     (function () {
-        var BUILD = '2026-08-20.1';
+        var BUILD = '2026-08-20.2';
         try {
             fetch('version.txt?_ts=' + Date.now())
                 .then(function (r) { return r.ok ? r.text() : null; })
@@ -2275,7 +2275,7 @@
                 <div class="meeting-type-group">
                     <label>Выберите тип встречи <span class="required">*</span></label>
                     <div class="meeting-type-options">
-                        <div class="meeting-type-option" role="button" tabindex="0" data-type="consultation">
+                        <div class="meeting-type-option collapsed" role="button" tabindex="0" data-type="consultation">
                             <span class="meeting-type-head">
                                 <span class="meeting-type-title">1. Экспресс-консультация</span>
                                 <span class="meeting-type-sub">Бесплатно · 15 минут</span>
@@ -2299,7 +2299,7 @@
                                 </span>
                             </span>
                         </div>
-                        <div class="meeting-type-option" role="button" tabindex="0" data-type="diagnostic">
+                        <div class="meeting-type-option collapsed" role="button" tabindex="0" data-type="diagnostic">
                             <span class="meeting-type-head">
                                 <span class="meeting-type-title">2. Диагностика</span>
                                 <span class="meeting-type-sub">15 000 ₽ (предоплата) · 60 минут</span>
@@ -2335,7 +2335,7 @@
                                 </span>
                             </span>
                         </div>
-                        <div class="meeting-type-option" role="button" tabindex="0" data-type="general">
+                        <div class="meeting-type-option collapsed" role="button" tabindex="0" data-type="general">
                             <span class="meeting-type-head">
                                 <span class="meeting-type-title">3. Консультация</span>
                                 <span class="meeting-type-sub">60 минут</span>
@@ -2735,7 +2735,7 @@
 
                 <div class="form-group">
                     <label for="businessRole">Ваша основная роль в бизнесе <span class="required">*</span></label>
-                    <div class="conditional-hint">Диагностика и консультация проводятся только с собственником бизнеса. Если вы не владелец — встреча невозможна.</div>
+                    <div class="conditional-hint type-field" data-for="consultation">Бесплатная экспресс-консультация проводится только с собственником бизнеса.</div>
                     <div class="input-wrapper">
                         <select id="businessRole" name="businessRole" required>
                             <option value="">Выберите роль…</option>
@@ -2761,9 +2761,9 @@
                                 <line x1="12" y1="8" x2="12" y2="12"></line>
                                 <line x1="12" y1="16" x2="12.01" y2="16"></line>
                             </svg>
-                            Встреча возможна только с собственником
+                            Экспресс-консультация — только с собственником
                         </div>
-                        <div class="error-description">Диагностика и консультация проводятся только с владельцем бизнеса. Если вы наёмный сотрудник, встреча невозможна.</div>
+                        <div class="error-description">Бесплатная экспресс-консультация проводится только с собственником бизнеса. Наёмному сотруднику доступны платные диагностика и консультация.</div>
                     </div>
                 </div>
 
@@ -3614,6 +3614,16 @@
                 if (err) err.classList.remove('show');
             });
 
+            // Пересчитать роль: ограничение «только собственник» — лишь для экспресс-консультации
+            if (businessRoleSelect && businessRoleSelect.value) {
+                const roleBlocked = (type === 'consultation') && businessRoleSelect.value !== 'owner';
+                businessRoleWarning.classList.toggle('show', roleBlocked);
+                businessRoleSelect.classList.toggle('invalid', roleBlocked);
+                businessRoleSelect.classList.toggle('valid', !roleBlocked);
+            } else if (businessRoleWarning) {
+                businessRoleWarning.classList.remove('show');
+            }
+
             // Сбрасываем выбранные дату и время — доступность зависит от типа
             selectedDate = null;
             selectedTime = null;
@@ -4395,9 +4405,12 @@
             businessRoleError.classList.remove('show');
             // Запись возможна только для собственника — остальным сразу показываем блокирующее предупреждение
             const isOwner = (this.value === 'owner');
-            businessRoleWarning.classList.toggle('show', this.value !== '' && !isOwner);
-            this.classList.toggle('valid', isOwner);
-            this.classList.toggle('invalid', this.value !== '' && !isOwner);
+            // Ограничение «только собственник» — только для бесплатной экспресс-консультации.
+            // Платные (диагностика и консультация) доступны и наёмному сотруднику.
+            const blocked = (selectedType === 'consultation') && this.value !== '' && !isOwner;
+            businessRoleWarning.classList.toggle('show', blocked);
+            this.classList.toggle('valid', this.value !== '' && !blocked);
+            this.classList.toggle('invalid', blocked);
         });
 
         businessAgeSelect.addEventListener('change', function() {
@@ -4664,12 +4677,13 @@
                 businessRoleWarning.classList.remove('show');
                 errors.push('Укажите вашу роль в бизнесе');
                 isValid = false;
-            } else if (businessRoleSelect.value !== 'owner') {
+            } else if (selectedType === 'consultation' && businessRoleSelect.value !== 'owner') {
+                // Бесплатная экспресс-консультация — только для собственника
                 businessRoleSelect.classList.remove('valid');
                 businessRoleSelect.classList.add('invalid');
                 businessRoleError.classList.remove('show');
                 businessRoleWarning.classList.add('show');
-                errors.push('Встреча проводится только с собственником бизнеса');
+                errors.push('Экспресс-консультация проводится только с собственником бизнеса');
                 isValid = false;
             } else {
                 businessRoleSelect.classList.remove('invalid');
