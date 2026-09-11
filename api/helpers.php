@@ -564,6 +564,7 @@ function sendTelegramNotification($message) {
     $lastHttpCode = 0;
     $lastCurlError = '';
     $tryHistory = [];
+    $lastTelegramResponse = null;
 
     for ($i = 0; $i < $attempts; $i++) {
         if ($backoffSeconds[$i] > 0) {
@@ -589,22 +590,45 @@ function sendTelegramNotification($message) {
         $lastCurlError = curl_error($ch);
         curl_close($ch);
 
-        $tryHistory[] = "try " . ($i + 1) . ": http=" . $lastHttpCode . ($lastCurlError ? " curl=" . $lastCurlError : "");
+        $lastTelegramResponse = is_string($lastResponse)
+            ? json_decode($lastResponse, true)
+            : null;
+        $telegramOk = is_array($lastTelegramResponse) && (($lastTelegramResponse['ok'] ?? false) === true);
+        $telegramDescription = is_array($lastTelegramResponse)
+            ? ($lastTelegramResponse['description'] ?? '')
+            : '';
 
-        if ($lastResponse !== false && $lastHttpCode === 200) {
+        $tryHistory[] = "try " . ($i + 1)
+            . ": http=" . $lastHttpCode
+            . " telegram_ok=" . ($telegramOk ? 'true' : 'false')
+            . ($telegramDescription ? " telegram_error=" . $telegramDescription : '')
+            . ($lastCurlError ? " curl=" . $lastCurlError : "");
+
+        // Telegram может вернуть HTTP 200 с JSON {"ok": false}. Успехом
+        // считаем только подтверждённый Telegram API результат ok=true.
+        if ($lastResponse !== false && $lastHttpCode === 200 && $telegramOk) {
             break; // получилось — не делаем ещё попыток
         }
     }
 
-    $ok = ($lastResponse !== false && $lastHttpCode === 200);
+    $ok = ($lastResponse !== false
+        && $lastHttpCode === 200
+        && is_array($lastTelegramResponse)
+        && (($lastTelegramResponse['ok'] ?? false) === true));
     $errorMsg = '';
     if (!$ok) {
         if ($lastCurlError) {
             $errorMsg = 'cURL: ' . $lastCurlError;
+        } elseif (is_array($lastTelegramResponse) && !empty($lastTelegramResponse['description'])) {
+            $errorMsg = 'Telegram: ' . $lastTelegramResponse['description'];
         } elseif ($lastHttpCode !== 200) {
             $errorMsg = 'HTTP ' . $lastHttpCode . ': ' . substr((string)$lastResponse, 0, 500);
+        } elseif ($lastResponse === false) {
+            $errorMsg = 'Telegram не вернул ответ';
+        } elseif ($lastTelegramResponse === null) {
+            $errorMsg = 'Telegram вернул некорректный JSON-ответ: ' . substr((string)$lastResponse, 0, 500);
         } else {
-            $errorMsg = 'unknown';
+            $errorMsg = 'Telegram отклонил запрос';
         }
         $errorMsg .= ' [' . implode('; ', $tryHistory) . ']';
     }

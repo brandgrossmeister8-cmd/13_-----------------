@@ -15,7 +15,9 @@ if (php_sapi_name() !== 'cli') {
 require_once __DIR__ . '/helpers.php';
 
 // Параметры свободнее, чем при онлайн-вызовах:
-// до 20 заявок за раз, до 100 попыток на запись, кулдаун 60 сек.
-$stats = retryPendingTelegramNotifications(20, 100, 60);
+// до 20 заявок за раз, до 1000 попыток на запись, кулдаун 60 сек.
+// Большой лимит нужен, чтобы временные сетевые сбои не оставляли заявку
+// навсегда застрявшей в очереди после 100 неудачных попыток.
+$stats = retryPendingTelegramNotifications(20, 1000, 60);
 
 echo '[' . date('c') . '] retry stats: ' . json_encode($stats, JSON_UNESCAPED_UNICODE) . "\n";
