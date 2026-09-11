@@ -522,6 +522,10 @@ function applyTelegramProxyOpts($ch) {
         if (defined('TELEGRAM_PROXY_AUTH') && TELEGRAM_PROXY_AUTH) {
             curl_setopt($ch, CURLOPT_PROXYUSERPWD, TELEGRAM_PROXY_AUTH);
         }
+    } else {
+        // Явно отключаем proxy: cURL иначе может подхватить HTTPS_PROXY
+        // из окружения сервера и снова уйти через недоступный маршрут.
+        curl_setopt($ch, CURLOPT_PROXY, '');
     }
     // Если базовый адрес — это IP (обход блокировки по имени/SNI), задаём правильный Host
     if (defined('TELEGRAM_API_HOST') && TELEGRAM_API_HOST) {
